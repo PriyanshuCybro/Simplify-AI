@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
+@import "tailwindcss";
+
+@theme {
+    --font-diplay :"Urbanist", sans-serif;
+    --breakpoint-3xl: 1920px;
+    --color-primary : #FF9324;
+}
+
+@layer base {
+    html {
+        font-family: var(--font-display);
+    }
+    body {
+    background-color: #fcfbfc;
+    }
+}
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+}
+
+/* Scrollbar styling for long text inside cards */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.perspective-1000 { perspective: 1000px; }
+.preserve-3d { transform-style: preserve-3d; }
+.backface-hidden { backface-visibility: hidden; }
+.rotate-y-180 { transform: rotateY(180deg); }
+
+/* Smooth Scrollbar for Cards */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.2);
+    border-radius: 10px;
+}
+
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+
+/* CEO-Grade Responsive Text Fix */
+.accuracy-container {
+    display: flex;
+    align-items: center;
+    max-width: 150px; /* Box ki limit set kar di */
+    overflow: hidden; /* Bahar jane wala text chhup jayega */
+    white-space: nowrap; /* Text ko ek hi line mein rakhega */
+}
+
+.accuracy-text {
+    font-variant-numeric: tabular-nums; /* Numbers ko align rakhega */
+    text-overflow: ellipsis; /* Agar text bada hua toh '...' dikhayega */
+    overflow: hidden;
+}
+
+
+/* --- Global Responsive Overrides --- */
+
+:root {
+  --max-width: 1200px;
+}
+
+/* 1. Container Padding Fix */
+.max-w-5xl, .max-w-2xl, .max-w-7xl {
+  padding-left: 1.25rem !important;
+  padding-right: 1.25rem !important;
+  width: 100%;
+}
+
+/* 2. Responsive Typography (Fluid Text) */
+html {
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 14px; /* Mobile par text thoda chota */
+  }
+  
+  /* Cards ko mobile par thoda kam round karna space bachane ke liye */
+  .rounded-\[3rem\], .rounded-\[3\.5rem\] {
+    border-radius: 1.5rem !important;
+  }
+  
+  .p-12, .p-10 {
+    padding: 1.5rem !important;
+  }
+}
+
+/* 3. Image & Video fix */
+img, video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 4. Custom Scrollbar for better UI on Desktop */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 10px;
+}

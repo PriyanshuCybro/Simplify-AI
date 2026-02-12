@@ -1,0 +1,505 @@
+// import jwt from 'jsonwebtoken';
+// import User from '../models/User.js';
+
+
+// //generate JWT tokens
+// const generateToken = (id) => {
+//     return jwt.sign({ id }, process.env.JWT_SECRET, {
+//         expiresIn: process.env.JWT_EXPIRE || '7d',
+//     });
+// };
+
+// // @desc Register new user
+// // @route POST /api/auth/register
+// // @access Public
+
+// export const register = async (req, res, next) => {
+//     try {
+//         const { username, email, password } = req.body;
+
+//         //Check if user ecxists
+//         const userExists = await User.findOne({ $or: [{ email }] });
+
+//         if (userExists) {
+//             return res.status(400).json({
+//                 success: false,
+//                 error:
+//                     userExists.email === email ? "User already exists with this email" : "User already exists with this username",
+//                 statuscode: 400,
+//             });
+//         }
+
+//         //Create new user
+//         const user = await User.create({
+//             username,
+//             email,
+//             password,
+//         });
+
+//         //Generate token
+//         const token = generateToken(user._id);
+
+//         //Send response
+//         res.status(201).json({
+//             success: true,
+//             statuscode: 201,
+//             data: {
+//                 user: {
+//                     id: user._id,
+//                     username: user.username,
+//                     email: user.email,
+//                     profileImage: user.profileImage,
+//                     createdAt: user.createdAt,
+//                 },
+//                 token,
+//             },
+//             message: "User registered successfully",
+//         });
+//     } catch (error) {
+//         next(error);
+//     }
+// };
+
+// // @desc Login user
+// // @route POST /api/auth/login
+// // @access Public
+// export const login = async (req, res, next) => {
+//     try {
+//         const { email, password } = req.body;
+
+//         //validate input
+//         if (!email || !password) {
+//             return res.status(400).json({
+//                 success: false,
+//                 error: "Please provide email and password",
+//                 statuscode: 400,
+//             });
+//         }
+
+//         //check user
+//         const user = await User.findOne({ email }).select("+password");
+
+//         //check if user exists
+//         if (!user) {
+//             return res.status(401).json({
+//                 success: false,
+//                 error: "Invalid Credentials",
+//                 statuscode: 401,
+//             });
+//         }
+
+//         //check password
+//         const isMatch = await user.matchPassword(password);
+
+//         //check if password matches
+//         if (!isMatch) {
+//             return res.status(401).json({
+//                 success: false,
+//                 error: "Invalid Credentials",
+//                 statuscode: 401,
+//             });
+//         }
+
+//         //generate token
+//         const token = generateToken(user._id);
+
+//         //send response
+//         res.status(200).json({
+//             success: true,
+//             statuscode: 200,
+//             user: {
+//                 id: user._id,
+//                 username: user.username,
+//                 email: user.email,
+//                 profileImage: user.profileImage,
+//             },
+//             token,
+//             message: "User logged in successfully",
+//         });
+
+//     } catch (error) {
+//         next(error);
+//     }
+// };
+
+// // @desc Get User profile
+// // @route GET /api/auth/profile
+// // @access Private
+
+// export const getProfile = async (req, res, next) => {
+//     try {
+//         const user = await User.findById(req.user._id);
+
+//         if (!user) {
+//             return res.status(404).json({
+//                 success: false,
+//                 error: "User not found",
+//                 statuscode: 404,
+//             });
+//         }
+
+//         res.status(200).json({
+//             success: true,
+//             statuscode: 200,
+//             data: {
+//                 id: user._id,
+//                 username: user.username,
+//                 email: user.email,
+//                 profileImage: user.profileImage,
+//                 createdAt: user.createdAt,
+//                 updatedAt: user.updatedAt,
+//             },
+//             message: "User profile retrieved successfully",
+//         });
+
+//     } catch (error) {
+//         next(error);
+//     }
+// };
+
+// // @desc Update User profile
+// // @route PUT /api/auth/profile
+// // @access Private
+
+// export const updateProfile = async (req, res, next) => {
+//     try {
+//         const { username, email, profileImage } = req.body;
+
+//         const user = await User.findById(req.user._id);
+
+//         if (!user) {
+//             return res.status(404).json({
+//                 success: false,
+//                 error: "User not found",
+//                 statuscode: 404,
+//             });
+//         }
+
+//         if (username) user.username = username;
+//         if (email) user.email = email;
+//         if (profileImage) user.profileImage = profileImage;
+
+//         await user.save();
+
+//         res.status(200).json({
+//             success: true,
+//             statuscode: 200,
+//             data: {
+//                 id: user._id,
+//                 username: user.username,
+//                 email: user.email,
+//                 profileImage: user.profileImage,
+//             },
+//             message: "User profile updated successfully",
+//         });
+
+//     } catch (error) {
+//         next(error);
+//     }
+// };
+
+// // @desc Change Password
+// // @route POST /api/auth/change-password
+// // @access Private
+
+// export const changePassword = async (req, res, next) => {
+//     try {
+//         const { currentPassword, newPassword } = req.body;
+
+//         // Add .select('+password') to explicitly include the password field
+//         const user = await User.findById(req.user._id).select('+password');
+
+//         if (!user) {
+//             return res.status(404).json({
+//                 success: false,
+//                 error: "User not found",
+//                 statuscode: 404,
+//             });
+//         }
+
+//         if (!currentPassword || !newPassword) {
+//             return res.status(400).json({
+//                 success: false,
+//                 error: "Current password and new password are required",
+//                 statuscode: 400,
+//             });
+//         }
+
+//         const isMatch = await user.matchPassword(currentPassword);
+
+//         if (!isMatch) {
+//             return res.status(401).json({
+//                 success: false,
+//                 error: "Invalid password",
+//                 statuscode: 401,
+//             });
+//         }
+
+//         user.password = newPassword;
+//         await user.save();
+
+//         res.status(200).json({
+//             success: true,
+//             statuscode: 200,
+//             message: "Password changed successfully",
+//         });
+//     } catch (error) {
+//         next(error);
+//     }
+// };
+
+
+
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto'; // Required for password reset hashing
+import nodemailer from 'nodemailer'; // Required for sending reset emails
+import User from '../models/User.js';
+import sendEmail from '../utils/sendEmail.js';
+
+// Generate JWT tokens (Unchanged)
+const generateToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRE || '7d',
+    });
+};
+
+// @desc    Register new user
+// @route   POST /api/auth/register
+export const register = async (req, res, next) => {
+    try {
+        // 🔥 Added new fields from your requirements
+        const { username, name, email, password, age, gender, location, contact, profession, purpose } = req.body;
+
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            return res.status(400).json({
+                success: false,
+                error: "User already exists with this email",
+                statuscode: 400,
+            });
+        }
+
+        // Create user with extended details
+        const user = await User.create({
+            username,
+            name, // New field
+            email,
+            password,
+            age,
+            gender,
+            location,
+            contact,
+            profession,
+            purpose
+        });
+
+        const token = generateToken(user._id);
+
+        res.status(201).json({
+            success: true,
+            statuscode: 201,
+            data: {
+                user: {
+                    id: user._id,
+                    username: user.username,
+                    name: user.name,
+                    email: user.email,
+                    profession: user.profession, // Visible in response
+                },
+                token,
+            },
+            message: "User registered successfully",
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// @desc    Login user (Unchanged Core Logic)
+export const login = async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                error: "Please provide email and password",
+                statuscode: 400,
+            });
+        }
+
+        const user = await User.findOne({ email }).select("+password");
+
+        if (!user || !(await user.matchPassword(password))) {
+            return res.status(401).json({
+                success: false,
+                error: "Invalid Credentials",
+                statuscode: 401,
+            });
+        }
+
+        const token = generateToken(user._id);
+
+        res.status(200).json({
+            success: true,
+            statuscode: 200,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                profileImage: user.profileImage,
+            },
+            token,
+            message: "User logged in successfully",
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// @desc    Forgot Password - Send Reset Link
+// @route   POST /api/auth/forgot-password
+export const forgotPassword = async (req, res, next) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+
+        if (!user) {
+            return res.status(404).json({ success: false, error: "Bhai, ye email database mein nahi hai!" });
+        }
+
+        // 1. Get reset token from model method (Jo User.js mein pehle se hai)
+        const resetToken = user.getResetPasswordToken();
+
+        // 2. Save token and expiry to DB
+        await user.save({ validateBeforeSave: false });
+
+        // 3. Reset URL (POINTING TO FRONTEND)
+        // Note: Real-time mein yahan localhost:5173 (Frontend) aayega na ki backend port
+        const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+
+        const message = `Aapne password reset request ki hai. Naya password banane ke liye niche diye gaye link par click karein:\n\n${resetUrl}\n\nYe link 10 minute mein expire ho jayega.`;
+
+        try {
+            // ✅ Optimization: Transporter ko function ke andar rakhna theek hai par reuse better hai
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS,
+                },
+            });
+
+            await transporter.sendMail({
+                from: `"AI Learning Assistant" <${process.env.EMAIL_USER}>`,
+                to: user.email,
+                subject: 'Neural Access Recovery - Password Reset',
+                text: message,
+                // HTML version (Professional look ke liye)
+                html: `<b>Neural Access Recovery</b><br/><p>Niche diye gaye link par click karein:</p><a href="${resetUrl}">${resetUrl}</a>`
+            });
+
+            res.status(200).json({ 
+                success: true, 
+                message: "Email bhej diya gaya hai! Check your Inbox." 
+            });
+
+        } catch (err) {
+            console.error("MAIL ERROR:", err.message);
+            // Agar mail fail ho jaye toh token hata do
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpires = undefined; // Sync with your Model field name
+            await user.save({ validateBeforeSave: false });
+            return res.status(500).json({ success: false, error: "Email nahi ja paya. Settings check karein." });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+// @desc    Reset Password using token
+// @route   PUT /api/auth/reset-password/:resetToken
+export const resetPassword = async (req, res, next) => {
+    try {
+        // Hash token to match with DB version
+        const resetPasswordToken = crypto
+            .createHash('sha256')
+            .update(req.params.resetToken)
+            .digest('hex');
+
+        const user = await User.findOne({
+            resetPasswordToken,
+            resetPasswordExpire: { $gt: Date.now() },
+        });
+
+        if (!user) {
+            return res.status(400).json({ success: false, error: "Invalid or expired token" });
+        }
+
+        // Set new password
+        user.password = req.body.password;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+        await user.save();
+
+        res.status(200).json({ success: true, message: "Password updated successfully" });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// @desc    Update User profile (Extended with new fields)
+export const updateProfile = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({ success: false, error: "User not found" });
+        }
+
+        // Allow updating new fields
+        const fieldsToUpdate = ['username', 'name', 'email', 'profileImage', 'age', 'gender', 'location', 'contact', 'profession', 'purpose'];
+        
+        fieldsToUpdate.forEach(field => {
+            if (req.body[field]) user[field] = req.body[field];
+        });
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            statuscode: 200,
+            data: user,
+            message: "User profile updated successfully",
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// getProfile and changePassword remain unchanged in logic but will return full data now
+export const getProfile = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user._id);
+        res.status(200).json({ success: true, data: user });
+    } catch (error) { next(error); }
+};
+
+export const changePassword = async (req, res, next) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const user = await User.findById(req.user._id).select('+password');
+        if (!user || !(await user.matchPassword(currentPassword))) {
+            return res.status(401).json({ success: false, error: "Invalid current password" });
+        }
+        user.password = newPassword;
+        await user.save();
+        res.status(200).json({ success: true, message: "Password changed successfully" });
+    } catch (error) { next(error); }
+};
+
+
+
+
+
+
+

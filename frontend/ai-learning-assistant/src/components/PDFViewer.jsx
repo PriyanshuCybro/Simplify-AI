@@ -1,0 +1,153 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { Document, Page, pdfjs } from 'react-pdf';
+import { 
+  ChevronLeft, ChevronRight, ZoomIn, ZoomOut, 
+  RotateCcw, Maximize2, Loader2, AlertCircle 
+} from 'lucide-react';
+
+// CSS Imports for PDF Layers
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
+
+// Stable Worker Source
+const PDFJS_VERSION = pdfjs.version;
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.mjs`;
+
+const PDFViewer = ({ pdfPath, fileName }) => {
+    const [numPages, setNumPages] = useState(null);
+    const [pageNumber, setPageNumber] = useState(1);
+    const [scale, setScale] = useState(1.0); // Standard zoom 100%
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // 🔥 FIX 1: Memoizing 'file' to stop unnecessary reloads warning
+    const fileProp = useMemo(() => ({
+        url: pdfPath,
+        httpHeaders: {
+            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
+            'Accept': 'application/pdf'
+        }
+    }), [pdfPath]);
+
+    // 🔥 FIX 2: Memoizing 'options' to stop "TT: undefined function" & re-render warnings
+    const options = useMemo(() => ({
+        cMapUrl: `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/cmaps/`,
+        cMapPacked: true,
+        standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/standard_fonts/`,
+        disableFontFace: true // Extra safety for TrueType font errors
+    }), []);
+
+    // Functions
+    const onDocumentLoadSuccess = ({ numPages }) => {
+        setNumPages(numPages);
+        setLoading(false);
+        setError(null);
+    };
+
+    const handleDocumentError = (err) => {
+        console.error('❌ PDF Load Error:', err);
+        setError(err.message);
+        setLoading(false);
+    };
+
+    const openInNewTab = () => window.open(pdfPath, '_blank');
+
+    return (
+        <div className="flex flex-col h-full bg-[#1e1e1e] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+            
+            {/* --- PREMIUM TOOLBAR --- */}
+            <div className="bg-[#2d2d2d] px-6 py-4 flex items-center justify-between border-b border-white/5 z-30">
+                <div className="flex items-center gap-4 max-w-[30%]">
+                    <div className="p-2 bg-red-500/10 rounded-lg">
+                        <Maximize2 className="text-red-500" size={16} onClick={openInNewTab} />
+                    </div>
+                    <p className="text-white/90 font-bold text-xs truncate uppercase tracking-tighter">{fileName}</p>
+                </div>
+
+                {/* Navigation Controls */}
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center bg-black/40 rounded-xl p-1 border border-white/5">
+                        <button 
+                            disabled={pageNumber <= 1} 
+                            onClick={() => setPageNumber(prev => prev - 1)}
+                            className="p-2 text-white/40 hover:text-white disabled:opacity-10 transition-colors"
+                        >
+                            <ChevronLeft size={20}/>
+                        </button>
+                        <div className="px-4 text-[11px] font-black text-blue-400 min-w-[80px] text-center border-x border-white/5">
+                            {pageNumber} <span className="text-white/20 mx-1">/</span> {numPages || '--'}
+                        </div>
+                        <button 
+                            disabled={pageNumber >= numPages} 
+                            onClick={() => setPageNumber(prev => prev + 1)}
+                            className="p-2 text-white/40 hover:text-white disabled:opacity-10 transition-colors"
+                        >
+                            <ChevronRight size={20}/>
+                        </button>
+                    </div>
+
+                    {/* Zoom Engine */}
+                    <div className="flex items-center gap-1 border-l border-white/10 pl-4">
+                        <button onClick={() => setScale(s => Math.max(s - 0.2, 0.5))} className="p-2 text-white/40 hover:text-blue-400 transition-colors">
+                            <ZoomOut size={18}/>
+                        </button>
+                        <span className="text-[10px] font-black text-white/80 w-12 text-center">{Math.round(scale * 100)}%</span>
+                        <button onClick={() => setScale(s => Math.min(s + 0.2, 3.0))} className="p-2 text-white/40 hover:text-blue-400 transition-colors">
+                            <ZoomIn size={18}/>
+                        </button>
+                        <button 
+                            onClick={() => { setScale(1.0); setPageNumber(1); }}
+                            className="ml-2 p-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-all"
+                            title="Reset View"
+                        >
+                            <RotateCcw size={16}/>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* --- 🔥 REAL-TIME SCROLLABLE VIEWPORT --- */}
+            <div className="flex-1 overflow-auto bg-[#121212] flex justify-center p-8 custom-scrollbar">
+                {error ? (
+                    <div className="flex flex-col items-center justify-center text-center space-y-4">
+                        <AlertCircle className="text-red-500" size={48} />
+                        <p className="text-white font-bold uppercase text-xs tracking-widest">Protocol Sync Failed</p>
+                        <button onClick={() => window.location.reload()} className="px-6 py-2 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase">Retry Connection</button>
+                    </div>
+                ) : (
+                    <Document
+                        file={fileProp}
+                        options={options}
+                        onLoadSuccess={onDocumentLoadSuccess}
+                        onLoadError={handleDocumentError}
+                        loading={
+                            <div className="flex flex-col items-center gap-4 mt-20">
+                                <Loader2 className="animate-spin text-blue-500" size={40} />
+                                <p className="text-white/20 font-black text-[10px] uppercase tracking-[0.4em]">Neural PDF Loading...</p>
+                            </div>
+                        }
+                        className="flex flex-col items-center shadow-[0_30px_60px_rgba(0,0,0,0.6)]"
+                    >
+                        <Page 
+                            pageNumber={pageNumber} 
+                            scale={scale} 
+                            renderTextLayer={true}
+                            renderAnnotationLayer={true}
+                            className="bg-white border border-white/5 rounded-sm transition-all duration-300"
+                            // Custom style to ensure PDF fits well
+                            loading={<div className="h-[500px] w-[400px] bg-white/5 animate-pulse rounded-lg" />}
+                        />
+                    </Document>
+                )}
+            </div>
+
+            {/* Status Footer */}
+            <div className="bg-[#2d2d2d] px-6 py-2 border-t border-white/5 flex justify-between items-center">
+                <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">Secure View Node Active</p>
+                {numPages && <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest">Verified {numPages} Neural Pages</p>}
+            </div>
+        </div>
+    );
+};
+
+export default PDFViewer;
