@@ -16,7 +16,8 @@ import {
 } from '../controllers/documentController.js';
 
 import protect from "../middleware/auth.js";
-import upload from '../config/multer.js';
+//import upload from '../config/multer.js';
+import { uploadCloud } from '../config/cloudinary.js';
 
 const router = express.Router();
 
@@ -24,7 +25,8 @@ const router = express.Router();
 router.use(protect);
 
 // Upload route
-router.post('/upload', upload.single('file'), uploadDocument);
+//router.post('/upload', upload.single('file'), uploadDocument);
+router.post('/upload', uploadCloud.single('file'), uploadDocument);
 
 // Basic CRUD routes
 router.get('/', getDocuments);

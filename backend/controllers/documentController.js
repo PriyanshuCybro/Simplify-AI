@@ -77,36 +77,30 @@ const processPDF = async (documentId, filePath) => {
 
 // --- CRUD CONTROLLERS ---
 
+// documentController.js ke andar uploadDocument function mein:
+
 export const uploadDocument = async (req, res) => {
     try {
-        if (!req.file) return res.status(400).json({ success: false, message: "Please upload a PDF file" });
-        const title = req.body.title || req.file.originalname;
-        
-        // Store relative path for serving static files
-        const relativePath = `uploads/documents/${req.file.filename}`;
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
 
-        const document = await Document.create({
-            userId: req.user._id,
-            title,
+        // Cloudinary ka link ab req.file.path mein hai
+        const fileUrl = req.file.path; 
+
+        const newDoc = await Document.create({
+            userId: req.user.id,
+            title: req.body.title || req.file.originalname,
             fileName: req.file.originalname,
-            filePath: relativePath,
-            filesize: req.file.size, 
-            status: "processing", 
+            filePath: fileUrl, // ✅ Ab yahan permanent Cloudinary URL save hoga
+            filesize: req.file.size,
+            status: "ready" // Direct ready kar sakte hain ya processing logic rakhein
         });
 
-        processPDF(document._id, req.file.path).catch(err => console.error("PDF Error:", err));
-        res.status(201).json({ success: true, data: document });
+        res.status(201).json(newDoc);
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-export const getDocuments = async (req, res) => {
-    try {
-        const documents = await Document.find({ userId: req.user._id }).sort({ createdAt: -1 });
-        res.status(200).json({ success: true, count: documents.length, data: documents });
-    } catch (error) { 
-        res.status(500).json({ success: false, message: error.message }); 
+        console.error(error);
+        res.status(500).json({ message: "Server Error" });
     }
 };
 
