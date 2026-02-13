@@ -5,39 +5,41 @@ import {
   RotateCcw, Maximize2, Loader2, AlertCircle 
 } from 'lucide-react';
 
-// CSS Imports for PDF Layers
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
-// Stable Worker Source
 const PDFJS_VERSION = pdfjs.version;
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.mjs`;
 
 const PDFViewer = ({ pdfPath, fileName }) => {
     const [numPages, setNumPages] = useState(null);
     const [pageNumber, setPageNumber] = useState(1);
-    const [scale, setScale] = useState(1.0); // Standard zoom 100%
+    const [scale, setScale] = useState(1.0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // 🔥 FIX 1: Memoizing 'file' to stop unnecessary reloads warning
-    const fileProp = useMemo(() => ({
-        url: pdfPath,
-        httpHeaders: {
-            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
-            'Accept': 'application/pdf'
+    // 🔥 FIX: Cloudinary links are public URLs. 
+    // We REMOVED httpHeaders because they block requests to Cloudinary.
+    const fileProp = useMemo(() => {
+        if (!pdfPath) return null;
+        
+        // Agar link 'http' se shuru ho raha hai (Cloudinary), toh direct use karo
+        if (pdfPath.startsWith('http')) {
+            return pdfPath;
         }
-    }), [pdfPath]);
+        
+        // Backup: Agar local path hai toh Base URL jodo (lekin Cloudinary ke liye iski zaroorat nahi padegi)
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        return `${baseUrl}/${pdfPath}`;
+    }, [pdfPath]);
 
-    // 🔥 FIX 2: Memoizing 'options' to stop "TT: undefined function" & re-render warnings
     const options = useMemo(() => ({
         cMapUrl: `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/cmaps/`,
         cMapPacked: true,
         standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/standard_fonts/`,
-        disableFontFace: true // Extra safety for TrueType font errors
+        disableFontFace: true 
     }), []);
 
-    // Functions
     const onDocumentLoadSuccess = ({ numPages }) => {
         setNumPages(numPages);
         setLoading(false);
@@ -46,25 +48,25 @@ const PDFViewer = ({ pdfPath, fileName }) => {
 
     const handleDocumentError = (err) => {
         console.error('❌ PDF Load Error:', err);
-        setError(err.message);
+        setError("Unable to load PDF. Please check if the file exists on the server.");
         setLoading(false);
     };
 
     const openInNewTab = () => window.open(pdfPath, '_blank');
 
+    if (!pdfPath) return <div className="text-white text-center p-10 font-black">NO PDF PATH PROVIDED</div>;
+
     return (
         <div className="flex flex-col h-full bg-[#1e1e1e] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-            
             {/* --- PREMIUM TOOLBAR --- */}
             <div className="bg-[#2d2d2d] px-6 py-4 flex items-center justify-between border-b border-white/5 z-30">
                 <div className="flex items-center gap-4 max-w-[30%]">
-                    <div className="p-2 bg-red-500/10 rounded-lg">
-                        <Maximize2 className="text-red-500" size={16} onClick={openInNewTab} />
-                    </div>
+                    <button onClick={openInNewTab} className="p-2 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-all">
+                        <Maximize2 className="text-red-500" size={16} />
+                    </button>
                     <p className="text-white/90 font-bold text-xs truncate uppercase tracking-tighter">{fileName}</p>
                 </div>
 
-                {/* Navigation Controls */}
                 <div className="flex items-center gap-4">
                     <div className="flex items-center bg-black/40 rounded-xl p-1 border border-white/5">
                         <button 
@@ -86,7 +88,6 @@ const PDFViewer = ({ pdfPath, fileName }) => {
                         </button>
                     </div>
 
-                    {/* Zoom Engine */}
                     <div className="flex items-center gap-1 border-l border-white/10 pl-4">
                         <button onClick={() => setScale(s => Math.max(s - 0.2, 0.5))} className="p-2 text-white/40 hover:text-blue-400 transition-colors">
                             <ZoomOut size={18}/>
@@ -106,12 +107,12 @@ const PDFViewer = ({ pdfPath, fileName }) => {
                 </div>
             </div>
 
-            {/* --- 🔥 REAL-TIME SCROLLABLE VIEWPORT --- */}
+            {/* --- VIEWPORT --- */}
             <div className="flex-1 overflow-auto bg-[#121212] flex justify-center p-8 custom-scrollbar">
                 {error ? (
                     <div className="flex flex-col items-center justify-center text-center space-y-4">
                         <AlertCircle className="text-red-500" size={48} />
-                        <p className="text-white font-bold uppercase text-xs tracking-widest">Protocol Sync Failed</p>
+                        <p className="text-white font-bold uppercase text-xs tracking-widest">{error}</p>
                         <button onClick={() => window.location.reload()} className="px-6 py-2 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase">Retry Connection</button>
                     </div>
                 ) : (
@@ -134,16 +135,13 @@ const PDFViewer = ({ pdfPath, fileName }) => {
                             renderTextLayer={true}
                             renderAnnotationLayer={true}
                             className="bg-white border border-white/5 rounded-sm transition-all duration-300"
-                            // Custom style to ensure PDF fits well
-                            loading={<div className="h-[500px] w-[400px] bg-white/5 animate-pulse rounded-lg" />}
                         />
                     </Document>
                 )}
             </div>
 
-            {/* Status Footer */}
             <div className="bg-[#2d2d2d] px-6 py-2 border-t border-white/5 flex justify-between items-center">
-                <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">Secure View Node Active</p>
+                <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">Cloud Node Active</p>
                 {numPages && <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest">Verified {numPages} Neural Pages</p>}
             </div>
         </div>
