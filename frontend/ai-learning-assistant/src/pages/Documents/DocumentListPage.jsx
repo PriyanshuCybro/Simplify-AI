@@ -5,6 +5,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import UploadModal from './UploadModal'; // Check if path matches your folder
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
+
 const DocumentListPage = () => {
     const [docs, setDocs] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");

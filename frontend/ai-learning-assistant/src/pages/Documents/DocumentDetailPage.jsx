@@ -1771,6 +1771,8 @@ import {
 import { jsPDF } from 'jspdf';
 import PDFViewer from '../../components/PDFViewer';
 
+
+
 // API BASE URL from Env or Fallback to Render Link
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
 

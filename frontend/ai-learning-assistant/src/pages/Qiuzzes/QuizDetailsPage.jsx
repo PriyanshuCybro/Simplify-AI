@@ -4,6 +4,9 @@ import axios from 'axios';
 import { ArrowLeft, Download, RefreshCw, CheckCircle2, XCircle, Clock, Target, Award, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
+
+
 const QuizDetailsPage = () => {
     const { quizId } = useParams();
     const navigate = useNavigate();

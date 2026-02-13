@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Lock, ShieldCheck, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
+
 const ResetPasswordPage = () => {
   const { resetToken } = useParams(); // URL se token uthayega
   const navigate = useNavigate();

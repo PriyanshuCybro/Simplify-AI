@@ -3,6 +3,8 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Trophy, ArrowRight, Loader2, AlertCircle, Save } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
+
 const QuizTakePage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
