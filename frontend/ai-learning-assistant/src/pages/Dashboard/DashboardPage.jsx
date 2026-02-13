@@ -606,7 +606,7 @@
 //       // Fetching both docs and stats simultaneously
 //       const [docsRes, statsRes] = await Promise.all([
 //         getDocuments(),
-//         axios.get('http://localhost:5000/api/users/stats', {
+//         axios.get('https://simplify-ai-mrrh.onrender.com/api/users/stats', {
 //           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
 //         })
 //       ]);
@@ -876,7 +876,7 @@
 
 //       // 2. Stats fetch logic - Optimized for your specific Backend structure
 //       try {
-//         const statsRes = await axios.get('http://localhost:5000/api/users/stats', {
+//         const statsRes = await axios.get('https://simplify-ai-mrrh.onrender.com/api/users/stats', {
 //           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
 //         });
         
@@ -1179,7 +1179,7 @@ const DashboardPage = () => {
 
       // 2. Real-time Stats fetch
       try {
-        const statsRes = await axios.get(`${API_BASE_URL}/api/users/stats`, {
+        const statsRes = await axios.get(`https://simplify-ai-mrrh.onrender.com/api/users/stats`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         

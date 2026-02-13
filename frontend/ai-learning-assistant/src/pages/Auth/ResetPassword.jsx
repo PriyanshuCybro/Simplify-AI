@@ -24,7 +24,7 @@ const ResetPasswordPage = () => {
 
     setLoading(true);
     try {
-      const res = await axios.put(`http://localhost:5000/api/auth/reset-password/${resetToken}`, { password });
+      const res = await axios.put(`https://simplify-ai-mrrh.onrender.com/api/auth/reset-password/${resetToken}`, { password });
       alert("Password Reset Successful! Ab naye password se login karo.");
       navigate('/login');
     } catch (err) {

@@ -15,7 +15,7 @@ const QuizDetailsPage = () => {
         const fetchQuizDetails = async () => {
             try {
                 const response = await axios.get(
-                    `http://localhost:5000/api/documents/quiz/${quizId}`,
+                    `https://simplify-ai-mrrh.onrender.com/api/documents/quiz/${quizId}`,
                     {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem('token')}`

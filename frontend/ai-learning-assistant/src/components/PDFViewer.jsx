@@ -35,7 +35,7 @@ const PDFViewer = ({ pdfPath, fileName }) => {
         
         // Agar aap local testing kar rahe hain tabhi localhost jodein, warna Render par ise block karein
         if (import.meta.env.MODE === 'development') {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const baseUrl = import.meta.env.VITE_API_URL || 'https://simplify-ai-mrrh.onrender.com';
             return `${baseUrl}/${pdfPath.replace(/\\/g, '/')}`;
         }
 

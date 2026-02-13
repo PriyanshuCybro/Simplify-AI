@@ -506,14 +506,14 @@
 //   const chatEndRef = useRef(null); // 2. Scroll ke liye ref banao
 
 //   // BASE URL config
-//   const API_BASE_URL = "http://localhost:5000/api/documents";
+//   const API_BASE_URL = "https://simplify-ai-mrrh.onrender.com/api/documents";
 
 
 //   useEffect(() => {
 //     const fetchDoc = async () => {
 //       try {
 //         const token = localStorage.getItem('token');
-//         const response = await axios.get(`${API_BASE_URL}/${id}`, {
+//         const response = await axios.get(`https://simplify-ai-mrrh.onrender.com/${id}`, {
 //             headers: { Authorization: `Bearer ${token}` }
 //         });
 //         if (response.data.success) {
@@ -549,7 +549,7 @@
 
 //     try {
 //       const token = localStorage.getItem('token');
-//       const response = await axios.post(`${API_BASE_URL}/${id}/chat`, 
+//       const response = await axios.post(`https://simplify-ai-mrrh.onrender.com/${id}/chat`, 
 //         { question },
 //         { headers: { Authorization: `Bearer ${token}` } }
 //       );
@@ -571,7 +571,7 @@
         
 //         // Final API Call without Fallback for real testing
 //         const response = await axios.post(
-//             `http://localhost:5000/api/documents/${id}/flashcards`, 
+//             `https://simplify-ai-mrrh.onrender.com/api/documents/${id}/flashcards`, 
 //             {}, 
 //             { headers: { Authorization: `Bearer ${token}` } }
 //         );
@@ -725,7 +725,7 @@
 //             pdfPath={
 //               document.filePath.startsWith('http')
 //                 ? document.filePath
-//                 : `http://localhost:5000/${document.filePath.replace(/\\/g, '/')}`
+//                 : `https://simplify-ai-mrrh.onrender.com/${document.filePath.replace(/\\/g, '/')}`
 //             }
 //             fileName={document.title} 
 //           />
@@ -934,13 +934,13 @@
 //   const [quizCount, setQuizCount] = useState(10);
 //   const chatEndRef = useRef(null);
 
-//   const API_BASE_URL = "http://localhost:5000/api/documents";
+//   const API_BASE_URL = "https://simplify-ai-mrrh.onrender.com/api/documents";
 
 //   useEffect(() => {
 //     const fetchDoc = async () => {
 //       try {
 //         const token = localStorage.getItem('token');
-//         const response = await axios.get(`${API_BASE_URL}/${id}`, {
+//         const response = await axios.get(`https://simplify-ai-mrrh.onrender.com/${id}`, {
 //             headers: { Authorization: `Bearer ${token}` }
 //         });
 //         if (response.data.success) {
@@ -972,7 +972,7 @@
 
 //     try {
 //       const token = localStorage.getItem('token');
-//       const response = await axios.post(`${API_BASE_URL}/${id}/chat`, 
+//       const response = await axios.post(`https://simplify-ai-mrrh.onrender.com/${id}/chat`, 
 //         { question },
 //         { headers: { Authorization: `Bearer ${token}` } }
 //       );
@@ -988,7 +988,7 @@
 //     try {
 //         setIsGenerating(true);
 //         const token = localStorage.getItem('token');
-//         const response = await axios.post(`${API_BASE_URL}/${id}/flashcards`, {}, { 
+//         const response = await axios.post(`https://simplify-ai-mrrh.onrender.com/${id}/flashcards`, {}, { 
 //             headers: { Authorization: `Bearer ${token}` } 
 //         });
         
@@ -1106,7 +1106,7 @@
 //               <div className="h-[500px] bg-gray-900 rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
 //                 {document?.filePath ? (
 //                   <PDFViewer 
-//                     pdfPath={document.filePath.startsWith('http') ? document.filePath : `http://localhost:5000/${document.filePath.replace(/\\/g, '/')}`}
+//                     pdfPath={document.filePath.startsWith('http') ? document.filePath : `https://simplify-ai-mrrh.onrender.com/${document.filePath.replace(/\\/g, '/')}`}
 //                     fileName={document.title} 
 //                   />
 //                 ) : (
@@ -1268,13 +1268,13 @@
 //   const [quizCount, setQuizCount] = useState(10);
 //   const chatEndRef = useRef(null);
 
-//   const API_BASE_URL = "http://localhost:5000/api/documents";
+//   const API_BASE_URL = "https://simplify-ai-mrrh.onrender.com/api/documents";
 
 //   useEffect(() => {
 //     const fetchDoc = async () => {
 //       try {
 //         const token = localStorage.getItem('token');
-//         const response = await axios.get(`${API_BASE_URL}/${id}`, {
+//         const response = await axios.get(`https://simplify-ai-mrrh.onrender.com/${id}`, {
 //             headers: { Authorization: `Bearer ${token}` }
 //         });
 //         if (response.data.success) {
@@ -1298,7 +1298,7 @@
 //     setIsTyping(true);
 //     try {
 //       const token = localStorage.getItem('token');
-//       const response = await axios.post(`${API_BASE_URL}/${id}/chat`, { question }, { headers: { Authorization: `Bearer ${token}` } });
+//       const response = await axios.post(`https://simplify-ai-mrrh.onrender.com/${id}/chat`, { question }, { headers: { Authorization: `Bearer ${token}` } });
 //       setChatHistory(prev => [...prev, { role: 'bot', text: response.data.answer }]);
 //     } catch (err) { setChatHistory(prev => [...prev, { role: 'bot', text: "AI is busy." }]); } finally { setIsTyping(false); }
 //   };
@@ -1307,7 +1307,7 @@
 //     try {
 //         setIsGenerating(true);
 //         const token = localStorage.getItem('token');
-//         const response = await axios.post(`${API_BASE_URL}/${id}/flashcards`, {}, { headers: { Authorization: `Bearer ${token}` } });
+//         const response = await axios.post(`https://simplify-ai-mrrh.onrender.com/${id}/flashcards`, {}, { headers: { Authorization: `Bearer ${token}` } });
 //         if (response.data.success) setFlashcards(response.data.flashcards);
 //     } catch (err) { alert("AI Service slow. Retry in 10s."); } finally { setIsGenerating(false); }
 //   };
@@ -1361,7 +1361,7 @@
 //           {activeTab === 'pdf' ? (
 //             <div className="flex-1 rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-inner">
 //               <PDFViewer 
-//                 pdfPath={document?.filePath?.startsWith('http') ? document.filePath : `http://localhost:5000/${document?.filePath?.replace(/\\/g, '/')}`}
+//                 pdfPath={document?.filePath?.startsWith('http') ? document.filePath : `https://simplify-ai-mrrh.onrender.com/${document?.filePath?.replace(/\\/g, '/')}`}
 //                 fileName={document?.title} 
 //               />
 //             </div>
@@ -1539,7 +1539,7 @@
 //     const fetchDoc = async () => {
 //       try {
 //         const token = localStorage.getItem('token');
-//         const res = await axios.get(`http://localhost:5000/api/documents/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+//         const res = await axios.get(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}`, { headers: { Authorization: `Bearer ${token}` } });
 //         if (res.data.success) {
 //             const docData = res.data.document || res.data.data;
 //             setDocument(docData);
@@ -1558,7 +1558,7 @@
 //         const token = localStorage.getItem('token');
         
 //         // Humne yahan 'force_refresh: true' add kiya hai
-//         const response = await axios.post(`http://localhost:5000/api/documents/${id}/flashcards`, 
+//         const response = await axios.post(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/flashcards`, 
 //             { force_refresh: true }, 
 //             { headers: { Authorization: `Bearer ${token}` } }
 //         );
@@ -1582,7 +1582,7 @@
 //     setIsTyping(true);
 //     try {
 //       const token = localStorage.getItem('token');
-//       const res = await axios.post(`http://localhost:5000/api/documents/${id}/chat`, { question }, { headers: { Authorization: `Bearer ${token}` } });
+//       const res = await axios.post(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/chat`, { question }, { headers: { Authorization: `Bearer ${token}` } });
 //       setChatHistory(prev => [...prev, { role: 'bot', text: res.data.answer }]);
 //     } catch (err) { setChatHistory(prev => [...prev, { role: 'bot', text: "AI Node busy. Retry sync." }]); } finally { setIsTyping(false); }
 //   };
@@ -1591,7 +1591,7 @@
 //     setIsSavingNotes(true);
 //     try {
 //         const token = localStorage.getItem('token');
-//         await axios.put(`http://localhost:5000/api/documents/${id}/notes`, { notes }, { headers: { Authorization: `Bearer ${token}` } });
+//         await axios.put(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/notes`, { notes }, { headers: { Authorization: `Bearer ${token}` } });
 //     } catch (err) { console.error("Notes save failed"); } finally { 
 //         setTimeout(() => setIsSavingNotes(false), 1000);
 //     }
@@ -1624,7 +1624,7 @@
 //         <div className="flex items-center gap-4">
 //             <h2 className="text-slate-800 font-black text-xs uppercase tracking-tight max-w-[300px] truncate">{document?.title}</h2>
 //             <button 
-//                 onClick={() => window.open(document?.filePath?.startsWith('http') ? document.filePath : `http://localhost:5000/${document?.filePath?.replace(/\\/g, '/')}`, '_blank')} 
+//                 onClick={() => window.open(document?.filePath?.startsWith('http') ? document.filePath : `https://simplify-ai-mrrh.onrender.com/${document?.filePath?.replace(/\\/g, '/')}`, '_blank')} 
 //                 className="p-2.5 bg-white rounded-xl border border-slate-100 text-blue-600 shadow-sm hover:shadow-md transition-all"
 //             >
 //                 <Download size={16} />
@@ -1870,7 +1870,7 @@ const DocumentDetailPage = () => {
     const fetchDoc = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`${API_BASE_URL}/api/documents/${id}`, { 
+        const res = await axios.get(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}`, { 
             headers: { Authorization: `Bearer ${token}` } 
         });
         if (res.data.success) {
@@ -1887,7 +1887,7 @@ const DocumentDetailPage = () => {
     try {
         setIsGenerating(true);
         const token = localStorage.getItem('token');
-        const response = await axios.post(`${API_BASE_URL}/api/documents/${id}/flashcards`, 
+        const response = await axios.post(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/flashcards`, 
             { force_refresh: true }, 
             { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -1910,7 +1910,7 @@ const DocumentDetailPage = () => {
     setIsTyping(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post(`${API_BASE_URL}/api/documents/${id}/chat`, 
+      const res = await axios.post(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/chat`, 
         { question }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -1924,7 +1924,7 @@ const DocumentDetailPage = () => {
     setIsSavingNotes(true);
     try {
         const token = localStorage.getItem('token');
-        await axios.put(`${API_BASE_URL}/api/documents/${id}/notes`, 
+        await axios.put(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/notes`, 
             { notes }, 
             { headers: { Authorization: `Bearer ${token}` } }
         );

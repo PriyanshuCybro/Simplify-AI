@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, BookOpen, Sparkles, ChevronRight, ChevronLeft, ArrowLeft, Loader2, Calendar } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://simplify-ai-mrrh.onrender.com/api';
 
 const FlashcardPage = () => {
   const [sessions, setSessions] = useState([]); // saved generations

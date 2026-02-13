@@ -14,7 +14,7 @@ const DocumentListPage = () => {
 
     const fetchDocs = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/documents', {
+            const res = await axios.get('https://simplify-ai-mrrh.onrender.com/api/documents', {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
             setDocs(res.data.data);
@@ -35,7 +35,7 @@ const DocumentListPage = () => {
         if (!window.confirm("Bhai, pakka delete karna hai?")) return;
 
         try {
-            await axios.delete(`http://localhost:5000/api/documents/${id}`, {
+            await axios.delete(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
             setDocs(docs.filter(doc => doc._id !== id));

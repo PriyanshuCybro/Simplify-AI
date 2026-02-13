@@ -12,7 +12,7 @@ const ForgotPasswordPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/forgot-password', { email });
+      const res = await axios.post('https://simplify-ai-mrrh.onrender.com/api/auth/forgot-password', { email });
       setMessage("Check your Inbox! Reset link bhej diya gaya hai.");
     } catch (err) {
       setMessage("Email galat hai ya user nahi mila.");

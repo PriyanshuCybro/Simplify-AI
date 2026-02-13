@@ -21,7 +21,7 @@
 
 //  const fetchProfile = async () => {
 //   try {
-//     const res = await axios.get('http://localhost:5000/api/users/stats', {
+//     const res = await axios.get('https://simplify-ai-mrrh.onrender.com/api/users/stats', {
 //       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
 //     });
     
@@ -56,7 +56,7 @@
 //         return;
 //       }
 
-//       await axios.put('http://localhost:5000/api/users/profile', editForm, {
+//       await axios.put('https://simplify-ai-mrrh.onrender.com/api/users/profile', editForm, {
 //         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
 //       });
 //       setIsEditing(false);
@@ -76,7 +76,7 @@
 //   const handleDeleteQuiz = async (quizId) => {
 //     if (window.confirm("Bhai, delete kar dein?")) {
 //       try {
-//         await axios.delete(`http://localhost:5000/api/users/quizzes/${quizId}`, {
+//         await axios.delete(`https://simplify-ai-mrrh.onrender.com/api/users/quizzes/${quizId}`, {
 //           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
 //         });
 //         alert("Quiz deleted successfully!");
@@ -249,7 +249,7 @@ const ProfilePage = () => {
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_BASE_URL}/api/users/stats`, {
+      const res = await axios.get(`https://simplify-ai-mrrh.onrender.com/api/users/stats`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -274,7 +274,7 @@ const ProfilePage = () => {
   const handleUpdate = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`${API_BASE_URL}/api/users/profile`, editForm, {
+      await axios.put(`https://simplify-ai-mrrh.onrender.com/api/users/profile`, editForm, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setIsEditing(false);

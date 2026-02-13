@@ -28,7 +28,7 @@ const QuizTakePage = () => {
                 setError(null);
                 
                 // 🔥 THE 400 ERROR FIX: Sending explicitly formatted body
-                const res = await axios.post(`http://localhost:5000/api/documents/${id}/quiz`, 
+                const res = await axios.post(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/quiz`, 
                     { 
                         count: quizCount, // Number format
                         force_refresh: true 
@@ -71,7 +71,7 @@ const QuizTakePage = () => {
                 ? Math.round((finalScore / questions.length) * 100) 
                 : 0;
             
-            const response = await axios.post(`http://localhost:5000/api/documents/${id}/quiz/save`, {
+            const response = await axios.post(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/quiz/save`, {
                 score: finalScore,
                 totalQuestions: questions.length,
                 title: `Quiz Session - ${new Date().toLocaleDateString()}`,
