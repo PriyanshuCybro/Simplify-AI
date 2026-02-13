@@ -406,28 +406,27 @@ export const deleteFlashcard = async (req, res) => {
 };
 
 // 🔥 UPDATED processPDF: Ab ye Cloudinary URL se text extract karega
+// 🔥 processPDF ko update karo
 const processPDF = async (documentId, fileUrl) => {
     try {
-        // PDF extract text from URL
-        const { text } = await extractTextFromPDF(fileUrl);
+        // Ab extractTextFromPDF URL handle kar sakta hai
+        const { text } = await extractTextFromPDF(fileUrl); 
         const chunks = chunkText(text, 500, 50);
         
         await Document.findByIdAndUpdate(documentId, {
             extractedText: text,
             chunks: chunks.map((chunk, index) => ({
-                content: typeof chunk === 'string' ? chunk : chunk.content,
-                chunkIndex: index,
-                pageNumber: 0 
+                content: chunk,
+                chunkIndex: index
             })),
-            status: "ready", 
+            status: "ready"
         });
-        console.log(`✅ Document ${documentId} is READY from Cloudinary`);
+        console.log(`✅ Doc ${documentId} is now READY`);
     } catch (error) {
-        console.error(`❌ Processing Error for ${documentId}:`, error.message);
+        console.error("❌ Process Error:", error.message);
         await Document.findByIdAndUpdate(documentId, { status: "failed" });
     }
 };
-
 // --- CRUD CONTROLLERS ---
 
 // 🔥 FINAL FIX: uploadDocument function
