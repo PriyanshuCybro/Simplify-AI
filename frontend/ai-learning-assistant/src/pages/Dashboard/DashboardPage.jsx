@@ -836,6 +836,306 @@
 
 //ye ek aur nayya
 
+// import React, { useState, useEffect, useMemo } from 'react';
+// import { Upload, Database, FileText, Brain, ArrowRight, Trash2, Search, Sparkles, Loader2 } from 'lucide-react';
+// import { useNavigate, useLocation } from 'react-router-dom';
+// import { motion, AnimatePresence } from 'framer-motion';
+// import UploadModal from '../Documents/UploadModal';
+// import { getDocuments, deleteDocument } from '../../services/api';
+// import axios from 'axios';
+
+// const DashboardPage = () => {
+//   const navigate = useNavigate();
+//   const location = useLocation();
+//   const [isModalOpen, setIsModalOpen] = useState(false);
+//   const [documents, setDocuments] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [searchQuery, setSearchQuery] = useState("");
+//   const [statusFilter, setStatusFilter] = useState("all");
+  
+//   // 🔥 Initial State check: Metrics ke naam backend se match hone chahiye
+//   const [statsData, setStatsData] = useState({ 
+//     docsCount: 0, 
+//     flashcardsCount: 0, 
+//     successRate: 0, 
+//     avgAccuracy: 0 
+//   });
+
+//   const user = JSON.parse(localStorage.getItem('user'));
+//   const highlightId = location.state?.highlightDocId;
+
+//   const fetchAllData = async () => {
+//     try {
+//       setLoading(true);
+      
+//       // 1. Documents fetch (Existing logic)
+//       const docsRes = await getDocuments();
+//       if (docsRes.data.success) {
+//         setDocuments(docsRes.data.data);
+//       }
+
+//       // 2. Stats fetch logic - Optimized for your specific Backend structure
+//       try {
+//         const statsRes = await axios.get('http://localhost:5000/api/users/stats', {
+//           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+//         });
+        
+//         console.log("Backend Stats Response:", statsRes.data); // Debugging ke liye
+
+//         // 🔥 FIX: Check kijiye ki backend 'data.metrics' bhej raha hai ya 'data.data.metrics'
+//         if (statsRes.data?.success) {
+//           const metrics = statsRes.data.data.metrics; // Aapke controller ke hisab se yahi path hai
+//           setStatsData({
+//             docsCount: metrics.docsCount || 0,
+//             flashcardsCount: metrics.flashcardsCount || 0,
+//             successRate: metrics.successRate || 0,
+//             avgAccuracy: metrics.avgAccuracy || 0
+//           });
+//         }
+//       } catch (statsErr) {
+//         console.error("Stats fetch fail (Check if Route exists):", statsErr.message);
+//       }
+
+//     } catch (error) {
+//       console.error("Critical Sync Error:", error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+//   useEffect(() => {
+//     fetchAllData();
+//   }, []);
+
+//   // 🔥 YAHAN THA ERROR: Humne stats array ko dynamic bana diya hai
+//   const stats = [
+//     { 
+//       label: 'Intelligence Base', 
+//       value: documents.length, 
+//       icon: FileText, 
+//       color: 'text-blue-600', 
+//       bg: 'bg-blue-50' 
+//     },
+//     { 
+//       label: 'Neural Flashcards', 
+//       value: statsData?.flashcardsCount || 0, // Real-time value
+//       icon: Brain, 
+//       color: 'text-purple-600', 
+//       bg: 'bg-purple-50' 
+//     },
+//     { 
+//       label: 'Analysis Success', 
+//       value: `${statsData?.successRate || 0}%`, // Real-time percentage
+//       icon: Database, 
+//       color: 'text-green-600', 
+//       bg: 'bg-green-50' 
+//     },
+//   ];
+
+//   const filteredDocuments = useMemo(() => {
+//     return documents.filter(doc => {
+//       const matchesSearch = doc.title.toLowerCase().includes(searchQuery.toLowerCase());
+//       const matchesFilter = statusFilter === "all" || doc.status === statusFilter;
+//       return matchesSearch && matchesFilter;
+//     });
+//   }, [documents, searchQuery, statusFilter]);
+
+//   const handleDelete = async (e, id) => {
+//     e.stopPropagation(); 
+//     if (window.confirm("Bhai, delete kar dein? Iska sara AI data hat jayega.")) {
+//       try {
+//         await deleteDocument(id);
+//         setDocuments(documents.filter(doc => doc._id !== id));
+//         fetchAllData(); 
+//       } catch (error) {
+//         alert("Error deleting document");
+//       }
+//     }
+//   };
+
+//   const handleDocumentClick = (doc) => {
+//     if (highlightId === doc._id) {
+//       navigate(location.pathname, { replace: true, state: {} });
+//     }
+
+//     if (doc.status === 'ready') {
+//       navigate(`/documents/${doc._id}`);
+//     } else if (doc.status === 'failed') {
+//       alert("Oops! AI analysis fail ho gayi. Phir se try karein.");
+//     } else {
+//       alert("Gemini is still reading... Thoda wait kijiye.");
+//     }
+//   };
+
+//   return (
+//     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-8 bg-[#F9FAFB] min-h-screen">
+//       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+//         <div>
+//           <div className="flex items-center gap-2">
+//             <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+//               Welcome, {user?.name || "Researcher"}
+//             </h1>
+//             <motion.div animate={{ rotate: [0, 15, -15, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
+//                 <Sparkles className="text-amber-400" size={24} />
+//             </motion.div>
+//           </div>
+//           <p className="text-gray-500 font-medium mt-1">Transforming IT Study Material into Intelligence.</p>
+//         </div>
+//         <button 
+//           onClick={() => setIsModalOpen(true)} 
+//           className="bg-slate-900 hover:bg-blue-600 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-100 flex items-center justify-center gap-2 transition-all active:scale-95"
+//         >
+//           <Upload size={18} /> Forge Insights
+//         </button>
+//       </div>
+
+//       {/* Stats Grid - Mapping through dynamic stats */}
+//       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+//         {stats.map((stat, index) => (
+//           <motion.div 
+//             key={index} 
+//             initial={{ y: 20, opacity: 0 }} 
+//             animate={{ y: 0, opacity: 1 }} 
+//             transition={{ delay: index * 0.1 }}
+//             className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 flex items-center space-x-6 hover:shadow-xl transition-all"
+//           >
+//             <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color} shadow-inner`}>
+//               <stat.icon size={28} />
+//             </div>
+//             <div>
+//               <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">{stat.label}</p>
+//               <p className="text-2xl font-black text-gray-900">{stat.value}</p>
+//             </div>
+//           </motion.div>
+//         ))}
+//       </div>
+
+//       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+//         <div className="lg:col-span-4 space-y-6">
+//           <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-gray-100 space-y-8">
+//             <h3 className="text-xs font-black text-gray-800 uppercase tracking-[0.2em]">Control Center</h3>
+//             <div className="relative group">
+//               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-blue-500 transition-colors" size={18} />
+//               <input 
+//                 type="text" 
+//                 placeholder="Query library..."
+//                 value={searchQuery}
+//                 onChange={(e) => setSearchQuery(e.target.value)}
+//                 className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:ring-4 focus:ring-blue-50 transition-all outline-none"
+//               />
+//             </div>
+//             <div className="flex flex-col gap-2">
+//               {['all', 'ready', 'processing'].map((s) => (
+//                 <button 
+//                   key={s}
+//                   onClick={() => setStatusFilter(s)}
+//                   className={`px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-left transition-all ${
+//                     statusFilter === s ? 'bg-slate-900 text-white shadow-lg' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+//                   }`}
+//                 >
+//                   {s}
+//                 </button>
+//               ))}
+//             </div>
+//           </div>
+//         </div>
+
+//         <div className="lg:col-span-8">
+//           <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border border-gray-100 min-h-[550px]">
+//             <div className="flex justify-between items-center mb-10">
+//               <h2 className="text-xl font-black text-gray-900">Neural Workspace</h2>
+//               <span className="bg-gray-50 text-gray-400 text-[10px] px-4 py-2 rounded-full font-black uppercase tracking-widest border border-gray-100">
+//                 Active Nodes: {filteredDocuments.length}
+//               </span>
+//             </div>
+
+//             {loading ? (
+//               <div className="flex flex-col items-center justify-center h-80">
+//                 <Loader2 className="animate-spin text-blue-600 mb-4" size={48} />
+//                 <p className="text-[10px] font-black uppercase tracking-widest text-gray-300">Synchronizing...</p>
+//               </div>
+//             ) : filteredDocuments.length > 0 ? (
+//               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//                 <AnimatePresence>
+//                   {filteredDocuments.map((doc) => (
+//                     <motion.div 
+//                       key={doc._id} 
+//                       layout
+//                       initial={{ opacity: 0, scale: 0.95 }}
+//                       animate={{ 
+//                         opacity: 1, 
+//                         scale: highlightId === doc._id ? [1, 1.02, 1] : 1, 
+//                         boxShadow: highlightId === doc._id ? "0 20px 50px rgba(59, 130, 246, 0.15)" : "none"
+//                       }}
+//                       transition={{ 
+//                         scale: highlightId === doc._id ? { repeat: Infinity, duration: 2 } : { duration: 0.3 } 
+//                       }}
+//                       onClick={() => handleDocumentClick(doc)}
+//                       className={`group p-6 rounded-[2.5rem] border transition-all cursor-pointer relative overflow-hidden
+//                       ${highlightId === doc._id ? 'border-amber-400 bg-white ring-4 ring-amber-50' : 'bg-gray-50/50 hover:bg-white border-transparent hover:border-blue-100'}
+//                       `}
+//                     >
+//                       {highlightId === doc._id && (
+//                         <div className="absolute top-4 right-4 p-1.5 bg-amber-400 text-white rounded-full animate-bounce">
+//                           <Sparkles size={14} />
+//                         </div>
+//                       )}
+                      
+//                       <div className="flex justify-between items-start mb-6">
+//                         <div className={`p-4 rounded-2xl shadow-sm transition-all ${highlightId === doc._id ? 'bg-amber-400 text-white' : 'bg-white group-hover:bg-slate-900 group-hover:text-white'}`}>
+//                           <FileText size={28} />
+//                         </div>
+//                         <button 
+//                           onClick={(e) => handleDelete(e, doc._id)}
+//                           className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+//                         >
+//                           <Trash2 size={20} />
+//                         </button>
+//                       </div>
+                      
+//                       <h4 className="font-bold text-gray-800 text-lg truncate mb-1">{doc.title}</h4>
+//                       <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-6">
+//                         {new Date(doc.createdAt).toLocaleDateString()}
+//                       </p>
+
+//                       <div className="flex items-center justify-between mt-auto">
+//                         <span className={`text-[9px] px-4 py-1.5 rounded-full uppercase font-black tracking-widest border ${
+//                           doc.status === 'ready' ? 'bg-green-50 text-green-700 border-green-100' : 
+//                           doc.status === 'failed' ? 'bg-red-50 text-red-700 border-red-100' : 
+//                           'bg-yellow-50 text-yellow-700 border-yellow-100 animate-pulse'
+//                         }`}>
+//                           {doc.status}
+//                         </span>
+//                         <ArrowRight size={20} className="text-gray-200 group-hover:text-slate-900 group-hover:translate-x-2 transition-all" />
+//                       </div>
+//                     </motion.div>
+//                   ))}
+//                 </AnimatePresence>
+//               </div>
+//             ) : (
+//               <div className="flex flex-col items-center justify-center h-96 opacity-20 grayscale">
+//                 <Database size={80} className="mb-4" />
+//                 <p className="font-black text-xs uppercase tracking-[0.4em]">Zero Data Ingested</p>
+//               </div>
+//             )}
+//           </div>
+//         </div>
+//       </div>
+
+//       <UploadModal 
+//         isOpen={isModalOpen} 
+//         onClose={() => setIsModalOpen(false)} 
+//         onUploadSuccess={fetchAllData} 
+//       />
+//     </motion.div>
+//   );
+// };
+
+// export default DashboardPage;
+
+
+
+//ye ek aur 14feb
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Upload, Database, FileText, Brain, ArrowRight, Trash2, Search, Sparkles, Loader2 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -843,6 +1143,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import UploadModal from '../Documents/UploadModal';
 import { getDocuments, deleteDocument } from '../../services/api';
 import axios from 'axios';
+
+// 🔥 API BASE URL: Render link ko use karega
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -853,7 +1156,6 @@ const DashboardPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   
-  // 🔥 Initial State check: Metrics ke naam backend se match hone chahiye
   const [statsData, setStatsData] = useState({ 
     docsCount: 0, 
     flashcardsCount: 0, 
@@ -867,24 +1169,22 @@ const DashboardPage = () => {
   const fetchAllData = async () => {
     try {
       setLoading(true);
+      const token = localStorage.getItem('token');
       
-      // 1. Documents fetch (Existing logic)
+      // 1. Documents fetch
       const docsRes = await getDocuments();
       if (docsRes.data.success) {
         setDocuments(docsRes.data.data);
       }
 
-      // 2. Stats fetch logic - Optimized for your specific Backend structure
+      // 2. Real-time Stats fetch
       try {
-        const statsRes = await axios.get('http://localhost:5000/api/users/stats', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        const statsRes = await axios.get(`${API_BASE_URL}/api/users/stats`, {
+          headers: { Authorization: `Bearer ${token}` }
         });
         
-        console.log("Backend Stats Response:", statsRes.data); // Debugging ke liye
-
-        // 🔥 FIX: Check kijiye ki backend 'data.metrics' bhej raha hai ya 'data.data.metrics'
         if (statsRes.data?.success) {
-          const metrics = statsRes.data.data.metrics; // Aapke controller ke hisab se yahi path hai
+          const metrics = statsRes.data.data.metrics;
           setStatsData({
             docsCount: metrics.docsCount || 0,
             flashcardsCount: metrics.flashcardsCount || 0,
@@ -893,7 +1193,7 @@ const DashboardPage = () => {
           });
         }
       } catch (statsErr) {
-        console.error("Stats fetch fail (Check if Route exists):", statsErr.message);
+        console.error("Stats Error:", statsErr.message);
       }
 
     } catch (error) {
@@ -902,11 +1202,11 @@ const DashboardPage = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchAllData();
   }, []);
 
-  // 🔥 YAHAN THA ERROR: Humne stats array ko dynamic bana diya hai
   const stats = [
     { 
       label: 'Intelligence Base', 
@@ -917,14 +1217,14 @@ const DashboardPage = () => {
     },
     { 
       label: 'Neural Flashcards', 
-      value: statsData?.flashcardsCount || 0, // Real-time value
+      value: statsData?.flashcardsCount || 0, 
       icon: Brain, 
       color: 'text-purple-600', 
       bg: 'bg-purple-50' 
     },
     { 
       label: 'Analysis Success', 
-      value: `${statsData?.successRate || 0}%`, // Real-time percentage
+      value: `${statsData?.successRate || 0}%`, 
       icon: Database, 
       color: 'text-green-600', 
       bg: 'bg-green-50' 
@@ -941,10 +1241,9 @@ const DashboardPage = () => {
 
   const handleDelete = async (e, id) => {
     e.stopPropagation(); 
-    if (window.confirm("Bhai, delete kar dein? Iska sara AI data hat jayega.")) {
+    if (window.confirm("Bhai, delete kar dein?")) {
       try {
         await deleteDocument(id);
-        setDocuments(documents.filter(doc => doc._id !== id));
         fetchAllData(); 
       } catch (error) {
         alert("Error deleting document");
@@ -953,16 +1252,10 @@ const DashboardPage = () => {
   };
 
   const handleDocumentClick = (doc) => {
-    if (highlightId === doc._id) {
-      navigate(location.pathname, { replace: true, state: {} });
-    }
-
     if (doc.status === 'ready') {
       navigate(`/documents/${doc._id}`);
-    } else if (doc.status === 'failed') {
-      alert("Oops! AI analysis fail ho gayi. Phir se try karein.");
     } else {
-      alert("Gemini is still reading... Thoda wait kijiye.");
+      alert("AI reading in progress...");
     }
   };
 
@@ -970,68 +1263,50 @@ const DashboardPage = () => {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-8 bg-[#F9FAFB] min-h-screen">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight">
-              Welcome, {user?.name || "Researcher"}
-            </h1>
-            <motion.div animate={{ rotate: [0, 15, -15, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
-                <Sparkles className="text-amber-400" size={24} />
-            </motion.div>
-          </div>
-          <p className="text-gray-500 font-medium mt-1">Transforming IT Study Material into Intelligence.</p>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+            Welcome, {user?.name || "Researcher"}
+          </h1>
+          <p className="text-gray-500 font-medium mt-1">Transforming Study Material into Intelligence.</p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)} 
-          className="bg-slate-900 hover:bg-blue-600 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-100 flex items-center justify-center gap-2 transition-all active:scale-95"
+          className="bg-slate-900 hover:bg-blue-600 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95"
         >
           <Upload size={18} /> Forge Insights
         </button>
       </div>
 
-      {/* Stats Grid - Mapping through dynamic stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         {stats.map((stat, index) => (
-          <motion.div 
-            key={index} 
-            initial={{ y: 20, opacity: 0 }} 
-            animate={{ y: 0, opacity: 1 }} 
-            transition={{ delay: index * 0.1 }}
-            className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 flex items-center space-x-6 hover:shadow-xl transition-all"
-          >
-            <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color} shadow-inner`}>
+          <div key={index} className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 flex items-center space-x-6">
+            <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color}`}>
               <stat.icon size={28} />
             </div>
             <div>
               <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">{stat.label}</p>
               <p className="text-2xl font-black text-gray-900">{stat.value}</p>
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-gray-100 space-y-8">
-            <h3 className="text-xs font-black text-gray-800 uppercase tracking-[0.2em]">Control Center</h3>
-            <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-blue-500 transition-colors" size={18} />
+        <div className="lg:col-span-4">
+          <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-gray-100 space-y-6">
+            <h3 className="text-xs font-black text-gray-800 uppercase tracking-widest">Control Center</h3>
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
               <input 
                 type="text" 
                 placeholder="Query library..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:ring-4 focus:ring-blue-50 transition-all outline-none"
+                className="w-full bg-gray-50 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-100"
               />
             </div>
             <div className="flex flex-col gap-2">
               {['all', 'ready', 'processing'].map((s) => (
-                <button 
-                  key={s}
-                  onClick={() => setStatusFilter(s)}
-                  className={`px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-left transition-all ${
-                    statusFilter === s ? 'bg-slate-900 text-white shadow-lg' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
-                  }`}
-                >
+                <button key={s} onClick={() => setStatusFilter(s)} className={`px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-left ${statusFilter === s ? 'bg-slate-900 text-white' : 'bg-gray-50 text-gray-400'}`}>
                   {s}
                 </button>
               ))}
@@ -1041,91 +1316,31 @@ const DashboardPage = () => {
 
         <div className="lg:col-span-8">
           <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border border-gray-100 min-h-[550px]">
-            <div className="flex justify-between items-center mb-10">
-              <h2 className="text-xl font-black text-gray-900">Neural Workspace</h2>
-              <span className="bg-gray-50 text-gray-400 text-[10px] px-4 py-2 rounded-full font-black uppercase tracking-widest border border-gray-100">
-                Active Nodes: {filteredDocuments.length}
-              </span>
-            </div>
-
             {loading ? (
-              <div className="flex flex-col items-center justify-center h-80">
-                <Loader2 className="animate-spin text-blue-600 mb-4" size={48} />
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-300">Synchronizing...</p>
-              </div>
+               <div className="flex flex-col items-center justify-center h-80"><Loader2 className="animate-spin text-blue-600" size={48} /></div>
             ) : filteredDocuments.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <AnimatePresence>
-                  {filteredDocuments.map((doc) => (
-                    <motion.div 
-                      key={doc._id} 
-                      layout
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ 
-                        opacity: 1, 
-                        scale: highlightId === doc._id ? [1, 1.02, 1] : 1, 
-                        boxShadow: highlightId === doc._id ? "0 20px 50px rgba(59, 130, 246, 0.15)" : "none"
-                      }}
-                      transition={{ 
-                        scale: highlightId === doc._id ? { repeat: Infinity, duration: 2 } : { duration: 0.3 } 
-                      }}
-                      onClick={() => handleDocumentClick(doc)}
-                      className={`group p-6 rounded-[2.5rem] border transition-all cursor-pointer relative overflow-hidden
-                      ${highlightId === doc._id ? 'border-amber-400 bg-white ring-4 ring-amber-50' : 'bg-gray-50/50 hover:bg-white border-transparent hover:border-blue-100'}
-                      `}
-                    >
-                      {highlightId === doc._id && (
-                        <div className="absolute top-4 right-4 p-1.5 bg-amber-400 text-white rounded-full animate-bounce">
-                          <Sparkles size={14} />
-                        </div>
-                      )}
-                      
-                      <div className="flex justify-between items-start mb-6">
-                        <div className={`p-4 rounded-2xl shadow-sm transition-all ${highlightId === doc._id ? 'bg-amber-400 text-white' : 'bg-white group-hover:bg-slate-900 group-hover:text-white'}`}>
-                          <FileText size={28} />
-                        </div>
-                        <button 
-                          onClick={(e) => handleDelete(e, doc._id)}
-                          className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                        >
-                          <Trash2 size={20} />
-                        </button>
-                      </div>
-                      
-                      <h4 className="font-bold text-gray-800 text-lg truncate mb-1">{doc.title}</h4>
-                      <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-6">
-                        {new Date(doc.createdAt).toLocaleDateString()}
-                      </p>
-
-                      <div className="flex items-center justify-between mt-auto">
-                        <span className={`text-[9px] px-4 py-1.5 rounded-full uppercase font-black tracking-widest border ${
-                          doc.status === 'ready' ? 'bg-green-50 text-green-700 border-green-100' : 
-                          doc.status === 'failed' ? 'bg-red-50 text-red-700 border-red-100' : 
-                          'bg-yellow-50 text-yellow-700 border-yellow-100 animate-pulse'
-                        }`}>
-                          {doc.status}
-                        </span>
-                        <ArrowRight size={20} className="text-gray-200 group-hover:text-slate-900 group-hover:translate-x-2 transition-all" />
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                {filteredDocuments.map((doc) => (
+                  <div key={doc._id} onClick={() => handleDocumentClick(doc)} className="p-6 rounded-[2.5rem] border bg-gray-50/50 hover:bg-white transition-all cursor-pointer">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="p-4 bg-white rounded-2xl"><FileText size={28} className="text-blue-600" /></div>
+                      <button onClick={(e) => handleDelete(e, doc._id)} className="text-gray-300 hover:text-red-500"><Trash2 size={20} /></button>
+                    </div>
+                    <h4 className="font-bold text-gray-800 text-lg truncate">{doc.title}</h4>
+                    <p className="text-[10px] text-gray-400 font-black mb-4 uppercase">{new Date(doc.createdAt).toLocaleDateString()}</p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[9px] px-4 py-1.5 rounded-full bg-blue-50 text-blue-700 font-black uppercase">{doc.status}</span>
+                      <ArrowRight size={20} className="text-gray-200" />
+                    </div>
+                  </div>
+                ))}
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-96 opacity-20 grayscale">
-                <Database size={80} className="mb-4" />
-                <p className="font-black text-xs uppercase tracking-[0.4em]">Zero Data Ingested</p>
-              </div>
-            )}
+            ) : <p className="text-center text-gray-300 mt-20 font-black">NO DOCUMENTS FOUND</p>}
           </div>
         </div>
       </div>
 
-      <UploadModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onUploadSuccess={fetchAllData} 
-      />
+      <UploadModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onUploadSuccess={fetchAllData} />
     </motion.div>
   );
 };
