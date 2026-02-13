@@ -78,29 +78,24 @@ const processPDF = async (documentId, filePath) => {
 // --- CRUD CONTROLLERS ---
 
 // documentController.js ke andar uploadDocument function mein:
-
+// Aisa hona chahiye
 export const uploadDocument = async (req, res) => {
     try {
-        if (!req.file) {
-            return res.status(400).json({ message: "No file uploaded" });
-        }
-
-        // Cloudinary ka link ab req.file.path mein hai
+        // req.file.path mein Cloudinary ka URL hota hai (https://res.cloudinary.com/...)
         const fileUrl = req.file.path; 
 
         const newDoc = await Document.create({
             userId: req.user.id,
             title: req.body.title || req.file.originalname,
             fileName: req.file.originalname,
-            filePath: fileUrl, // ✅ Ab yahan permanent Cloudinary URL save hoga
+            filePath: fileUrl, // ✅ Yahan check karo, 'fileUrl' hi save hona chahiye
             filesize: req.file.size,
-            status: "ready" // Direct ready kar sakte hain ya processing logic rakhein
+            status: "ready"
         });
-
-        res.status(201).json(newDoc);
+        
+        res.status(201).json({ success: true, data: newDoc });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server Error" });
+        res.status(500).json({ message: "Upload failed" });
     }
 };
 

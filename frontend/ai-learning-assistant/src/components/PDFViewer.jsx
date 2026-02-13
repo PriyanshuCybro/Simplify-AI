@@ -23,14 +23,23 @@ const PDFViewer = ({ pdfPath, fileName }) => {
     const fileProp = useMemo(() => {
         if (!pdfPath) return null;
         
-        // Agar link 'http' se shuru ho raha hai (Cloudinary), toh direct use karo
+        // 🔥 FIX: Agar Cloudinary URL hai (https://res.cloudinary...) toh direct load karo
         if (pdfPath.startsWith('http')) {
-            return pdfPath;
+            // Kabhi-kabhi Cloudinary 'http' bhejta hai, use 'https' mein convert karna safe rehta hai
+            return pdfPath.replace('http://', 'https://');
         }
         
-        // Backup: Agar local path hai toh Base URL jodo (lekin Cloudinary ke liye iski zaroorat nahi padegi)
-        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-        return `${baseUrl}/${pdfPath}`;
+        // ⚠️ WARNING: Agar path 'uploads/' se shuru ho raha hai, toh iska matlab ye purana data hai
+        // Render par ye folder nahi hota, isliye ise null kar dena chahiye taaki error handle ho sake
+        console.warn("⚠️ Purana local path detect hua, ye Render par nahi chalega:", pdfPath);
+        
+        // Agar aap local testing kar rahe hain tabhi localhost jodein, warna Render par ise block karein
+        if (import.meta.env.MODE === 'development') {
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            return `${baseUrl}/${pdfPath.replace(/\\/g, '/')}`;
+        }
+
+        return null; // Production (Render) par local paths ko reject kar do
     }, [pdfPath]);
 
     const options = useMemo(() => ({
