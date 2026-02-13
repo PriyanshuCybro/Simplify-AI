@@ -1430,6 +1430,335 @@
 
 //ye ek aur naya jisme ai chat ka design shik kiya hu
 
+// import React, { useState, useEffect, useRef } from 'react';
+// import { useParams, useNavigate } from 'react-router-dom';
+// import axios from 'axios';
+// import ReactMarkdown from 'react-markdown';
+// import remarkGfm from 'remark-gfm';
+// import { 
+//   ArrowLeft, Loader2, MessageSquare, Zap, Send, User, Bot, Brain, File, 
+//   Sparkles, ChevronLeft, ChevronRight, Download, Edit3, Save, X, FileText
+// } from 'lucide-react';
+// import { jsPDF } from 'jspdf';
+// import PDFViewer from '../../components/PDFViewer';
+
+// // --- Flashcard Tab Component ---
+// const FlashcardTab = ({ flashcards, onGenerate, isGenerating }) => {
+//     const [currentIndex, setCurrentIndex] = useState(0);
+//     const [isFlipped, setIsFlipped] = useState(false);
+
+//     const downloadFlashcardsPDF = () => {
+//         const doc = new jsPDF();
+//         doc.setFillColor(37, 99, 235);
+//         doc.rect(0, 0, 210, 25, 'F');
+//         doc.setFont("helvetica", "bold");
+//         doc.setTextColor(255, 255, 255);
+//         doc.text("AI STUDY ASSISTANT - FLASHCARDS", 20, 17);
+//         flashcards.forEach((card, i) => {
+//             const y = 40 + (i * 35);
+//             if (y > 270) doc.addPage();
+//             doc.setFontSize(11); doc.setTextColor(37, 99, 235);
+//             doc.text(`Q: ${card.question}`, 20, y);
+//             doc.setFontSize(10); doc.setTextColor(60, 60, 60);
+//             doc.text(`A: ${card.answer}`, 25, y + 10);
+//         });
+//         doc.save("Study_Flashcards.pdf");
+//     };
+
+//     if (flashcards.length === 0) {
+//         return (
+//             <div className="flex flex-col items-center justify-center h-[500px] text-center space-y-6">
+//                 <Brain size={60} className="text-slate-100 mb-2" />
+//                 <button onClick={onGenerate} disabled={isGenerating} className="bg-blue-600 text-white px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-blue-100 transition-all flex items-center gap-3">
+//                     {isGenerating ? <Loader2 className="animate-spin" size={16}/> : <Zap size={16}/>}
+//                     Generate AI Flashcards
+//                 </button>
+//             </div>
+//         );
+//     }
+
+//     return (
+//         <div className="max-w-3xl mx-auto w-full py-4 animate-in fade-in zoom-in-95 duration-500">
+//             <div className="flex justify-end mb-4">
+//                 <button onClick={downloadFlashcardsPDF} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-all border border-slate-100 px-4 py-2 rounded-xl bg-white shadow-sm">
+//                     <Download size={14}/> Download PDF
+//                 </button>
+//             </div>
+//             <div className="perspective-1000 w-full aspect-[16/9] min-h-[350px]">
+//                 <div className={`relative w-full h-full transition-all duration-700 preserve-3d cursor-pointer ${isFlipped ? 'rotate-y-180' : ''}`} onClick={() => setIsFlipped(!isFlipped)}>
+//                     <div className="absolute inset-0 backface-hidden bg-white border-2 border-slate-50 rounded-[3rem] p-12 flex flex-col items-center justify-center shadow-2xl overflow-hidden">
+//                         <span className="text-blue-500 font-black text-[10px] uppercase tracking-[0.4em] mb-8">Node {currentIndex + 1}</span>
+//                         <div className="overflow-y-auto custom-scrollbar px-4 w-full text-center"><p className="text-slate-800 font-bold text-2xl leading-snug">{flashcards[currentIndex].question}</p></div>
+//                     </div>
+//                     <div className="absolute inset-0 backface-hidden rotate-y-180 bg-blue-600 rounded-[3rem] p-12 flex flex-col items-center justify-center shadow-2xl shadow-blue-200 overflow-hidden">
+//                         <span className="text-white/40 font-black text-[10px] uppercase tracking-[0.4em] mb-8">Response</span>
+//                         <div className="overflow-y-auto custom-scrollbar px-4 w-full text-center"><p className="text-white font-medium text-xl leading-relaxed">{flashcards[currentIndex].answer}</p></div>
+//                     </div>
+//                 </div>
+//             </div>
+//             <div className="flex justify-between items-center mt-8 bg-white p-4 rounded-[2.5rem] border border-slate-100 shadow-sm">
+//                 <button disabled={currentIndex === 0} onClick={() => {setCurrentIndex(p => p-1); setIsFlipped(false)}} className="p-5 bg-slate-50 text-slate-400 rounded-2xl hover:text-blue-600 disabled:opacity-20 transition-all"><ChevronLeft size={24}/></button>
+//                 <div className="font-black text-slate-800 text-xl tracking-tighter">{currentIndex + 1} <span className="text-slate-200">/</span> {flashcards.length}</div>
+//                 <button disabled={currentIndex === flashcards.length - 1} onClick={() => {setCurrentIndex(p => p+1); setIsFlipped(false)}} className="p-5 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 disabled:opacity-20 shadow-lg shadow-blue-100 transition-all"><ChevronRight size={24}/></button>
+//             </div>
+//         </div>
+//     );
+// };
+
+// // --- Main Page Component ---
+// const DocumentDetailPage = () => {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
+//   const [document, setDocument] = useState(null);
+//   const [loading, setLoading] = useState(true);
+//   const [activeTab, setActiveTab] = useState('pdf');
+//   const [question, setQuestion] = useState('');
+//   const [chatHistory, setChatHistory] = useState([]);
+//   const [isTyping, setIsTyping] = useState(false);
+//   const [flashcards, setFlashcards] = useState([]);
+//   const [isGenerating, setIsGenerating] = useState(false);
+//   const [showQuizModal, setShowQuizModal] = useState(false);
+//   const [quizCount, setQuizCount] = useState(10);
+  
+//   // Quick Notes States
+//   const [notes, setNotes] = useState("");
+//   const [showNotes, setShowNotes] = useState(false);
+//   const [isSavingNotes, setIsSavingNotes] = useState(false);
+
+//   const chatEndRef = useRef(null);
+
+//   const scrollToBottom = () => {
+//     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+//   };
+
+//   useEffect(() => {
+//     scrollToBottom();
+//   }, [chatHistory, isTyping]);
+
+//   useEffect(() => {
+//     const fetchDoc = async () => {
+//       try {
+//         const token = localStorage.getItem('token');
+//         const res = await axios.get(`http://localhost:5000/api/documents/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+//         if (res.data.success) {
+//             const docData = res.data.document || res.data.data;
+//             setDocument(docData);
+//             setNotes(docData.notes || "");
+//         }
+//       } catch (err) { console.error(err); } finally { setLoading(false); }
+//     };
+//     fetchDoc();
+//   }, [id]);
+
+//   // 🔥 Correctly defined handleGenerateFlashcards
+//   // 🔥 Har baar naye questions ke liye force_refresh logic
+//   const handleGenerateFlashcards = async () => {
+//     try {
+//         setIsGenerating(true);
+//         const token = localStorage.getItem('token');
+        
+//         // Humne yahan 'force_refresh: true' add kiya hai
+//         const response = await axios.post(`http://localhost:5000/api/documents/${id}/flashcards`, 
+//             { force_refresh: true }, 
+//             { headers: { Authorization: `Bearer ${token}` } }
+//         );
+        
+//         if (response.data.success) {
+//             setFlashcards(response.data.flashcards);
+//         }
+//     } catch (err) { 
+//         alert("AI is exploring different sections, please wait..."); 
+//     } finally { 
+//         setIsGenerating(false); 
+//     }
+//   };
+
+//   const handleSendMessage = async (e) => {
+//     e.preventDefault();
+//     if (!question.trim()) return;
+//     const userMsg = { role: 'user', text: question };
+//     setChatHistory(prev => [...prev, userMsg]);
+//     setQuestion('');
+//     setIsTyping(true);
+//     try {
+//       const token = localStorage.getItem('token');
+//       const res = await axios.post(`http://localhost:5000/api/documents/${id}/chat`, { question }, { headers: { Authorization: `Bearer ${token}` } });
+//       setChatHistory(prev => [...prev, { role: 'bot', text: res.data.answer }]);
+//     } catch (err) { setChatHistory(prev => [...prev, { role: 'bot', text: "AI Node busy. Retry sync." }]); } finally { setIsTyping(false); }
+//   };
+
+//   const handleSaveNotes = async () => {
+//     setIsSavingNotes(true);
+//     try {
+//         const token = localStorage.getItem('token');
+//         await axios.put(`http://localhost:5000/api/documents/${id}/notes`, { notes }, { headers: { Authorization: `Bearer ${token}` } });
+//     } catch (err) { console.error("Notes save failed"); } finally { 
+//         setTimeout(() => setIsSavingNotes(false), 1000);
+//     }
+//   };
+
+//   const downloadNotesPDF = () => {
+//     const doc = new jsPDF();
+//     doc.setFont("helvetica", "bold");
+//     doc.text(`Study Notes: ${document?.title}`, 20, 20);
+//     doc.setFont("helvetica", "normal"); doc.setFontSize(12);
+//     const splitText = doc.splitTextToSize(notes, 170);
+//     doc.text(splitText, 20, 35);
+//     doc.save("My_Study_Notes.pdf");
+//   };
+
+//   if (loading) return (
+//     <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+//       <Loader2 className="animate-spin text-blue-600 mb-4" size={48} />
+//       <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.5em]">Syncing Neural Data...</p>
+//     </div>
+//   );
+
+  
+//   return (
+//     <div className="p-6 bg-[#F8FAFB] min-h-screen flex flex-col font-sans">
+//       <div className="flex items-center justify-between mb-6 max-w-[1600px] mx-auto w-full">
+//         <button onClick={() => navigate('/dashboard')} className="flex items-center gap-3 text-slate-400 hover:text-blue-600 font-black text-[10px] uppercase tracking-widest transition-all">
+//           <ArrowLeft size={16} /> Dashboard
+//         </button>
+//         <div className="flex items-center gap-4">
+//             <h2 className="text-slate-800 font-black text-xs uppercase tracking-tight max-w-[300px] truncate">{document?.title}</h2>
+//             <button 
+//                 onClick={() => window.open(document?.filePath?.startsWith('http') ? document.filePath : `http://localhost:5000/${document?.filePath?.replace(/\\/g, '/')}`, '_blank')} 
+//                 className="p-2.5 bg-white rounded-xl border border-slate-100 text-blue-600 shadow-sm hover:shadow-md transition-all"
+//             >
+//                 <Download size={16} />
+//             </button>
+//         </div>
+//       </div>
+
+//       <div className="flex-1 bg-white rounded-[3.5rem] shadow-2xl shadow-blue-900/5 border border-slate-100 overflow-hidden flex flex-col max-w-[1600px] mx-auto w-full">
+//         <div className="flex items-center px-10 border-b border-slate-50 bg-slate-50/20">
+//           {['pdf', 'chat', 'flashcards'].map((tab) => (
+//             <button 
+//               key={tab} 
+//               onClick={() => setActiveTab(tab)} 
+//               className={`flex-1 py-8 text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all ${activeTab === tab ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400 hover:text-slate-900'}`}
+//             >
+//               {tab === 'pdf' && <File size={16} />}
+//               {tab === 'chat' && <MessageSquare size={16} />}
+//               {tab === 'flashcards' && <Zap size={16} />}
+//               {tab === 'pdf' ? 'View PDF' : tab === 'chat' ? 'AI Chat' : 'Flashcards'}
+//             </button>
+//           ))}
+//           <div className="flex-1 flex justify-center py-6 px-4">
+//             <button onClick={() => setShowQuizModal(true)} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-[9px] uppercase tracking-widest shadow-xl shadow-blue-100 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
+//               <Brain size={14} className="animate-pulse" /> AI Quiz
+//             </button>
+//           </div>
+//         </div>
+
+//         <div className="flex-1 p-8 overflow-hidden flex flex-col relative">
+//           {activeTab === 'pdf' ? (
+//             <div className="flex-1 flex gap-6 overflow-hidden h-full">
+//                 <div className="flex-1 rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-inner bg-slate-50 relative">
+//                     <PDFViewer 
+//   pdfPath={currentDoc.filePath}  // 'filePath' hona chahiye, kyunki model mein wahi naam hai
+//   fileName={currentDoc.title} 
+// />
+//                     <button 
+//                         onClick={() => setShowNotes(!showNotes)} 
+//                         className={`absolute top-6 right-6 p-4 rounded-2xl shadow-2xl transition-all z-20 ${showNotes ? 'bg-blue-600 text-white' : 'bg-white text-slate-800 border border-slate-100'}`}
+//                     >
+//                         {showNotes ? <X size={20}/> : <Edit3 size={20}/>}
+//                     </button>
+//                 </div>
+//                 {showNotes && (
+//                     <div className="w-[350px] bg-slate-50/50 rounded-[2.5rem] border border-slate-100 flex flex-col animate-in slide-in-from-right-10 duration-500">
+//                         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+//                             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2"><FileText size={14}/> Quick Notes</span>
+//                             <div className="flex gap-2">
+//                                 <button onClick={downloadNotesPDF} className="p-2 text-slate-400 hover:text-blue-600 transition-all"><Download size={16}/></button>
+//                                 <button onClick={handleSaveNotes} className={`p-2 transition-all ${isSavingNotes ? 'text-emerald-500' : 'text-slate-400 hover:text-blue-600'}`}>
+//                                     {isSavingNotes ? <Loader2 size={16} className="animate-spin"/> : <Save size={16}/>}
+//                                 </button>
+//                             </div>
+//                         </div>
+//                         <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Type notes here..." className="flex-1 bg-transparent p-8 text-sm font-medium leading-relaxed outline-none resize-none text-slate-600 custom-scrollbar" />
+//                         <div className="p-4 px-8 text-[9px] font-bold uppercase tracking-tighter text-slate-300">
+//                             {isSavingNotes ? "● Saving..." : "● All changes saved"}
+//                         </div>
+//                     </div>
+//                 )}
+//             </div>
+//           ) : activeTab === 'chat' ? (
+//             <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full">
+//               <div className="flex-1 overflow-y-auto space-y-6 mb-6 pr-4 custom-scrollbar">
+//                 {chatHistory.map((msg, i) => (
+//                   <div key={i} className={`flex gap-5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2`}>
+//                     {msg.role === 'bot' && <div className="h-12 w-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shrink-0"><Bot size={24}/></div>}
+//                     <div className={`max-w-[85%] p-6 rounded-[2.5rem] text-sm leading-relaxed shadow-sm ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-slate-50 text-slate-700 rounded-tl-none border border-slate-100'}`}>
+//                       <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
+//                     </div>
+//                   </div>
+//                 ))}
+//                 <div ref={chatEndRef} />
+//               </div>
+//               <form onSubmit={handleSendMessage} className="flex gap-4 bg-slate-50 p-4 rounded-[2.5rem] border border-slate-100 shadow-inner sticky bottom-0">
+//                 <input type="text" value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Ask AI Assistant..." className="flex-1 bg-transparent border-none px-6 text-sm font-bold focus:ring-0 outline-none" />
+//                 <button type="submit" disabled={isTyping} className="bg-blue-600 text-white p-4 rounded-2xl hover:bg-blue-700 transition-all shadow-lg active:scale-90"><Send size={20}/></button>
+//               </form>
+//             </div>
+//           ) : activeTab === 'flashcards' ? (
+//             <FlashcardTab flashcards={flashcards} onGenerate={handleGenerateFlashcards} isGenerating={isGenerating} />
+//           ) : null}
+//         </div>
+//       </div>
+
+//     {showQuizModal && (
+//   <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-[100] p-4">
+//     <div className="bg-white rounded-[2.5rem] md:rounded-[4rem] shadow-2xl max-w-sm w-full p-8 md:p-12 text-center">
+//       <div className="h-16 w-16 md:h-20 md:w-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+//         <Brain size={32} />
+//       </div>
+      
+//       <h2 className="text-xl md:text-2xl font-black text-slate-900 mb-2 tracking-tighter">AI Assessment</h2>
+      
+//       {/* 🔥 THE FIX: Yahan hum dynamic count dikhayenge */}
+//       <div className="mb-6">
+//           <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Question Density</p>
+//           <div className="inline-block px-6 py-2 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-blue-100">
+//               {quizCount} {/* 👈 Ye number ab hamesha dikhega */}
+//           </div>
+//       </div>
+
+//       <input 
+//         type="range" 
+//         min="5" 
+//         max="20" 
+//         step="1"
+//         value={quizCount} 
+//         onChange={(e) => setQuizCount(parseInt(e.target.value))} 
+//         className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer mb-8 accent-blue-600" 
+//       />
+
+//       <div className="space-y-3">
+//           <button 
+//             onClick={() => navigate(`/documents/${id}/quiz/take`, { state: { quizCount } })} 
+//             className="w-full bg-blue-600 text-white py-4 rounded-3xl font-black text-[11px] uppercase tracking-widest hover:bg-blue-700 shadow-2xl shadow-blue-100 transition-all"
+//           >
+//             Start Session
+//           </button>
+//           <button onClick={() => setShowQuizModal(false)} className="w-full py-2 text-slate-300 font-bold text-[10px] uppercase">Cancel</button>
+//       </div>
+//     </div>
+//   </div>
+// )}
+//     </div>
+//   );
+// };
+
+// export default DocumentDetailPage;
+
+
+
+//ye ek aur naya dte 13 feb
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -1441,6 +1770,9 @@ import {
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import PDFViewer from '../../components/PDFViewer';
+
+// API BASE URL from Env or Fallback to Render Link
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
 
 // --- Flashcard Tab Component ---
 const FlashcardTab = ({ flashcards, onGenerate, isGenerating }) => {
@@ -1509,7 +1841,7 @@ const FlashcardTab = ({ flashcards, onGenerate, isGenerating }) => {
 const DocumentDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [document, setDocument] = useState(null);
+  const [doc, setDoc] = useState(null); // Rename for clarity
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('pdf');
   const [question, setQuestion] = useState('');
@@ -1520,7 +1852,6 @@ const DocumentDetailPage = () => {
   const [showQuizModal, setShowQuizModal] = useState(false);
   const [quizCount, setQuizCount] = useState(10);
   
-  // Quick Notes States
   const [notes, setNotes] = useState("");
   const [showNotes, setShowNotes] = useState(false);
   const [isSavingNotes, setIsSavingNotes] = useState(false);
@@ -1539,30 +1870,27 @@ const DocumentDetailPage = () => {
     const fetchDoc = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`http://localhost:5000/api/documents/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+        const res = await axios.get(`${API_BASE_URL}/api/documents/${id}`, { 
+            headers: { Authorization: `Bearer ${token}` } 
+        });
         if (res.data.success) {
-            const docData = res.data.document || res.data.data;
-            setDocument(docData);
-            setNotes(docData.notes || "");
+            const data = res.data.document || res.data.data;
+            setDoc(data);
+            setNotes(data.notes || "");
         }
-      } catch (err) { console.error(err); } finally { setLoading(false); }
+      } catch (err) { console.error("Fetch Doc Error:", err); } finally { setLoading(false); }
     };
     fetchDoc();
   }, [id]);
 
-  // 🔥 Correctly defined handleGenerateFlashcards
-  // 🔥 Har baar naye questions ke liye force_refresh logic
   const handleGenerateFlashcards = async () => {
     try {
         setIsGenerating(true);
         const token = localStorage.getItem('token');
-        
-        // Humne yahan 'force_refresh: true' add kiya hai
-        const response = await axios.post(`http://localhost:5000/api/documents/${id}/flashcards`, 
+        const response = await axios.post(`${API_BASE_URL}/api/documents/${id}/flashcards`, 
             { force_refresh: true }, 
             { headers: { Authorization: `Bearer ${token}` } }
         );
-        
         if (response.data.success) {
             setFlashcards(response.data.flashcards);
         }
@@ -1582,29 +1910,38 @@ const DocumentDetailPage = () => {
     setIsTyping(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post(`http://localhost:5000/api/documents/${id}/chat`, { question }, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.post(`${API_BASE_URL}/api/documents/${id}/chat`, 
+        { question }, 
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       setChatHistory(prev => [...prev, { role: 'bot', text: res.data.answer }]);
-    } catch (err) { setChatHistory(prev => [...prev, { role: 'bot', text: "AI Node busy. Retry sync." }]); } finally { setIsTyping(false); }
+    } catch (err) { 
+        setChatHistory(prev => [...prev, { role: 'bot', text: "AI Node busy. Retry sync." }]); 
+    } finally { setIsTyping(false); }
   };
 
   const handleSaveNotes = async () => {
     setIsSavingNotes(true);
     try {
         const token = localStorage.getItem('token');
-        await axios.put(`http://localhost:5000/api/documents/${id}/notes`, { notes }, { headers: { Authorization: `Bearer ${token}` } });
+        await axios.put(`${API_BASE_URL}/api/documents/${id}/notes`, 
+            { notes }, 
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
     } catch (err) { console.error("Notes save failed"); } finally { 
         setTimeout(() => setIsSavingNotes(false), 1000);
     }
   };
 
   const downloadNotesPDF = () => {
-    const doc = new jsPDF();
-    doc.setFont("helvetica", "bold");
-    doc.text(`Study Notes: ${document?.title}`, 20, 20);
-    doc.setFont("helvetica", "normal"); doc.setFontSize(12);
-    const splitText = doc.splitTextToSize(notes, 170);
-    doc.text(splitText, 20, 35);
-    doc.save("My_Study_Notes.pdf");
+    const pdfDoc = new jsPDF();
+    pdfDoc.setFont("helvetica", "bold");
+    pdfDoc.text(`Study Notes: ${doc?.title}`, 20, 20);
+    pdfDoc.setFont("helvetica", "normal"); 
+    pdfDoc.setFontSize(12);
+    const splitText = pdfDoc.splitTextToSize(notes, 170);
+    pdfDoc.text(splitText, 20, 35);
+    pdfDoc.save("My_Study_Notes.pdf");
   };
 
   if (loading) return (
@@ -1621,9 +1958,9 @@ const DocumentDetailPage = () => {
           <ArrowLeft size={16} /> Dashboard
         </button>
         <div className="flex items-center gap-4">
-            <h2 className="text-slate-800 font-black text-xs uppercase tracking-tight max-w-[300px] truncate">{document?.title}</h2>
+            <h2 className="text-slate-800 font-black text-xs uppercase tracking-tight max-w-[300px] truncate">{doc?.title}</h2>
             <button 
-                onClick={() => window.open(document?.filePath?.startsWith('http') ? document.filePath : `http://localhost:5000/${document?.filePath?.replace(/\\/g, '/')}`, '_blank')} 
+                onClick={() => window.open(doc?.filePath, '_blank')} 
                 className="p-2.5 bg-white rounded-xl border border-slate-100 text-blue-600 shadow-sm hover:shadow-md transition-all"
             >
                 <Download size={16} />
@@ -1656,10 +1993,16 @@ const DocumentDetailPage = () => {
           {activeTab === 'pdf' ? (
             <div className="flex-1 flex gap-6 overflow-hidden h-full">
                 <div className="flex-1 rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-inner bg-slate-50 relative">
-                    <PDFViewer 
-                        pdfPath={document?.filePath?.startsWith('http') ? document.filePath : `http://localhost:5000/${document?.filePath?.replace(/\\/g, '/')}`} 
-                        fileName={document?.title} 
-                    />
+                    {/* 🔥 THE FIX: pass pdfPath from doc state */}
+                    {doc?.filePath ? (
+                        <PDFViewer 
+                           pdfPath={doc.filePath} 
+                           fileName={doc.title} 
+                        />
+                    ) : (
+                        <div className="flex items-center justify-center h-full text-slate-400 uppercase text-[10px] font-black">Link Missing</div>
+                    )}
+                    
                     <button 
                         onClick={() => setShowNotes(!showNotes)} 
                         className={`absolute top-6 right-6 p-4 rounded-2xl shadow-2xl transition-all z-20 ${showNotes ? 'bg-blue-600 text-white' : 'bg-white text-slate-800 border border-slate-100'}`}
@@ -1709,45 +2052,40 @@ const DocumentDetailPage = () => {
         </div>
       </div>
 
-    {showQuizModal && (
-  <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-[100] p-4">
-    <div className="bg-white rounded-[2.5rem] md:rounded-[4rem] shadow-2xl max-w-sm w-full p-8 md:p-12 text-center">
-      <div className="h-16 w-16 md:h-20 md:w-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
-        <Brain size={32} />
-      </div>
-      
-      <h2 className="text-xl md:text-2xl font-black text-slate-900 mb-2 tracking-tighter">AI Assessment</h2>
-      
-      {/* 🔥 THE FIX: Yahan hum dynamic count dikhayenge */}
-      <div className="mb-6">
-          <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Question Density</p>
-          <div className="inline-block px-6 py-2 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-blue-100">
-              {quizCount} {/* 👈 Ye number ab hamesha dikhega */}
+      {showQuizModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-[100] p-4">
+          <div className="bg-white rounded-[2.5rem] md:rounded-[4rem] shadow-2xl max-w-sm w-full p-8 md:p-12 text-center">
+            <div className="h-16 w-16 md:h-20 md:w-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+              <Brain size={32} />
+            </div>
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 mb-2 tracking-tighter">AI Assessment</h2>
+            <div className="mb-6">
+                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Question Density</p>
+                <div className="inline-block px-6 py-2 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-blue-100">
+                    {quizCount}
+                </div>
+            </div>
+            <input 
+              type="range" 
+              min="5" 
+              max="20" 
+              step="1"
+              value={quizCount} 
+              onChange={(e) => setQuizCount(parseInt(e.target.value))} 
+              className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer mb-8 accent-blue-600" 
+            />
+            <div className="space-y-3">
+                <button 
+                  onClick={() => navigate(`/documents/${id}/quiz/take`, { state: { quizCount } })} 
+                  className="w-full bg-blue-600 text-white py-4 rounded-3xl font-black text-[11px] uppercase tracking-widest hover:bg-blue-700 shadow-2xl shadow-blue-100 transition-all"
+                >
+                  Start Session
+                </button>
+                <button onClick={() => setShowQuizModal(false)} className="w-full py-2 text-slate-300 font-bold text-[10px] uppercase">Cancel</button>
+            </div>
           </div>
-      </div>
-
-      <input 
-        type="range" 
-        min="5" 
-        max="20" 
-        step="1"
-        value={quizCount} 
-        onChange={(e) => setQuizCount(parseInt(e.target.value))} 
-        className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer mb-8 accent-blue-600" 
-      />
-
-      <div className="space-y-3">
-          <button 
-            onClick={() => navigate(`/documents/${id}/quiz/take`, { state: { quizCount } })} 
-            className="w-full bg-blue-600 text-white py-4 rounded-3xl font-black text-[11px] uppercase tracking-widest hover:bg-blue-700 shadow-2xl shadow-blue-100 transition-all"
-          >
-            Start Session
-          </button>
-          <button onClick={() => setShowQuizModal(false)} className="w-full py-2 text-slate-300 font-bold text-[10px] uppercase">Cancel</button>
-      </div>
-    </div>
-  </div>
-)}
+        </div>
+      )}
     </div>
   );
 };

@@ -55,6 +55,7 @@ const PDFViewer = ({ pdfPath, fileName }) => {
     const openInNewTab = () => window.open(pdfPath, '_blank');
 
     if (!pdfPath) return <div className="text-white text-center p-10 font-black">NO PDF PATH PROVIDED</div>;
+    
 
     return (
         <div className="flex flex-col h-full bg-[#1e1e1e] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
