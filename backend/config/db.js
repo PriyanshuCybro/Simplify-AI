@@ -14,7 +14,6 @@
 
 //export default connectDB;
 
-
 import mongoose from "mongoose";
 
 const connectDB = async () => {
@@ -23,11 +22,14 @@ const connectDB = async () => {
       throw new Error("MONGODB_URI is missing in .env file");
     }
 
-    await mongoose.connect(process.env.MONGODB_URI);
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+        serverSelectionTimeoutMS: 5000,
+        autoIndex: true,
+    });
 
-    console.log("MongoDB connected successfully");
+    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error("Error connecting to MongoDB:", error.message);
+    console.error("❌ Error connecting to MongoDB:", error.message);
     process.exit(1);
   }
 };
