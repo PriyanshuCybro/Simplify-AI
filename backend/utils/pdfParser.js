@@ -1,4 +1,7 @@
-import pdf from 'pdf-parse';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const pdf = require('pdf-parse'); // ✅ CommonJS style import for ESM
+
 import axios from 'axios';
 
 /**
@@ -21,10 +24,8 @@ export const extractTextFromPDF = async (fileSource) => {
             dataBuffer = fs.readFileSync(fileSource);
         }
 
-        // ESM Compatibility Fix for pdf-parse
-        const parsePDF = typeof pdf === 'function' ? pdf : pdf.default;
-        
-        const data = await parsePDF(dataBuffer);
+        // pdf-parse ko call karna
+        const data = await pdf(dataBuffer);
 
         if (!data.text || data.text.trim().length < 5) {
             throw new Error("PDF seems to be an image or contains no selectable text.");

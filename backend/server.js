@@ -136,10 +136,11 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
-    console.log(`Server is running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-});
 
+// 🔥 '0.0.0.0' add karne se Render aapka port scan timeout error fix kar dega
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+});
 process.on('unhandledRejection', (err) => {
     console.log(`Error: ${err.message}`);
     process.exit(1);
