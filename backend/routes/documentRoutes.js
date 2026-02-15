@@ -26,7 +26,8 @@ router.use(protect);
 
 // Upload route
 //router.post('/upload', upload.single('file'), uploadDocument);
-router.post('/upload', uploadCloud.single('file'), uploadDocument);
+//router.post('/upload', uploadCloud.single('file'), uploadDocument);
+router.post('/upload', protect, uploadCloud.single('file'), uploadDocument);
 
 // Basic CRUD routes
 router.get('/', getDocuments);

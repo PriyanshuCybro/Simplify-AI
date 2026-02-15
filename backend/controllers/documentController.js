@@ -432,39 +432,32 @@ const processPDF = async (documentId, fileUrl) => {
 // 🔥 FINAL FIX: uploadDocument function
 export const uploadDocument = async (req, res) => {
     try {
+        console.log("File received:", req.file); // 👈 Render logs mein check karna
+
         if (!req.file) {
             return res.status(400).json({ success: false, message: "No file uploaded" });
         }
 
-        // ✅ Cloudinary provides URL in req.file.path
+        // Agar Cloudinary setup sahi hai, toh req.file.path mein "https://" aayega
         const fileUrl = req.file.path; 
+        console.log("Cloudinary URL:", fileUrl); 
 
         const newDoc = await Document.create({
-            userId: req.user._id, // Ensure using ._id from auth middleware
+            userId: req.user._id,
             title: req.body.title || req.file.originalname,
             fileName: req.file.originalname,
-            filePath: fileUrl, // ✅ Permanent Cloudinary URL saved here
+            filePath: fileUrl, // ✅ Yahan pakka https wala link jayega
             filesize: req.file.size,
-            status: "processing" // Pehle processing rakhte hain jab tak AI read na karle
+            status: "processing"
         });
 
-        // Background mein text extract karo bina user ko wait karwaye
+        // Background processing
         processPDF(newDoc._id, fileUrl);
 
         res.status(201).json({ success: true, data: newDoc });
     } catch (error) {
         console.error("Upload Error:", error);
-        res.status(500).json({ success: false, message: "Server Error during upload" });
-    }
-};
-
-export const getDocument = async (req, res) => {
-    try {
-        const document = await Document.findOne({ _id: req.params.id, userId: req.user._id });
-        if (!document) return res.status(404).json({ success: false, message: "Not found" });
-        res.status(200).json({ success: true, data: document });
-    } catch (error) { 
-        res.status(500).json({ success: false, message: error.message }); 
+        res.status(500).json({ success: false, message: "Server Error" });
     }
 };
 
