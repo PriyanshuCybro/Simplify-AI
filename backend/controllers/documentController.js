@@ -957,73 +957,223 @@ export const askAI = async (req, res) => {
             }] 
         };
         
-        const response = await axios.post(url, payload);
-        const answer = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "I couldn't generate an answer. Please try again.";
+        console.log("📤 Sending to Gemini API...");
+        const response = await axios.post(url, payload, { timeout: 30000 });
+        
+        if (!response.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+            console.warn("⚠️ Unexpected Gemini response format:", JSON.stringify(response.data).slice(0, 200));
+            return res.status(500).json({ success: false, message: "Invalid response from AI service" });
+        }
+        
+        const answer = response.data.candidates[0].content.parts[0].text;
+        console.log("✅ AI Response received successfully");
         
         res.status(200).json({ success: true, answer });
     } catch (error) {
-        console.error("❌ ASK AI ERROR:", error.message);
+        console.error("❌ ASK AI ERROR:", {
+            message: error.message,
+            status: error.response?.status,
+            data: error.response?.data,
+            code: error.code
+        });
         res.status(500).json({ success: false, message: "AI Chat Error: " + (error.message || "Unknown error") });
     }
 };
 
 export const generateFlashcards = async (req, res) => {
     try {
+        const { count = 5 } = req.body; // Default 5, max 10
+        const finalCount = Math.min(Math.max(parseInt(count), 5), 10); // Enforce 5-10 range
+
         const document = await Document.findById(req.params.id);
-        if (!document) return res.status(404).json({ success: false, message: "Doc not found" });
+        if (!document) return res.status(404).json({ success: false, message: "Document not found" });
+        
         const valErr = validateDoc(document);
         if (valErr) return res.status(400).json({ success: false, message: valErr });
 
-        const textChunk = document.extractedText.slice(0, 4000);
-        const prompt = `Return ONLY JSON array: [{"question":"...","answer":"..."}] based on: ${textChunk}`;
+        const textChunk = document.extractedText.slice(0, 6000);
+        const prompt = `Generate exactly ${finalCount} unique flashcard Q&A pairs from this document. Return ONLY valid JSON array with NO extra text:
+[{"question":"What is...?","answer":"...","difficulty":"easy|medium|hard"}]
 
+Document:
+${textChunk}
+
+Requirements:
+- Questions must be clear and specific
+- Answers must be detailed (2-3 sentences)
+- Mix difficulties: easy, medium, hard
+- Each Q&A must be unique and from the document
+- Return EXACTLY ${finalCount} items`;
+
+        console.log("📤 Generating flashcards (count: " + finalCount + ")...");
         const response = await axios.post("https://openrouter.ai/api/v1/chat/completions", {
             "model": "google/gemini-2.0-flash-001",
-            "messages": [{ "role": "user", "content": prompt }]
-        }, { headers: { "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}` } });
+            "messages": [{ "role": "user", "content": prompt }],
+            "temperature": 0.7  // Increase variety
+        }, { 
+            headers: { "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}` },
+            timeout: 30000
+        });
 
         const rawText = response.data?.choices?.[0]?.message?.content || "";
-        const jsonMatch = rawText.match(/\[.*\]/s);
-        if (!jsonMatch) throw new Error("Invalid AI JSON");
+        console.log("Raw response:", rawText.slice(0, 100));
+        
+        const jsonMatch = rawText.match(/\[[\s\S]*\]/);
+        if (!jsonMatch) {
+            console.error("Could not parse JSON from:", rawText.slice(0, 200));
+            throw new Error("Invalid AI JSON response");
+        }
 
-        const saved = await FlashCard.create({ userId: req.user._id, documentId: req.params.id, cards: JSON.parse(jsonMatch[0]) });
+        let cards = JSON.parse(jsonMatch[0]);
+        if (!Array.isArray(cards)) cards = [cards];
+        
+        // Ensure exactly finalCount items
+        cards = cards.slice(0, finalCount);
+        
+        const saved = await FlashCard.create({ 
+            userId: req.user._id, 
+            documentId: req.params.id, 
+            cards: cards 
+        });
+        
+        console.log("✅ Flashcards generated successfully:", cards.length);
         res.status(200).json({ success: true, flashcards: saved.cards });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Flashcard Error" });
+        console.error("❌ GENERATE FLASHCARDS ERROR:", error.message);
+        res.status(500).json({ success: false, message: "Flashcard generation failed: " + error.message });
     }
 };
 
 export const generateQuiz = async (req, res) => {
     try {
+        const { count = 5 } = req.body; // Default 5, max 10
+        const finalCount = Math.min(Math.max(parseInt(count), 5), 10); // Enforce 5-10 range
+
         const document = await Document.findById(req.params.id);
-        if (!document) return res.status(404).json({ success: false, message: "Not ready" });
-        const prompt = `Generate JSON MCQs: [{"question": "...", "options": ["a", "b", "c", "d"], "correctAnswer": "..."}] for: ${document.extractedText.slice(0, 4000)}`;
+        if (!document) return res.status(404).json({ success: false, message: "Document not found" });
+        
+        const valErr = validateDoc(document);
+        if (valErr) return res.status(400).json({ success: false, message: valErr });
+
+        const textChunk = document.extractedText.slice(0, 6000);
+        const prompt = `Generate exactly ${finalCount} unique MCQ questions from this document. Return ONLY valid JSON array with NO extra text:
+[{"question":"What is...?","options":["option1","option2","option3","option4"],"correctAnswer":"option1","explanation":"...","difficulty":"easy|medium|hard"}]
+
+Document:
+${textChunk}
+
+Requirements:
+- Generate EXACTLY ${finalCount} unique questions
+- Each question must have exactly 4 options
+- correctAnswer must be one of the options
+- Mix difficulties: easy, medium, hard
+- Explanation should briefly explain why
+- Options should be plausible but only one correct
+- Return EXACTLY ${finalCount} items`;
+
+        console.log("📤 Generating quiz (count: " + finalCount + ")...");
         const response = await axios.post("https://openrouter.ai/api/v1/chat/completions", {
             "model": "google/gemini-2.0-flash-001",
-            "messages": [{ "role": "user", "content": prompt }]
-        }, { headers: { "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}` } });
-        const jsonMatch = response.data?.choices?.[0]?.message?.content.match(/\[.*\]/s);
-        res.status(200).json({ success: true, data: JSON.parse(jsonMatch[0]) });
+            "messages": [{ "role": "user", "content": prompt }],
+            "temperature": 0.8  // Good balance for variation
+        }, { 
+            headers: { "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}` },
+            timeout: 30000
+        });
+
+        const rawText = response.data?.choices?.[0]?.message?.content || "";
+        console.log("Raw quiz response:", rawText.slice(0, 100));
+        
+        const jsonMatch = rawText.match(/\[[\s\S]*\]/);
+        if (!jsonMatch) {
+            console.error("Could not parse JSON from:", rawText.slice(0, 200));
+            throw new Error("Invalid AI JSON response");
+        }
+
+        let questions = JSON.parse(jsonMatch[0]);
+        if (!Array.isArray(questions)) questions = [questions];
+        
+        // Validate and ensure exactly finalCount items
+        questions = questions.slice(0, finalCount).map(q => ({
+            question: q.question || "Question",
+            options: Array.isArray(q.options) ? q.options.slice(0, 4) : ["A", "B", "C", "D"],
+            correctAnswer: q.correctAnswer || q.options?.[0] || "A",
+            explanation: q.explanation || "",
+            difficulty: q.difficulty || "medium"
+        }));
+
+        // Create quiz in DB
+        const quiz = await Quiz.create({
+            userId: req.user._id,
+            documentId: req.params.id,
+            title: `Quiz - ${document.title}`,
+            questions: questions,
+            userAnswers: []
+        });
+
+        console.log("✅ Quiz generated successfully:", questions.length);
+        res.status(200).json({ success: true, quiz });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Quiz Error" });
+        console.error("❌ GENERATE QUIZ ERROR:", error.message);
+        res.status(500).json({ success: false, message: "Quiz generation failed: " + error.message });
     }
+};
 };
 
 export const saveQuizResult = async (req, res) => {
     try {
-        const doc = await Document.findById(req.params.id);
-        const quizResult = await Quiz.create({
-            userId: req.user._id,
-            documentId: req.params.id,
-            title: req.body.title || doc?.title || "Quiz",
-            score: req.body.score,
-            totalQuestions: req.body.totalQuestions,
-            accuracy: (req.body.score / req.body.totalQuestions) * 100,
-            status: 'completed'
+        const { id } = req.params; // quizId
+        const { userAnswers } = req.body; // [{ questionIndex, selectedAnswer }, ...]
+
+        // Find the quiz
+        const quiz = await Quiz.findById(id);
+        if (!quiz) return res.status(404).json({ success: false, message: "Quiz not found" });
+        if (quiz.userId.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ success: false, message: "Unauthorized" });
+        }
+
+        // Calculate score and update userAnswers
+        let correctCount = 0;
+        const updatedAnswers = userAnswers.map((answer, idx) => {
+            const question = quiz.questions[answer.questionIndex];
+            const isCorrect = answer.selectedAnswer === question.correctAnswer;
+            if (isCorrect) correctCount++;
+            
+            return {
+                questionIndex: answer.questionIndex,
+                selectedAnswer: answer.selectedAnswer,
+                isCorrect: isCorrect,
+                answeredAt: new Date()
+            };
         });
-        res.status(201).json({ success: true, data: quizResult });
+
+        const totalQuestions = quiz.questions.length;
+        const accuracy = (correctCount / totalQuestions) * 100;
+        const score = correctCount;
+
+        // Update quiz with results
+        quiz.userAnswers = updatedAnswers;
+        quiz.score = score;
+        quiz.accuracy = accuracy;
+        quiz.status = 'completed';
+        await quiz.save();
+
+        console.log(`✅ Quiz completed: ${correctCount}/${totalQuestions} (${accuracy.toFixed(2)}%)`);
+
+        res.status(200).json({ 
+            success: true, 
+            data: {
+                quizId: quiz._id,
+                score: correctCount,
+                totalQuestions: totalQuestions,
+                accuracy: accuracy.toFixed(2),
+                userAnswers: updatedAnswers,
+                questions: quiz.questions
+            }
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("❌ SAVE QUIZ RESULT ERROR:", error.message);
+        res.status(500).json({ success: false, message: "Failed to save quiz result: " + error.message });
     }
 };
 
