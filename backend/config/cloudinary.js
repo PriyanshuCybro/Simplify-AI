@@ -2,9 +2,12 @@ import { v2 as cloudinary } from 'cloudinary';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
-// ✅ Sabse solid tarika CommonJS library load karne ka
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+// ✅ SAFE ACCESS LOGIC: Sabse solid tarika
+const multerStorageCloudinary = require('multer-storage-cloudinary');
 const multer = require('multer');
+
+// Check karega ki constructor asliyat mein kahan hai
+const CloudinaryStorage = multerStorageCloudinary.CloudinaryStorage || multerStorageCloudinary;
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -15,6 +18,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// Yahan ab 'new' keyword 100% kaam karega
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
