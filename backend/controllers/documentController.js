@@ -779,31 +779,45 @@ const processPDF = async (documentId, fileUrl) => {
 };
 
 // --- MAIN UPLOAD CONTROLLER ---
+// Is function ko apne controller mein replace karo (Baki exports mat chhedna)
 export const uploadDocument = async (req, res) => {
     try {
-        if (!req.file) {
-            return res.status(400).json({ success: false, message: "No file uploaded" });
-        }
+        if (!req.file) return res.status(400).json({ success: false, message: "No file uploaded" });
 
-        const fileUrl = req.file.path; 
-        console.log("📂 File received. Cloudinary URL:", fileUrl); 
+        console.log("📂 Buffer received, uploading to Cloudinary manually...");
+
+        // Manual upload promise
+        const uploadToCloudinary = () => {
+            return new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { folder: "simplify_pdfs", resource_type: "raw", format: "pdf" },
+                    (error, result) => {
+                        if (result) resolve(result);
+                        else reject(error);
+                    }
+                );
+                stream.end(req.file.buffer);
+            });
+        };
+
+        const result = await uploadToCloudinary();
+        const fileUrl = result.secure_url;
 
         const newDoc = await Document.create({
             userId: req.user._id,
             title: req.body.title || req.file.originalname,
             fileName: req.file.originalname,
-            filePath: fileUrl, 
-            filesize: req.file.size, // Model field name match
+            filePath: fileUrl,
+            filesize: req.file.size,
             status: "processing"
         });
 
-        // 🔥 Trigger background processing
-        processPDF(newDoc._id, fileUrl);
+        processPDF(newDoc._id, fileUrl); // background processing
 
         res.status(201).json({ success: true, data: newDoc });
     } catch (error) {
-        console.error("❌ Upload Error:", error);
-        res.status(500).json({ success: false, message: "Server Upload Error", details: error.message });
+        console.error("❌ MANUAL UPLOAD ERROR:", error);
+        res.status(500).json({ success: false, message: "Cloudinary Direct Upload Failed" });
     }
 };
 
