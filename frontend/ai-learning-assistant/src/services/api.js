@@ -5,6 +5,7 @@ const API = axios.create({
     withCredentials: true 
 });
 
+// Request Interceptor
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -13,26 +14,15 @@ API.interceptors.request.use((req) => {
   return req;
 });
 
-// --- Document Routes ---
-
-// ✅ Sabhi functions ke aage 'export const' hona zaroori hai
-export const uploadDocument = async (formData) => {
-    try {
-        const response = await API.post('/documents/upload', formData);
-        return response;
-    } catch (error) {
-        console.error("Frontend API Error:", error.response?.data || error.message);
-        throw error;
-    }
-};
-
-// ❌ Ye do functions missing the, isliye Vercel phat raha tha
+// ✅ ALL EXPORTS ADDED (Fixes Vercel Build Error)
+export const uploadDocument = (formData) => API.post('/documents/upload', formData);
 export const getDocuments = () => API.get('/documents');
 export const getDocument = (id) => API.get(`/documents/${id}`);
 export const deleteDocument = (id) => API.delete(`/documents/${id}`);
 
-// --- AI & Flashcards ---
-export const askAI = (documentId, question) => API.post(`/documents/${documentId}/chat`, { question });
+// AI & Quiz Handlers
+export const askAI = (id, q) => API.post(`/documents/${id}/chat`, { question: q });
 export const generateFlashcardsAPI = (id) => API.post(`/documents/${id}/flashcards`);
+export const generateQuiz = (id) => API.post(`/documents/${id}/quiz`);
 
 export default API;
