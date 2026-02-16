@@ -1,7 +1,13 @@
 import { v2 as cloudinary } from 'cloudinary';
-import pkg from 'multer-storage-cloudinary';
-const { CloudinaryStorage } = pkg;
-import multer from 'multer';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
+// ✅ Sabse solid tarika CommonJS library load karne ka
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const multer = require('multer');
+
+import dotenv from 'dotenv';
+dotenv.config();
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -20,3 +26,4 @@ const storage = new CloudinaryStorage({
 });
 
 export const uploadCloud = multer({ storage });
+export { cloudinary };
