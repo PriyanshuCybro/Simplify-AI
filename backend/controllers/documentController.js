@@ -740,6 +740,7 @@
 import Document from "../models/Document.js";
 import FlashCard from "../models/FlashCard.js";
 import Quiz from "../models/Quiz.js";
+import { v2 as cloudinary } from 'cloudinary'; // 👈 YE LINE ADD KARO
 import { extractTextFromPDF } from '../utils/pdfParser.js';
 import { chunkText } from '../utils/textChunker.js';
 import axios from 'axios';
@@ -786,14 +787,17 @@ export const uploadDocument = async (req, res) => {
 
         console.log("📂 Buffer received, uploading to Cloudinary manually...");
 
-        // Manual upload promise
+        // Direct Buffer Upload
         const uploadToCloudinary = () => {
             return new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream(
                     { folder: "simplify_pdfs", resource_type: "raw", format: "pdf" },
                     (error, result) => {
                         if (result) resolve(result);
-                        else reject(error);
+                        else {
+                            console.error("Cloudinary Stream Error:", error);
+                            reject(error);
+                        }
                     }
                 );
                 stream.end(req.file.buffer);
@@ -802,6 +806,8 @@ export const uploadDocument = async (req, res) => {
 
         const result = await uploadToCloudinary();
         const fileUrl = result.secure_url;
+
+        console.log("✅ Cloudinary Success:", fileUrl);
 
         const newDoc = await Document.create({
             userId: req.user._id,
@@ -812,15 +818,14 @@ export const uploadDocument = async (req, res) => {
             status: "processing"
         });
 
-        processPDF(newDoc._id, fileUrl); // background processing
+        processPDF(newDoc._id, fileUrl); 
 
         res.status(201).json({ success: true, data: newDoc });
     } catch (error) {
-        console.error("❌ MANUAL UPLOAD ERROR:", error);
-        res.status(500).json({ success: false, message: "Cloudinary Direct Upload Failed" });
+        console.error("❌ FINAL UPLOAD ERROR:", error.message);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
-
 // --- CRUD & OTHERS (Stable Versions) ---
 export const getDocuments = async (req, res) => {
     try {
