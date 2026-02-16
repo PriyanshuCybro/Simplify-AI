@@ -755,13 +755,15 @@ const validateDoc = (doc) => {
 };
 
 // 🔥 BACKGROUND PROCESSOR (With Error Handling)
-const processPDF = async (documentId, fileUrl) => {
-    try {
-        console.log(`⏳ Processing PDF for ID: ${documentId}`);
-        const { text } = await extractTextFromPDF(fileUrl); 
-        
-        if (!text || text.length < 10) throw new Error("Extracted text is too short or empty.");
+// ... (Top imports same rehne do)
 
+const processPDF = async (documentId, buffer) => {
+    try {
+        console.log(`⏳ Processing PDF for ID: ${documentId} (Using Buffer)`);
+        
+        // Direct buffer se text nikalenge, URL ki zaroorat nahi
+        const { text } = await extractTextFromPDF(buffer); 
+        
         const chunks = chunkText(text, 500, 50);
         
         await Document.findByIdAndUpdate(documentId, {
@@ -779,25 +781,17 @@ const processPDF = async (documentId, fileUrl) => {
     }
 };
 
-// --- MAIN UPLOAD CONTROLLER ---
-// Is function ko apne controller mein replace karo (Baki exports mat chhedna)
 export const uploadDocument = async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ success: false, message: "No file uploaded" });
 
-        console.log("📂 Buffer received, uploading to Cloudinary manually...");
-
-        // Direct Buffer Upload
         const uploadToCloudinary = () => {
             return new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream(
                     { folder: "simplify_pdfs", resource_type: "raw", format: "pdf" },
                     (error, result) => {
                         if (result) resolve(result);
-                        else {
-                            console.error("Cloudinary Stream Error:", error);
-                            reject(error);
-                        }
+                        else reject(error);
                     }
                 );
                 stream.end(req.file.buffer);
@@ -806,8 +800,6 @@ export const uploadDocument = async (req, res) => {
 
         const result = await uploadToCloudinary();
         const fileUrl = result.secure_url;
-
-        console.log("✅ Cloudinary Success:", fileUrl);
 
         const newDoc = await Document.create({
             userId: req.user._id,
@@ -818,11 +810,12 @@ export const uploadDocument = async (req, res) => {
             status: "processing"
         });
 
-        processPDF(newDoc._id, fileUrl); 
+        // 🔥 URL ke bajaye req.file.buffer bhejo
+        processPDF(newDoc._id, req.file.buffer); 
 
         res.status(201).json({ success: true, data: newDoc });
     } catch (error) {
-        console.error("❌ FINAL UPLOAD ERROR:", error.message);
+        console.error("❌ UPLOAD ERROR:", error.message);
         res.status(500).json({ success: false, message: error.message });
     }
 };
