@@ -759,49 +759,47 @@ const processPDF = async (documentId, buffer) => {
     try {
         console.log(`⏳ Processing PDF for ID: ${documentId}`);
         
-        // PDF se text nikalna
+        // Asli text extraction call
         const result = await extractTextFromPDF(buffer); 
-        const extractedText = result.text || "";
         
-        // Schema Match: Chunks array create karna
-        const chunks = [{
-            content: extractedText.slice(0, 5000), // First chunk to avoid DB size limit
-            chunkIndex: 0,
-            pageNumber: 1
-        }];
-        
-        // Database Update
+        if (!result || !result.text || result.text.trim().length < 10) {
+            throw new Error("Text extraction returned empty or too short.");
+        }
+
+        const fullText = result.text.trim();
+
+        // Database ko "READY" tabhi karo jab text mil jaye
         await Document.findByIdAndUpdate(documentId, {
-            extractedText: extractedText,
-            chunks: chunks, 
-            status: "ready"
+            extractedText: fullText,
+            chunks: [{
+                content: fullText.slice(0, 5000), // AI ko pehla chunk dene ke liye
+                chunkIndex: 0,
+                pageNumber: 1
+            }],
+            status: "ready" 
         });
 
-        console.log(`✅ Doc ${documentId} is now READY`);
+        console.log(`✅ Doc ${documentId} is now READY with ${fullText.length} characters.`);
     } catch (error) {
-        console.error("❌ Background Process Error:", error.message);
-        // Fail hone par status update karna zaroori hai
-        await Document.findByIdAndUpdate(documentId, { status: "failed" });
+        console.error("❌ REAL EXTRACTION ERROR:", error.message);
+        
+        // Agar fail hua toh status 'failed' karo taaki chat API crash na ho
+        await Document.findByIdAndUpdate(documentId, { 
+            status: "failed",
+            extractedText: "Error: Could not extract text from this PDF." 
+        });
     }
 };
 
-// 2. Main Controller (Exported)
 export const uploadDocument = async (req, res) => {
     try {
-        if (!req.file) {
-            return res.status(400).json({ success: false, message: "No file uploaded" });
-        }
+        if (!req.file) return res.status(400).json({ success: false, message: "No file uploaded" });
 
-        console.log("📂 File received, uploading to Cloudinary...");
-
+        // Cloudinary Upload Promise
         const uploadToCloudinary = () => {
             return new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream(
-                    { 
-                        folder: "simplify_pdfs", 
-                        resource_type: "auto", // 🔥 Must be 'auto' for PDFs to be viewable without 401
-                        flags: "attachment" 
-                    },
+                    { folder: "simplify_pdfs", resource_type: "auto" },
                     (error, result) => {
                         if (result) resolve(result);
                         else reject(error);
@@ -813,7 +811,7 @@ export const uploadDocument = async (req, res) => {
 
         const result = await uploadToCloudinary();
         
-        // Database entry create karna
+        // 1. Database mein entry create karo (Initial Status: processing)
         const newDoc = await Document.create({
             userId: req.user._id,
             title: req.body.title || req.file.originalname,
@@ -823,25 +821,23 @@ export const uploadDocument = async (req, res) => {
             status: "processing"
         });
 
-        // 🔥 Background mein process shuru karna
-        // We don't 'await' this so the user gets a fast response
+        // 2. Background mein extraction trigger karo
         processPDF(newDoc._id, req.file.buffer).catch(err => {
-            console.error("Background PDF Trigger Error:", err);
+            console.error("Background Trigger Failed:", err);
         });
 
-        // Instant response to Frontend
+        // 3. User ko turant response do (Status 201)
         res.status(201).json({ 
             success: true, 
-            message: "Upload successful, processing started.",
+            message: "File uploaded successfully. Processing started...",
             data: newDoc 
         });
 
     } catch (error) {
-        console.error("❌ UPLOAD ERROR:", error.message);
-        res.status(500).json({ success: false, message: error.message });
+        console.error("❌ UPLOAD API ERROR:", error.message);
+        res.status(500).json({ success: false, message: "Upload failed: " + error.message });
     }
 };
-
 // --- CRUD & OTHERS (Stable Versions) ---
 export const getDocuments = async (req, res) => {
     try {

@@ -64,11 +64,10 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
-// DHAYAN SE DEKHO: Yahan 'export' keyword hona zaroori hai
 export const protect = async (req, res, next) => {
     let token;
 
-    // Check headers
+    // 1. Check if Authorization header exists
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
             // Get token from header
@@ -77,18 +76,31 @@ export const protect = async (req, res, next) => {
             // Verify token
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+            // 🔥 FIX: Check both 'id' and '_id' (Sometimes payload differs)
+            const userId = decoded.id || decoded._id;
+
             // Get user from the token (excluding password)
-            req.user = await User.findById(decoded.id).select('-password');
+            req.user = await User.findById(userId).select('-password');
+
+            if (!req.user) {
+                console.error("❌ Auth Error: Token valid but User not found in DB");
+                return res.status(401).json({ success: false, message: 'User no longer exists' });
+            }
 
             next();
         } catch (error) {
-            console.error("Token Verification Error:", error.message);
-            return res.status(401).json({ success: false, message: 'Not authorized, token failed' });
+            console.error("❌ JWT Verification Error:", error.message);
+            return res.status(401).json({ 
+                success: false, 
+                message: error.message === 'jwt expired' ? 'Session expired, please login again' : 'Not authorized, token failed' 
+            });
         }
     }
 
     if (!token) {
+        console.error("❌ Auth Error: No token provided in headers");
         return res.status(401).json({ success: false, message: 'Not authorized, no token' });
     }
 };
+
 export default protect;
