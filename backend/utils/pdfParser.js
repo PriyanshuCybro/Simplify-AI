@@ -1,6 +1,11 @@
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-const pdf = require('pdf-parse'); 
+const pdfParsePackage = require('pdf-parse'); 
+
+// 🔥 Fix: 'pdf is not a function' bypass logic
+// Ye line check karegi ki function direct hai ya .default ke andar
+const pdf = typeof pdfParsePackage === 'function' ? pdfParsePackage : pdfParsePackage.default;
+
 import axios from 'axios';
 
 /**
@@ -10,12 +15,12 @@ export const extractTextFromPDF = async (fileSource) => {
     try {
         let dataBuffer;
 
-        // 1. Agar input pehle se hi Buffer hai (Sabse Fast & No 401 Error)
+        // 1. Handle Buffer (Sabse fast, no network 401 error)
         if (Buffer.isBuffer(fileSource)) {
             console.log("📥 Processing PDF directly from memory buffer...");
             dataBuffer = fileSource;
         } 
-        // 2. Agar input Cloudinary URL hai
+        // 2. Handle Cloudinary URL
         else if (typeof fileSource === 'string' && fileSource.startsWith('http')) {
             console.log("🌐 Fetching PDF from URL...");
             const response = await axios.get(fileSource, { 
@@ -24,7 +29,7 @@ export const extractTextFromPDF = async (fileSource) => {
             });
             dataBuffer = Buffer.from(response.data);
         } 
-        // 3. Agar input local path hai
+        // 3. Handle Local Path
         else if (typeof fileSource === 'string') {
             console.log("📁 Reading PDF from local path...");
             const fs = await import('fs');
@@ -33,7 +38,12 @@ export const extractTextFromPDF = async (fileSource) => {
             throw new Error("Invalid file source provided to PDF parser.");
         }
 
-        // Parse logic
+        // 🔥 Logic check before calling the function
+        if (typeof pdf !== 'function') {
+            throw new Error("pdf-parse library failed to load correctly as a function.");
+        }
+
+        // PDF extraction call
         const data = await pdf(dataBuffer);
 
         if (!data.text || data.text.trim().length < 5) {
