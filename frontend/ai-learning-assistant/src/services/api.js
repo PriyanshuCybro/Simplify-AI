@@ -17,13 +17,10 @@ API.interceptors.request.use((req) => {
   return req;
 });
 
-// --- Document Routes ---
+// 
 export const uploadDocument = async (formData) => {
     return await API.post('/documents/upload', formData, {
-        headers: {
-            // Content-Type ko empty chhodne se Axios sahi boundary khud lagayega
-            'Content-Type': 'multipart/form-data'
-        }
+        withCredentials: true // Extremely important
     });
 };
 export const getDocuments = () => API.get('/documents');
