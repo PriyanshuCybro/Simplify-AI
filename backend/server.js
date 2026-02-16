@@ -20,48 +20,45 @@ const app = express();
 // 1. Connect to MongoDB
 connectDB();
 
-// 2. UNIVERSAL CORS FIX (Isse Vercel block nahi hoga)
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "https://simplify-ai-kappa.vercel.app");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-    res.header("Access-Control-Allow-Credentials", "true");
-    
-    // Preflight requests ke liye
-    if (req.method === "OPTIONS") {
-        return res.status(200).end();
-    }
-    next();
-});
-
-// Extra safety
-// app.use(cors({
-//     origin: "https://simplify-ai-kappa.vercel.app",
-//     credentials: true
-// }));
-
+// 2. ✅ FINAL CORS FIX (Clean & Standard)
+const allowedOrigins = [
+    "https://simplify-ai-kappa.vercel.app",
+    "http://localhost:5173"
+];
 
 app.use(cors({
-    origin: true, // Sab origins allow kar do
+    origin: function (origin, callback) {
+        // allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            return callback(new Error('CORS Policy: Origin not allowed'), false);
+        }
+        return callback(null, true);
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
 }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// 3. Routes
+// 3. API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/users', userRoutes);
 
-app.get("/", (req, res) => res.send("API is running..."));
+app.get("/", (req, res) => res.send("Simplify AI API is running... 🚀"));
 
+// Error Handling
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server running on port ${PORT}`);
+});
+
+process.on('unhandledRejection', (err) => {
+    console.log(`Error: ${err.message}`);
 });

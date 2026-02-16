@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-// Render Backend URL
+// Render Backend URL (Make sure no trailing slash after /api)
 const API_BASE_URL = "https://simplify-ai-mrrh.onrender.com/api";
 
 const API = axios.create({ 
     baseURL: API_BASE_URL,
-    withCredentials: true // 👈 CORS ke liye ye zaroori hai
+    withCredentials: true 
 });
 
 // Add token to headers for every request
@@ -18,14 +18,12 @@ API.interceptors.request.use((req) => {
 });
 
 // --- Document Routes ---
-// ✅ FIX: FormData bhejte waqt header manually specify karna safe rehta hai
 export const uploadDocument = async (formData) => {
-    return await API.post('/documents/upload', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    });
+    // Axios automatic Content-Type handle karta hai jab FormData pass hota hai
+    // Par manual safety ke liye hum ye bhej rahe hain
+    return await API.post('/documents/upload', formData);
 };
+
 export const getDocuments = () => API.get('/documents');
 export const getDocument = (id) => API.get(`/documents/${id}`);
 export const deleteDocument = (id) => API.delete(`/documents/${id}`);
