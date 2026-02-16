@@ -37,11 +37,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Serve React SPA build files
+const frontendPath = path.join(__dirname, '../frontend/ai-learning-assistant/dist');
+app.use(express.static(frontendPath));
+
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/users', userRoutes);
 
 app.get("/", (req, res) => res.send("System Active 🚀"));
+
+// SPA fallback - serve index.html for all non-API routes
+app.get("*", (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+});
 
 app.use(errorHandler);
 
