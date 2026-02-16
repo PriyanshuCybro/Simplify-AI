@@ -23,35 +23,47 @@ const PDFViewer = ({ pdfPath, fileName }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // 🔥 FIX: Cloudinary links are public URLs. 
-    // We REMOVED httpHeaders because they block requests to Cloudinary.
+    // 🔥 FIX: Cloudinary URLs are public - NO headers needed, NO auth tokens
     const fileProp = useMemo(() => {
-        if (!pdfPath) return null;
-        
-        // 🔥 FIX: Agar Cloudinary URL hai (https://res.cloudinary...) toh direct load karo
-        if (pdfPath.startsWith('http')) {
-            // Kabhi-kabhi Cloudinary 'http' bhejta hai, use 'https' mein convert karna safe rehta hai
-            return pdfPath.replace('http://', 'https://');
+        if (!pdfPath) {
+            console.warn("❌ NO PDF PATH PROVIDED");
+            return null;
         }
         
-        // ⚠️ WARNING: Agar path 'uploads/' se shuru ho raha hai, toh iska matlab ye purana data hai
-        // Render par ye folder nahi hota, isliye ise null kar dena chahiye taaki error handle ho sake
-        console.warn("⚠️ Purana local path detect hua, ye Render par nahi chalega:", pdfPath);
+        // 🔥 CRITICAL: Cloudinary secure URLs (https://res.cloudinary.com) are PUBLIC
+        // Do NOT add auth headers - they cause 401 errors
+        if (pdfPath.startsWith('https://res.cloudinary.com')) {
+            console.log("✅ Loading from Cloudinary (public URL):", pdfPath);
+            return pdfPath;
+        }
         
-        // Agar aap local testing kar rahe hain tabhi localhost jodein, warna Render par ise block karein
+        if (pdfPath.startsWith('http')) {
+            // Ensure HTTPS for all external URLs
+            const httpsUrl = pdfPath.replace('http://', 'https://');
+            console.log("✅ Loading from external URL:", httpsUrl);
+            return httpsUrl;
+        }
+        
+        // Local paths (e.g., uploads/...) are for local dev only
+        console.warn("⚠️ Local path detected:", pdfPath);
+        
         if (import.meta.env.MODE === 'development') {
-            const baseUrl = import.meta.env.VITE_API_URL || 'https://simplify-ai-mrrh.onrender.com';
-            return `${baseUrl}/${pdfPath.replace(/\\/g, '/')}`;
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const fullUrl = `${baseUrl}/${pdfPath.replace(/\\/g, '/')}`;
+            console.log("📍 Dev mode - constructing full URL:", fullUrl);
+            return fullUrl;
         }
 
-        return null; // Production (Render) par local paths ko reject kar do
+        console.error("❌ Production detected but local path provided - cannot load");
+        return null;
     }, [pdfPath]);
 
     const options = useMemo(() => ({
         cMapUrl: `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/cmaps/`,
         cMapPacked: true,
         standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/standard_fonts/`,
-        disableFontFace: true 
+        disableFontFace: true,
+        withCredentials: false  // 🔥 CRITICAL: Cloudinary URLs don't need credentials
     }), []);
 
     const onDocumentLoadSuccess = ({ numPages }) => {
@@ -66,9 +78,17 @@ const PDFViewer = ({ pdfPath, fileName }) => {
         setLoading(false);
     };
 
-    const openInNewTab = () => window.open(pdfPath, '_blank');
+    const openInNewTab = () => window.open(fileProp || pdfPath, '_blank');
 
-    if (!pdfPath) return <div className="text-white text-center p-10 font-black">NO PDF PATH PROVIDED</div>;
+    if (!fileProp) {
+        return (
+            <div className="flex flex-col h-full bg-[#1e1e1e] rounded-3xl overflow-hidden border border-white/10 shadow-2xl items-center justify-center">
+                <AlertCircle className="text-red-500 mb-4" size={48} />
+                <p className="text-white font-bold uppercase text-sm tracking-widest">PDF Path Not Available</p>
+                <p className="text-white/50 text-xs mt-2">The document path is missing or invalid</p>
+            </div>
+        );
+    }
     
 
     return (

@@ -920,18 +920,44 @@ export const askAI = async (req, res) => {
     try {
         const { id } = req.params;
         const { question } = req.body;
+        
+        if (!question || !question.trim()) {
+            return res.status(400).json({ success: false, message: "Question is required" });
+        }
+
         const document = await Document.findById(id);
-        const apiKey = process.env.GEMINI_API_KEY;
+        if (!document) {
+            return res.status(404).json({ success: false, message: "Document not found" });
+        }
+
         const errorMsg = validateDoc(document);
-        if (errorMsg) return res.status(400).json({ success: false, message: errorMsg });
+        if (errorMsg) {
+            return res.status(400).json({ success: false, message: errorMsg });
+        }
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            console.error("❌ GEMINI_API_KEY not configured");
+            return res.status(500).json({ success: false, message: "AI service not configured" });
+        }
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-        const payload = { contents: [{ parts: [{ text: `Answer based ONLY on: ${document.extractedText.slice(0, 20000)}\n\nQuestion: ${question}` }] }] };
+        const contextText = document.extractedText.slice(0, 20000);
+        const payload = { 
+            contents: [{ 
+                parts: [{ 
+                    text: `Based on this document content, answer the following question. If the answer is not in the content, say so.\n\nDocument:\n${contextText}\n\nQuestion: ${question}` 
+                }] 
+            }] 
+        };
+        
         const response = await axios.post(url, payload);
-        const answer = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        const answer = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "I couldn't generate an answer. Please try again.";
+        
         res.status(200).json({ success: true, answer });
     } catch (error) {
-        res.status(500).json({ success: false, message: "AI Chat Error" });
+        console.error("❌ ASK AI ERROR:", error.message);
+        res.status(500).json({ success: false, message: "AI Chat Error: " + (error.message || "Unknown error") });
     }
 };
 
