@@ -17,7 +17,7 @@ const app = express();
 
 connectDB();
 
-// ✅ CORS: Is order ko mat badalna
+// ✅ CORS FIX: Modern and Stable
 app.use(cors({
     origin: "https://simplify-ai-kappa.vercel.app",
     credentials: true,
@@ -25,8 +25,9 @@ app.use(cors({
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
 }));
 
-// Pre-flight fix
-app.options('*', cors()); 
+// ✅ CRASH FIX: Naye Express mein wildcard ke liye regex zaroori hai
+// Pehle app.options('*') tha, usey ab aise likhenge:
+app.options('(.*)', cors()); 
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -36,7 +37,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/users', userRoutes);
 
-app.get("/", (req, res) => res.send("API is Live 🚀"));
+app.get("/", (req, res) => res.send("API is Live and Running! 🚀"));
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
