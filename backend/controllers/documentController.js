@@ -956,7 +956,7 @@ export const askAI = async (req, res) => {
             messages: [
                 { 
                     role: "user", 
-                    text: `Based on this document content, answer the following question. If the answer is not in the content, say so.\n\nDocument:\n${contextText}\n\nQuestion: ${question}` 
+                    content: `Based on this document content, answer the following question. If the answer is not in the content, say so.\n\nDocument:\n${contextText}\n\nQuestion: ${question}` 
                 }
             ],
             temperature: 0.7,
