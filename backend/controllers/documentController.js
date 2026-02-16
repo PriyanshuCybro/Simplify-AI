@@ -952,7 +952,7 @@ export const askAI = async (req, res) => {
 
         const contextText = document.extractedText.slice(0, 20000);
         const payload = { 
-            model: "mixtral-8x7b-32768",
+            model: "llama-3.3-70b-versatile",
             messages: [
                 { 
                     role: "user", 
