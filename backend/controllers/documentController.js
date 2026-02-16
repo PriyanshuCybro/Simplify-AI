@@ -1118,7 +1118,6 @@ Requirements:
         res.status(500).json({ success: false, message: "Quiz generation failed: " + error.message });
     }
 };
-};
 
 export const saveQuizResult = async (req, res) => {
     try {
