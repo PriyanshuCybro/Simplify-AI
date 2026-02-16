@@ -1,15 +1,8 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-
-const multerStorageCloudinary = require('multer-storage-cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
-
-// Constructor fix
-const CloudinaryStorage = multerStorageCloudinary.CloudinaryStorage || multerStorageCloudinary;
-
-import dotenv from 'dotenv';
-dotenv.config();
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -21,16 +14,11 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'simplify_pdfs',
-        resource_type: 'raw', // Mandatory for PDFs
+        resource_type: 'raw', // 👈 Ye PDFs ke liye mandatory hai
         format: 'pdf',
+        flags: "attachment", // 👈 Isse viewing issue fix hota hai
         public_id: (req, file) => `${Date.now()}-${file.originalname.split('.')[0]}`
     },
 });
 
-// 10MB limit and Error Catching for Multer
-export const uploadCloud = multer({ 
-    storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 } 
-});
-
-export { cloudinary };
+export const uploadCloud = multer({ storage });

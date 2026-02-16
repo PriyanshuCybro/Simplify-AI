@@ -1,11 +1,14 @@
 import axios from 'axios';
 
+// Backend Production URL
+const API_BASE_URL = "https://simplify-ai-mrrh.onrender.com/api";
+
 const API = axios.create({ 
-    baseURL: "https://simplify-ai-mrrh.onrender.com/api",
+    baseURL: API_BASE_URL,
     withCredentials: true 
 });
 
-// Request Interceptor
+// Request Interceptor to attach Token
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -14,8 +17,15 @@ API.interceptors.request.use((req) => {
   return req;
 });
 
-// ✅ ALL EXPORTS ADDED (Fixes Vercel Build Error)
-export const uploadDocument = (formData) => API.post('/documents/upload', formData);
+// ✅ ALL EXPORTS (Fixes Vercel Rollup Error)
+export const uploadDocument = (formData) => {
+    return API.post('/documents/upload', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+};
+
 export const getDocuments = () => API.get('/documents');
 export const getDocument = (id) => API.get(`/documents/${id}`);
 export const deleteDocument = (id) => API.delete(`/documents/${id}`);
