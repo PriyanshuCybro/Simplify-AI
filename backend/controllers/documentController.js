@@ -927,18 +927,21 @@ export const askAI = async (req, res) => {
         const { id } = req.params;
         const { question } = req.body;
         
+        console.log("🔍 Chat request received for doc:", id, "Question:", question?.slice(0, 50));
+        
         if (!question || !question.trim()) {
             return res.status(400).json({ success: false, message: "Question is required" });
         }
 
         const document = await Document.findById(id);
         if (!document) {
+            console.error("❌ Document not found:", id);
             return res.status(404).json({ success: false, message: "Document not found" });
         }
 
-        const errorMsg = validateDoc(document);
-        if (errorMsg) {
-            return res.status(400).json({ success: false, message: errorMsg });
+        if (!document.extractedText || document.extractedText.trim() === "") {
+            console.error("❌ Document has no extracted text");
+            return res.status(400).json({ success: false, message: "Document has no text content to analyze" });
         }
 
         const apiKey = process.env.GEMINI_API_KEY;
@@ -973,10 +976,12 @@ export const askAI = async (req, res) => {
         console.error("❌ ASK AI ERROR:", {
             message: error.message,
             status: error.response?.status,
+            statusText: error.response?.statusText,
             data: error.response?.data,
-            code: error.code
+            code: error.code,
+            stack: error.stack?.split('\n').slice(0, 3).join('\n')
         });
-        res.status(500).json({ success: false, message: "AI Chat Error: " + (error.message || "Unknown error") });
+        res.status(500).json({ success: false, message: "AI Chat Error: " + (error.response?.data?.error?.message || error.message || "Unknown error") });
     }
 };
 

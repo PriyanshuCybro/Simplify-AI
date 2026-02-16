@@ -1945,9 +1945,15 @@ const DocumentDetailPage = () => {
         { question }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setChatHistory(prev => [...prev, { role: 'bot', text: res.data.answer }]);
+      if (res.data?.success && res.data?.answer) {
+        setChatHistory(prev => [...prev, { role: 'bot', text: res.data.answer }]);
+      } else {
+        throw new Error(res.data?.message || "Invalid response from AI");
+      }
     } catch (err) { 
-        setChatHistory(prev => [...prev, { role: 'bot', text: "AI Node busy. Retry sync." }]); 
+        const errorMsg = err.response?.data?.message || err.message || "AI Node busy. Retry sync.";
+        console.error("Chat error:", errorMsg);
+        setChatHistory(prev => [...prev, { role: 'bot', text: "❌ " + errorMsg }]); 
     } finally { setIsTyping(false); }
   };
 
