@@ -1,89 +1,3 @@
-// import dotenv from "dotenv";
-// dotenv.config();
-
-// import express from "express";
-// import cors from "cors";
-// import path from "path";
-// import {fileURLToPath} from "url";
-// import connectDB from "./config/db.js";
-// import errorHandler from './middleware/errorHandler.js';
-
-// import authRoutes from './routes/authRoutes.js';
-// import documentRoutes from './routes/documentRoutes.js';
-
-// import userRoutes from './routes/userRoutes.js';
-
-
-
-// //ES6 module __dirname alternative 
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
-
-// //Intialize express app
-// const app = express();
-
-// //connect to mongoDB
-// connectDB();
-
-// //middlewares to handle CORS
-// app.use(
-//     cors({
-//         origin: "*",
-//         methods: ["GET", "POST", "PUT", "DELETE"],
-//         allowedHeaders: ["Content-Type", "Authorization"],
-//         credentials: true,
-//     })
-// );
-
-// //Middleware to parse JSON request body
-// app.use(express.json());
-
-// //Middleware to parse URL encoded request body
-// app.use(express.urlencoded({ extended: true }));
-
-// //Middleware to handle file uploads
-// //static folder for uploads
-
-// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// //Routes
-// app.use('/api/auth', authRoutes);
-// app.use('/api/documents', documentRoutes);
-
-// app.use(errorHandler);
-
-// //404 handler
-// app.use((req, res) => {
-//     res.status(404).json({
-//         success: false,
-//         message: "Route not found here",
-//         statuscode: 404
-//     });
-// });
-
-// app.use('/api/users', userRoutes);
-
-// //start server
-// const PORT = process.env.PORT || 8000;
-
-// app.listen(PORT, () => {
-//     console.log(`Server is running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-// });
-
-
-// process.on('unhandledRejection', (err) => {
-//     console.log(`Error: ${err.message}`);
-//     process.exit(1);
-// });
-
-
-
-
-
-
-
-
-
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -94,21 +8,24 @@ import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
 import errorHandler from './middleware/errorHandler.js';
 
+// Route Imports
 import authRoutes from './routes/authRoutes.js';
 import documentRoutes from './routes/documentRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 
+// ES6 module __dirname alternative 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Connect to MongoDB
+// 1. Connect to MongoDB
 connectDB();
 
-// Middlewares
+// 2. Middlewares (Sahi Order mein)
 app.use(cors({
-    origin: "*",
+    // Vercel link aur local link dono ko allow karo
+    origin: ["https://simplify-ai-kappa.vercel.app", "http://localhost:5173"], 
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -116,32 +33,42 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Static folder for local uploads (Fallback)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// ✅ API Routes (Correct Order)
+// 3. API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
-app.use('/api/users', userRoutes); // 🔥 404 se upar hona zaroori hai
+app.use('/api/users', userRoutes); 
 
-// ❌ 404 Handler (Hamesha routes ke baad)
-app.use((req, res) => {
+// Health Check Route (Ye check karne ke liye ki server zinda hai ya nahi)
+app.get("/", (req, res) => {
+    res.send("Simplify AI Backend is running perfectly! 🚀");
+});
+
+// 4. 404 Handler (Routes ke baad par Error Handler se pehle)
+app.use((req, res, next) => {
     res.status(404).json({
         success: false,
-        message: "Route not found here",
+        message: "Route not found on this server",
         statuscode: 404
     });
 });
 
-// 🔥 Error Handler (Sabse aakhir mein)
+// 5. Global Error Handler (Hamesha Sabse Last Mein)
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 8000;
+// Start Server
+const PORT = process.env.PORT || 5000;
 
-// 🔥 '0.0.0.0' add karne se Render aapka port scan timeout error fix kar dega
+// '0.0.0.0' is mandatory for Render to detect the open port
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+    console.log(`🚀 Server is running in ${process.env.NODE_ENV || 'production'} mode on port ${PORT}`);
 });
+
+// Handle Unhandled Promise Rejections
 process.on('unhandledRejection', (err) => {
-    console.log(`Error: ${err.message}`);
-    process.exit(1);
+    console.log(`Critical Error: ${err.message}`);
+    // Server ko crash hone se bachaane ke liye optional: process.exit(1);
 });
