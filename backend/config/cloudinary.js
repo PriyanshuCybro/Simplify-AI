@@ -2,15 +2,18 @@ import { v2 as cloudinary } from 'cloudinary';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
-// ✅ Sabse robust tarika: direct require karna
+// Package ko load karne ka foolproof tareeka
 const multerStorageCloudinary = require('multer-storage-cloudinary');
 const multer = require('multer');
 
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Constructor extraction jo har environment mein kaam karega
-const CloudinaryStorage = multerStorageCloudinary.CloudinaryStorage || multerStorageCloudinary;
+// Ye line sabse important hai: Ye constructor ko sahi jagah se nikaalegi
+const CloudinaryStorage = multerStorageCloudinary.CloudinaryStorage || 
+                          (multerStorageCloudinary.default ? multerStorageCloudinary.default.CloudinaryStorage : null) || 
+                          multerStorageCloudinary.default || 
+                          multerStorageCloudinary;
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -18,7 +21,6 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Ab ye line kabhi crash nahi hogi
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
