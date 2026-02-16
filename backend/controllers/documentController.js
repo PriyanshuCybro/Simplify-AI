@@ -754,39 +754,54 @@ const validateDoc = (doc) => {
     return null;
 };
 
-// 🔥 BACKGROUND PROCESSOR (With Error Handling)
+// 1. Helper Function (Internal Use)
 const processPDF = async (documentId, buffer) => {
     try {
         console.log(`⏳ Processing PDF for ID: ${documentId}`);
-        const { text } = await extractTextFromPDF(buffer); 
         
-        // 🔥 Schema Fix: Map chunks correctly to match Document model
+        // PDF se text nikalna
+        const result = await extractTextFromPDF(buffer); 
+        const extractedText = result.text || "";
+        
+        // Schema Match: Chunks array create karna
         const chunks = [{
-            content: text.slice(0, 5000), // First chunk
+            content: extractedText.slice(0, 5000), // First chunk to avoid DB size limit
             chunkIndex: 0,
             pageNumber: 1
         }];
         
+        // Database Update
         await Document.findByIdAndUpdate(documentId, {
-            extractedText: text,
+            extractedText: extractedText,
             chunks: chunks, 
             status: "ready"
         });
+
         console.log(`✅ Doc ${documentId} is now READY`);
     } catch (error) {
         console.error("❌ Background Process Error:", error.message);
+        // Fail hone par status update karna zaroori hai
         await Document.findByIdAndUpdate(documentId, { status: "failed" });
     }
 };
 
+// 2. Main Controller (Exported)
 export const uploadDocument = async (req, res) => {
     try {
-        if (!req.file) return res.status(400).json({ success: false, message: "No file uploaded" });
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: "No file uploaded" });
+        }
+
+        console.log("📂 File received, uploading to Cloudinary...");
 
         const uploadToCloudinary = () => {
             return new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream(
-                    { folder: "simplify_pdfs", resource_type: "raw", format: "pdf" },
+                    { 
+                        folder: "simplify_pdfs", 
+                        resource_type: "auto", // 🔥 Must be 'auto' for PDFs to be viewable without 401
+                        flags: "attachment" 
+                    },
                     (error, result) => {
                         if (result) resolve(result);
                         else reject(error);
@@ -798,6 +813,7 @@ export const uploadDocument = async (req, res) => {
 
         const result = await uploadToCloudinary();
         
+        // Database entry create karna
         const newDoc = await Document.create({
             userId: req.user._id,
             title: req.body.title || req.file.originalname,
@@ -807,15 +823,25 @@ export const uploadDocument = async (req, res) => {
             status: "processing"
         });
 
-        // Buffer pass kar rahe hain parsing ke liye
-        processPDF(newDoc._id, req.file.buffer); 
+        // 🔥 Background mein process shuru karna
+        // We don't 'await' this so the user gets a fast response
+        processPDF(newDoc._id, req.file.buffer).catch(err => {
+            console.error("Background PDF Trigger Error:", err);
+        });
 
-        res.status(201).json({ success: true, data: newDoc });
+        // Instant response to Frontend
+        res.status(201).json({ 
+            success: true, 
+            message: "Upload successful, processing started.",
+            data: newDoc 
+        });
+
     } catch (error) {
         console.error("❌ UPLOAD ERROR:", error.message);
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
 // --- CRUD & OTHERS (Stable Versions) ---
 export const getDocuments = async (req, res) => {
     try {
