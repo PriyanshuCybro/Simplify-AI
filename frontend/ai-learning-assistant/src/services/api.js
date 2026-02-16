@@ -13,8 +13,10 @@ API.interceptors.request.use((req) => {
   return req;
 });
 
+// --- Document Routes ---
+
+// ✅ Sabhi functions ke aage 'export const' hona zaroori hai
 export const uploadDocument = async (formData) => {
-    // Axios khud boundary set karta hai jab hum headers manual nahi dete
     try {
         const response = await API.post('/documents/upload', formData);
         return response;
@@ -23,5 +25,14 @@ export const uploadDocument = async (formData) => {
         throw error;
     }
 };
+
+// ❌ Ye do functions missing the, isliye Vercel phat raha tha
+export const getDocuments = () => API.get('/documents');
+export const getDocument = (id) => API.get(`/documents/${id}`);
+export const deleteDocument = (id) => API.delete(`/documents/${id}`);
+
+// --- AI & Flashcards ---
+export const askAI = (documentId, question) => API.post(`/documents/${documentId}/chat`, { question });
+export const generateFlashcardsAPI = (id) => API.post(`/documents/${id}/flashcards`);
 
 export default API;
