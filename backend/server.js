@@ -35,9 +35,17 @@ app.use((req, res, next) => {
 });
 
 // Extra safety
+// app.use(cors({
+//     origin: "https://simplify-ai-kappa.vercel.app",
+//     credentials: true
+// }));
+
+
 app.use(cors({
-    origin: "https://simplify-ai-kappa.vercel.app",
-    credentials: true
+    origin: true, // Sab origins allow kar do
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 app.use(express.json());

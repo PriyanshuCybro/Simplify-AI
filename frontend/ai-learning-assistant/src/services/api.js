@@ -19,12 +19,13 @@ API.interceptors.request.use((req) => {
 
 // --- Document Routes ---
 // ✅ FIX: FormData bhejte waqt header manually specify karna safe rehta hai
-export const uploadDocument = (formData) => API.post('/documents/upload', formData, {
-    headers: {
-        'Content-Type': 'multipart/form-data'
-    }
-});
-
+export const uploadDocument = async (formData) => {
+    return await API.post('/documents/upload', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+};
 export const getDocuments = () => API.get('/documents');
 export const getDocument = (id) => API.get(`/documents/${id}`);
 export const deleteDocument = (id) => API.delete(`/documents/${id}`);
