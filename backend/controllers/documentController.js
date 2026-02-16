@@ -956,10 +956,10 @@ export const askAI = async (req, res) => {
             messages: [
                 { 
                     role: "user", 
-                    content: `Based on this document content, answer the following question. If the answer is not in the content, say so.\n\nDocument:\n${contextText}\n\nQuestion: ${question}` 
+                    content: `You are an educational assistant. Based ONLY on the provided document content, answer the following question accurately and concisely. If the answer is not found in the document, explicitly say "This information is not available in the provided document."\n\nDocument:\n${contextText}\n\nQuestion: ${question}\n\nProvide a clear, direct answer using information from the document.` 
                 }
             ],
-            temperature: 0.7,
+            temperature: 0.5,
             max_tokens: 1024
         };
         
@@ -1004,24 +1004,28 @@ export const generateFlashcards = async (req, res) => {
         if (valErr) return res.status(400).json({ success: false, message: valErr });
 
         const textChunk = document.extractedText.slice(0, 6000);
-        const prompt = `Generate exactly ${finalCount} unique flashcard Q&A pairs from this document. Return ONLY valid JSON array with NO extra text:
+        const timestamp = Date.now();
+        const prompt = `IMPORTANT: Generate completely UNIQUE flashcard Q&A pairs (never duplicate). Timestamp: ${timestamp}
+Generate exactly ${finalCount} diverse flashcard Q&A pairs from this document. Return ONLY valid JSON array with NO extra text:
 [{"question":"What is...?","answer":"...","difficulty":"easy|medium|hard"}]
 
 Document:
 ${textChunk}
 
 Requirements:
+- Generate EXACTLY ${finalCount} UNIQUE Q&A pairs (different every time)
 - Questions must be clear and specific
 - Answers must be detailed (2-3 sentences)
 - Mix difficulties: easy, medium, hard
 - Each Q&A must be unique and from the document
-- Return EXACTLY ${finalCount} items`;
+- Vary question types: definitions, comparisons, applications
+- Return EXACTLY ${finalCount} items in valid JSON format`;
 
         console.log("📤 Generating flashcards (count: " + finalCount + ")...");
         const response = await axios.post("https://openrouter.ai/api/v1/chat/completions", {
             "model": "google/gemini-2.0-flash-001",
             "messages": [{ "role": "user", "content": prompt }],
-            "temperature": 0.7  // Increase variety
+            "temperature": 0.85  // Higher temperature for more variation
         }, { 
             headers: { "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}` },
             timeout: 30000
@@ -1068,20 +1072,24 @@ export const generateQuiz = async (req, res) => {
         if (valErr) return res.status(400).json({ success: false, message: valErr });
 
         const textChunk = document.extractedText.slice(0, 6000);
-        const prompt = `Generate exactly ${finalCount} unique MCQ questions from this document. Return ONLY valid JSON array with NO extra text:
+        const timestamp = Date.now();
+        const prompt = `IMPORTANT: Generate completely UNIQUE quiz questions (never duplicate). Timestamp: ${timestamp}
+Generate exactly ${finalCount} diverse MCQ questions from this document. Return ONLY valid JSON array with NO extra text:
 [{"question":"What is...?","options":["option1","option2","option3","option4"],"correctAnswer":"option1","explanation":"...","difficulty":"easy|medium|hard"}]
 
 Document:
 ${textChunk}
 
 Requirements:
-- Generate EXACTLY ${finalCount} unique questions
+- Generate EXACTLY ${finalCount} UNIQUE questions (different every time)
 - Each question must have exactly 4 options
 - correctAnswer must be one of the options
 - Mix difficulties: easy, medium, hard
 - Explanation should briefly explain why
 - Options should be plausible but only one correct
-- Return EXACTLY ${finalCount} items`;
+- Vary question types: recall, comprehension, application, analysis
+- Each distracter must be realistic
+- Return EXACTLY ${finalCount} items in valid JSON format`;
 
         console.log("📤 Generating quiz (count: " + finalCount + ")...");
         const response = await axios.post("https://openrouter.ai/api/v1/chat/completions", {
@@ -1120,7 +1128,11 @@ Requirements:
             documentId: req.params.id,
             title: `Quiz - ${document.title}`,
             questions: questions,
-            userAnswers: []
+            userAnswers: [],
+            totalQuestions: questions.length,
+            accuracy: 0,
+            xpEarned: 0,
+            timeSpent: 0
         });
 
         console.log("✅ Quiz generated successfully:", questions.length);
