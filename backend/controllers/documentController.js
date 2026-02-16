@@ -755,23 +755,21 @@ const validateDoc = (doc) => {
 };
 
 // 🔥 BACKGROUND PROCESSOR (With Error Handling)
-// ... (Top imports same rehne do)
-
 const processPDF = async (documentId, buffer) => {
     try {
-        console.log(`⏳ Processing PDF for ID: ${documentId} (Using Buffer)`);
-        
-        // Direct buffer se text nikalenge, URL ki zaroorat nahi
+        console.log(`⏳ Processing PDF for ID: ${documentId}`);
         const { text } = await extractTextFromPDF(buffer); 
         
-        const chunks = chunkText(text, 500, 50);
+        // 🔥 Schema Fix: Map chunks correctly to match Document model
+        const chunks = [{
+            content: text.slice(0, 5000), // First chunk
+            chunkIndex: 0,
+            pageNumber: 1
+        }];
         
         await Document.findByIdAndUpdate(documentId, {
             extractedText: text,
-            chunks: chunks.map((chunk, index) => ({
-                content: chunk,
-                chunkIndex: index
-            })),
+            chunks: chunks, 
             status: "ready"
         });
         console.log(`✅ Doc ${documentId} is now READY`);
@@ -799,18 +797,17 @@ export const uploadDocument = async (req, res) => {
         };
 
         const result = await uploadToCloudinary();
-        const fileUrl = result.secure_url;
-
+        
         const newDoc = await Document.create({
             userId: req.user._id,
             title: req.body.title || req.file.originalname,
             fileName: req.file.originalname,
-            filePath: fileUrl,
+            filePath: result.secure_url,
             filesize: req.file.size,
             status: "processing"
         });
 
-        // 🔥 URL ke bajaye req.file.buffer bhejo
+        // Buffer pass kar rahe hain parsing ke liye
         processPDF(newDoc._id, req.file.buffer); 
 
         res.status(201).json({ success: true, data: newDoc });
