@@ -1102,11 +1102,8 @@ MANDATORY REQUIREMENTS:
         const response = await axios.post("https://openrouter.ai/api/v1/chat/completions", {
             "model": "google/gemini-2.0-flash-001",
             "messages": [{ "role": "user", "content": prompt }],
-            "temperature": 1.0,  // MAXIMUM randomness
-            "top_p": 0.95  // High sampling diversity
-        }, {
-            "messages": [{ "role": "user", "content": prompt }],
-            "temperature": 0.8  // Good balance for variation
+            "temperature": 1.0,
+            "top_p": 0.95
         }, { 
             headers: { "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}` },
             timeout: 30000
