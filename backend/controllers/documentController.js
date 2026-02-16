@@ -921,7 +921,7 @@ export const updateDocument = async (req, res) => {
     }
 };
 
-// --- AI LOGIC (No Changes to Features) ---
+// --- AI LOGIC (Using Groq - Free Alternative to Gemini) ---
 export const askAI = async (req, res) => {
     try {
         const { id } = req.params;
@@ -944,33 +944,41 @@ export const askAI = async (req, res) => {
             return res.status(400).json({ success: false, message: "Document has no text content to analyze" });
         }
 
-        const apiKey = process.env.GEMINI_API_KEY;
+        const apiKey = process.env.GROQ_API_KEY;
         if (!apiKey) {
-            console.error("❌ GEMINI_API_KEY not configured");
-            return res.status(500).json({ success: false, message: "AI service not configured" });
+            console.error("❌ GROQ_API_KEY not configured");
+            return res.status(500).json({ success: false, message: "AI service not configured. Get free key at https://console.groq.com/keys" });
         }
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
         const contextText = document.extractedText.slice(0, 20000);
         const payload = { 
-            contents: [{ 
-                parts: [{ 
+            model: "mixtral-8x7b-32768",
+            messages: [
+                { 
+                    role: "user", 
                     text: `Based on this document content, answer the following question. If the answer is not in the content, say so.\n\nDocument:\n${contextText}\n\nQuestion: ${question}` 
-                }] 
-            }] 
+                }
+            ],
+            temperature: 0.7,
+            max_tokens: 1024
         };
         
-        console.log("📤 Sending to Gemini API...");
-        const response = await axios.post(url, payload, { timeout: 30000 });
+        console.log("📤 Sending to Groq API...");
+        const response = await axios.post("https://api.groq.com/openai/v1/chat/completions", payload, {
+            headers: {
+                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/json"
+            },
+            timeout: 30000
+        });
         
-        if (!response.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
-            console.warn("⚠️ Unexpected Gemini response format:", JSON.stringify(response.data).slice(0, 200));
+        const answer = response.data?.choices?.[0]?.message?.content;
+        if (!answer) {
+            console.warn("⚠️ Unexpected Groq response format:", JSON.stringify(response.data).slice(0, 200));
             return res.status(500).json({ success: false, message: "Invalid response from AI service" });
         }
         
-        const answer = response.data.candidates[0].content.parts[0].text;
         console.log("✅ AI Response received successfully");
-        
         res.status(200).json({ success: true, answer });
     } catch (error) {
         console.error("❌ ASK AI ERROR:", {
@@ -978,8 +986,7 @@ export const askAI = async (req, res) => {
             status: error.response?.status,
             statusText: error.response?.statusText,
             data: error.response?.data,
-            code: error.code,
-            stack: error.stack?.split('\n').slice(0, 3).join('\n')
+            code: error.code
         });
         res.status(500).json({ success: false, message: "AI Chat Error: " + (error.response?.data?.error?.message || error.message || "Unknown error") });
     }
