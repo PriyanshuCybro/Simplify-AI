@@ -48,7 +48,7 @@ app.use('/api/users', userRoutes);
 app.get("/", (req, res) => res.send("System Active 🚀"));
 
 // SPA fallback - serve index.html for all non-API routes
-app.get("*", (req, res) => {
+app.use((req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
