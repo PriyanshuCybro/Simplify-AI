@@ -17,7 +17,8 @@ const app = express();
 
 connectDB();
 
-// ✅ CORS FIX: Modern and Stable
+// ✅ SIMPLE & STABLE CORS
+// Ye middleware apne aap OPTIONS requests ko handle kar leta hai
 app.use(cors({
     origin: "https://simplify-ai-kappa.vercel.app",
     credentials: true,
@@ -25,9 +26,8 @@ app.use(cors({
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
 }));
 
-// ✅ CRASH FIX: Naye Express mein wildcard ke liye regex zaroori hai
-// Pehle app.options('*') tha, usey ab aise likhenge:
-app.options('(.*)', cors()); 
+// 🔥 CRASH FIX: Humne app.options('*') ya app.options('(.*)') hata diya hai.
+// cors() middleware hi kafi hai Pre-flight requests ke liye.
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
