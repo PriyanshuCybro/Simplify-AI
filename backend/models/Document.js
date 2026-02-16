@@ -28,27 +28,9 @@ const documentSchema = new mongoose.Schema({
         default: ""
     },
     chunks: [{
-        content: {
-            type: String,
-            required: true
-        },
-        pageNumber: {
-            type: Number,
-            default: 0
-        },
-        chunkIndex: {
-            type: Number,
-            required: true
-        }
+        content: { type: String, required: true },
+        chunkIndex: { type: Number, required: true }
     }],
-    uploadDate: {
-        type: Date,
-        default: Date.now
-    },
-    lastAccesed: {
-        type: Date,
-        default: Date.now
-    },
     status: {
         type: String,
         enum: ["processing", "ready", "failed"],
@@ -58,9 +40,7 @@ const documentSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// index for faster queries
-documentSchema.index({ userId: 1, uploadDate: -1 });
+documentSchema.index({ userId: 1, createdAt: -1 });
 
 const Document = mongoose.models.Document || mongoose.model("Document", documentSchema);
-
 export default Document;
