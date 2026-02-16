@@ -1,18 +1,12 @@
 import { v2 as cloudinary } from 'cloudinary';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-
-const multerStorageCloudinary = require('multer-storage-cloudinary');
-const multer = require('multer');
-
+import pkg from 'multer-storage-cloudinary';
+import multer from 'multer';
 import dotenv from 'dotenv';
+
 dotenv.config();
 
-// Constructor extraction with ALL possible fallbacks for Node v22
-const CloudinaryStorage = multerStorageCloudinary.CloudinaryStorage || 
-                          (multerStorageCloudinary.default ? multerStorageCloudinary.default.CloudinaryStorage : null) || 
-                          multerStorageCloudinary.default || 
-                          multerStorageCloudinary;
+// Constructor extraction for Node v22 compatibility
+const { CloudinaryStorage } = pkg;
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -24,11 +18,15 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'simplify_pdfs',
-        resource_type: 'raw', 
+        resource_type: 'raw', // PDFs ke liye mandatory
         format: 'pdf',
         public_id: (req, file) => `${Date.now()}-${file.originalname.split('.')[0]}`
     },
 });
 
-export const uploadCloud = multer({ storage });
+export const uploadCloud = multer({ 
+    storage,
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+});
+
 export { cloudinary };

@@ -17,18 +17,24 @@ const app = express();
 
 connectDB();
 
-// 🔥 BRUTE FORCE CORS (Har request ke liye forced headers)
+// 🔥 ULTIMATE CORS BYPASS
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "https://simplify-ai-kappa.vercel.app");
     res.header("Access-Control-Allow-Credentials", "true");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, token");
     
     if (req.method === "OPTIONS") {
-        return res.status(200).end();
+        return res.sendStatus(200);
     }
     next();
 });
+
+// Standard middleware as secondary layer
+app.use(cors({
+    origin: "https://simplify-ai-kappa.vercel.app",
+    credentials: true
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -37,6 +43,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/users', userRoutes);
+
+app.get("/", (req, res) => res.send("System Active 🚀"));
 
 app.use(errorHandler);
 
