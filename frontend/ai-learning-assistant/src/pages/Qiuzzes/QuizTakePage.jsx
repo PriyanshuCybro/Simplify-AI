@@ -146,13 +146,21 @@ const QuizTakePage = () => {
     );
 
     const progress = ((currentIdx + 1) / (questions.length || 1)) * 100;
+    
+    // Calculate live accuracy from answered questions
+    const answeredCount = userAnswers.filter(a => a.selectedAnswer).length;
+    const correctCount = userAnswers.filter((a, idx) => {
+        const q = questions[idx];
+        return q && a.selectedAnswer === q.correctAnswer;
+    }).length;
+    const liveAccuracy = answeredCount === 0 ? 100 : Math.round((correctCount / answeredCount) * 100);
 
     return (
         <div className="max-w-2xl mx-auto mt-4 md:mt-10 p-4 md:p-6 animate-in fade-in duration-500 pb-20">
             <div className="flex items-center justify-between mb-4 px-2 gap-2">
                 <div className="flex-1 min-w-0">
                     <span className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] block truncate">
-                        Live Accuracy: {currentIdx === 0 ? "100" : Math.round((score / currentIdx) * 100)}%
+                        Live Accuracy: {liveAccuracy}%
                     </span>
                 </div>
                 <span className="text-[9px] md:text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] shrink-0">Progress Node</span>

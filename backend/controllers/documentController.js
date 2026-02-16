@@ -1005,27 +1005,31 @@ export const generateFlashcards = async (req, res) => {
 
         const textChunk = document.extractedText.slice(0, 6000);
         const timestamp = Date.now();
-        const prompt = `IMPORTANT: Generate completely UNIQUE flashcard Q&A pairs (never duplicate). Timestamp: ${timestamp}
-Generate exactly ${finalCount} diverse flashcard Q&A pairs from this document. Return ONLY valid JSON array with NO extra text:
-[{"question":"What is...?","answer":"...","difficulty":"easy|medium|hard"}]
+        const randomSeed = Math.random().toString(36).substring(7);
+        const prompt = `CRITICAL - ALWAYS GENERATE NEW UNIQUE QUESTIONS: ${randomSeed}
+Generate exactly ${finalCount} COMPLETELY DIFFERENT flashcard Q&A pairs (NEVER repeat, NEVER duplicate). 
+Each time this runs, generate ENTIRELY DIFFERENT questions from different parts of the document.
+Return ONLY valid JSON with NO extra text:
+[{"question":"...?","answer":"...","difficulty":"easy"}]
 
 Document:
 ${textChunk}
 
-Requirements:
-- Generate EXACTLY ${finalCount} UNIQUE Q&A pairs (different every time)
-- Questions must be clear and specific
-- Answers must be detailed (2-3 sentences)
-- Mix difficulties: easy, medium, hard
-- Each Q&A must be unique and from the document
-- Vary question types: definitions, comparisons, applications
-- Return EXACTLY ${finalCount} items in valid JSON format`;
+MANDATORY REQUIREMENTS:
+✓ Generate EXACTLY ${finalCount} UNIQUE questions - IF RUN AGAIN, GENERATE COMPLETELY DIFFERENT ONES
+✓ Focus on DIFFERENT concepts each time
+✓ Questions: definitions, comparisons, applications, analysis, synthesis (vary types)
+✓ Answers: 2-3 sentences, detailed and clear
+✓ Difficulties: Mix easy/medium/hard
+✓ NEVER use same questions as before - diversity is critical
+✓ Return VALID JSON ARRAY ONLY - ${finalCount} items`;
 
         console.log("📤 Generating flashcards (count: " + finalCount + ")...");
         const response = await axios.post("https://openrouter.ai/api/v1/chat/completions", {
             "model": "google/gemini-2.0-flash-001",
             "messages": [{ "role": "user", "content": prompt }],
-            "temperature": 0.85  // Higher temperature for more variation
+            "temperature": 1.0,  // MAXIMUM randomness for flashcards
+            "top_p": 0.95  // High sampling diversity
         }, { 
             headers: { "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}` },
             timeout: 30000
@@ -1073,27 +1077,34 @@ export const generateQuiz = async (req, res) => {
 
         const textChunk = document.extractedText.slice(0, 6000);
         const timestamp = Date.now();
-        const prompt = `IMPORTANT: Generate completely UNIQUE quiz questions (never duplicate). Timestamp: ${timestamp}
-Generate exactly ${finalCount} diverse MCQ questions from this document. Return ONLY valid JSON array with NO extra text:
-[{"question":"What is...?","options":["option1","option2","option3","option4"],"correctAnswer":"option1","explanation":"...","difficulty":"easy|medium|hard"}]
+        const randomSeed = Math.random().toString(36).substring(7);
+        const prompt = `CRITICAL - ALWAYS GENERATE NEW UNIQUE QUESTIONS: ${randomSeed}
+Generate exactly ${finalCount} COMPLETELY DIFFERENT MCQ questions (NEVER repeat, NEVER duplicate).
+Each time this runs, generate ENTIRELY DIFFERENT questions from different parts of the document.
+Return ONLY valid JSON with NO extra text:
+[{"question":"...?","options":["A","B","C","D"],"correctAnswer":"A","explanation":"...","difficulty":"medium"}]
 
 Document:
 ${textChunk}
 
-Requirements:
-- Generate EXACTLY ${finalCount} UNIQUE questions (different every time)
-- Each question must have exactly 4 options
-- correctAnswer must be one of the options
-- Mix difficulties: easy, medium, hard
-- Explanation should briefly explain why
-- Options should be plausible but only one correct
-- Vary question types: recall, comprehension, application, analysis
-- Each distracter must be realistic
-- Return EXACTLY ${finalCount} items in valid JSON format`;
+MANDATORY REQUIREMENTS:
+✓ Generate EXACTLY ${finalCount} UNIQUE questions - IF RUN AGAIN, GENERATE COMPLETELY DIFFERENT ONES
+✓ Focus on DIFFERENT concepts each time - NO REPETITION
+✓ Each question: exactly 4 plausible options, only 1 correct
+✓ correctAnswer must be one of the 4 options
+✓ Question types: recall, comprehension, application, analysis (vary)
+✓ Explanations: Clear, brief, educational
+✓ Difficulties: Easy/medium/hard mix
+✓ NEVER use same questions as before - diversity is critical
+✓ Return VALID JSON ARRAY ONLY - ${finalCount} items`;
 
         console.log("📤 Generating quiz (count: " + finalCount + ")...");
         const response = await axios.post("https://openrouter.ai/api/v1/chat/completions", {
             "model": "google/gemini-2.0-flash-001",
+            "messages": [{ "role": "user", "content": prompt }],
+            "temperature": 1.0,  // MAXIMUM randomness
+            "top_p": 0.95  // High sampling diversity
+        }, {
             "messages": [{ "role": "user", "content": prompt }],
             "temperature": 0.8  // Good balance for variation
         }, { 
