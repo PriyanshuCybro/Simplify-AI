@@ -795,11 +795,16 @@ export const uploadDocument = async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ success: false, message: "No file uploaded" });
 
-        // Cloudinary Upload Promise
+        // 🔥 CRITICAL FIX: Use resource_type: "raw" for PDFs to avoid 401 errors
+        // "raw" keeps files as-is (not converted to images), and they stay PUBLIC
         const uploadToCloudinary = () => {
             return new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream(
-                    { folder: "simplify_pdfs", resource_type: "auto" },
+                    { 
+                        folder: "simplify_pdfs", 
+                        resource_type: "raw",  // 🔥 CHANGED FROM "auto" to "raw" for PDFs
+                        access_mode: "public"   // 🔥 ENSURE PUBLIC ACCESS
+                    },
                     (error, result) => {
                         if (result) resolve(result);
                         else reject(error);
@@ -810,6 +815,7 @@ export const uploadDocument = async (req, res) => {
         };
 
         const result = await uploadToCloudinary();
+        console.log("✅ PDF uploaded successfully to Cloudinary:", result.secure_url);
         
         // 1. Database mein entry create karo (Initial Status: processing)
         const newDoc = await Document.create({

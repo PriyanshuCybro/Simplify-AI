@@ -30,11 +30,19 @@ const PDFViewer = ({ pdfPath, fileName }) => {
             return null;
         }
         
-        // 🔥 CRITICAL: Cloudinary secure URLs (https://res.cloudinary.com) are PUBLIC
-        // Do NOT add auth headers - they cause 401 errors
+        // 🔥 CRITICAL FIX: Handle Cloudinary URLs properly
         if (pdfPath.startsWith('https://res.cloudinary.com')) {
-            console.log("✅ Loading from Cloudinary (public URL):", pdfPath);
-            return pdfPath;
+            // If it's a /image/upload/ URL (incorrectly uploaded as image), convert it to /raw/upload/
+            if (pdfPath.includes('/image/upload/')) {
+                const fixedUrl = pdfPath.replace('/image/upload/', '/raw/upload/');
+                console.log("✅ Converting image URL to raw URL:", fixedUrl);
+                return fixedUrl;
+            }
+            
+            // Add ?dl=1 parameter to force download and avoid CORS/auth issues
+            const urlWithDownload = pdfPath.includes('?') ? pdfPath + '&dl=1' : pdfPath + '?dl=1';
+            console.log("✅ Loading from Cloudinary with download param:", urlWithDownload);
+            return urlWithDownload;
         }
         
         if (pdfPath.startsWith('http')) {
@@ -73,8 +81,13 @@ const PDFViewer = ({ pdfPath, fileName }) => {
     };
 
     const handleDocumentError = (err) => {
-        console.error('❌ PDF Load Error:', err);
-        setError("Unable to load PDF. Please check if the file exists on the server.");
+        console.error('❌ PDF Load Error Details:', {
+            error: err,
+            url: fileProp,
+            errorType: err.name,
+            errorMessage: err.message
+        });
+        setError("Unable to load PDF. It may be a permission issue with the file storage. Try uploading a new PDF.");
         setLoading(false);
     };
 
