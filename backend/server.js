@@ -17,25 +17,20 @@ const app = express();
 
 connectDB();
 
-// 🔥 RAREST SOLUTION: Manual Header Injection (CORS Middleware se pehle)
+// 🔥 STEP 1: Manual CORS Headers (Sabse Powerful Fix)
 app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    // Specific origin allow karein
-    if (origin === "https://simplify-ai-kappa.vercel.app") {
-        res.setHeader("Access-Control-Allow-Origin", origin);
-    }
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT,DELETE");
-    res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization");
+    res.header("Access-Control-Allow-Origin", "https://simplify-ai-kappa.vercel.app");
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     
-    // OPTIONS request ko turant 200 OK bhej do bina backend logic check kiye
     if (req.method === "OPTIONS") {
         return res.status(200).json({});
     }
     next();
 });
 
-// Extra layer
+// Standard CORS as backup
 app.use(cors({
     origin: "https://simplify-ai-kappa.vercel.app",
     credentials: true
@@ -45,12 +40,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/users', userRoutes);
 
-app.get("/", (req, res) => res.send("System Online 🚀"));
-app.use(errorHandler);
+app.get("/", (req, res) => res.send("System Live 🚀"));
+
+// 🔥 STEP 2: Ultimate Error Catcher (Jo aapne maanga tha)
+app.use((err, req, res, next) => {
+    console.error("🔥 INTERNAL SERVER ERROR:", err.message);
+    res.status(err.status || 500).json({
+        success: false,
+        message: err.message || "Internal Server Error",
+        error_detail: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {

@@ -1,14 +1,10 @@
 import axios from 'axios';
 
-// Render Backend URL (Make sure no trailing slash after /api)
-const API_BASE_URL = "https://simplify-ai-mrrh.onrender.com/api";
-
 const API = axios.create({ 
-    baseURL: API_BASE_URL,
+    baseURL: "https://simplify-ai-mrrh.onrender.com/api",
     withCredentials: true 
 });
 
-// Add token to headers for every request
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -17,31 +13,15 @@ API.interceptors.request.use((req) => {
   return req;
 });
 
-// 
 export const uploadDocument = async (formData) => {
-    return await API.post('/documents/upload', formData, {
-        withCredentials: true // Extremely important
-    });
-};
-export const getDocuments = () => API.get('/documents');
-export const getDocument = (id) => API.get(`/documents/${id}`);
-export const deleteDocument = (id) => API.delete(`/documents/${id}`);
-
-// --- AI & Flashcards Routes ---
-export const askAI = (documentId, question) => API.post(`/documents/${documentId}/chat`, { question });
-
-export const generateFlashcardsAPI = async (id) => {
+    // Axios khud boundary set karta hai jab hum headers manual nahi dete
     try {
-        const response = await API.post(`/documents/${id}/flashcards`, { force_refresh: true });
-        return response.data;
+        const response = await API.post('/documents/upload', formData);
+        return response;
     } catch (error) {
-        console.error("Flashcard Generation Error:", error);
+        console.error("Frontend API Error:", error.response?.data || error.message);
         throw error;
     }
 };
-
-// --- Profile & Quiz Routes ---
-export const updateProfile = (data) => API.put('/users/profile', data);
-export const deleteQuiz = (id) => API.delete(`/users/quiz/${id}`);
 
 export default API;
