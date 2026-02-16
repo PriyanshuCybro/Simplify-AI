@@ -19,11 +19,13 @@ API.interceptors.request.use((req) => {
 
 // --- Document Routes ---
 export const uploadDocument = async (formData) => {
-    // Axios automatic Content-Type handle karta hai jab FormData pass hota hai
-    // Par manual safety ke liye hum ye bhej rahe hain
-    return await API.post('/documents/upload', formData);
+    return await API.post('/documents/upload', formData, {
+        headers: {
+            // Content-Type ko empty chhodne se Axios sahi boundary khud lagayega
+            'Content-Type': 'multipart/form-data'
+        }
+    });
 };
-
 export const getDocuments = () => API.get('/documents');
 export const getDocument = (id) => API.get(`/documents/${id}`);
 export const deleteDocument = (id) => API.delete(`/documents/${id}`);
