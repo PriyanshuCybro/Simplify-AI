@@ -182,7 +182,7 @@ const QuizTakePage = () => {
                     </div>
                     <div className="flex items-center gap-1.5 px-4 py-1.5 bg-yellow-50 rounded-full">
                         <Trophy size={14} className="text-yellow-600" />
-                        <span className="text-[10px] font-black text-yellow-700 uppercase">{score * 10} XP</span>
+                        <span className="text-[10px] font-black text-yellow-700 uppercase">{correctCount * 10} XP</span>
                     </div>
                 </div>
 
