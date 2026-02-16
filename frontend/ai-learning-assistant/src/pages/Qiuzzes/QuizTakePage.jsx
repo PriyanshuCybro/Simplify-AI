@@ -10,12 +10,14 @@ const QuizTakePage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     
-    // 🔥 Ensuring quizCount is a clean number before anything else
-    const quizCount = parseInt(location.state?.quizCount) || 10;
+    // 🔥 Get quiz from state OR quizId to fetch
+    const quizData = location.state?.quiz;
+    const quizId = location.state?.quizId;
+    const quizCount = location.state?.quizCount || (quizData?.questions?.length || 10);
 
     const [questions, setQuestions] = useState([]);
+    const [quizMeta, setQuizMeta] = useState(null);
     const [currentIdx, setCurrentIdx] = useState(0);
-    const [score, setScore] = useState(0);
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState(null);
     const [error, setError] = useState(null);
@@ -24,80 +26,78 @@ const QuizTakePage = () => {
     const [startTime] = useState(Date.now());
 
     useEffect(() => {
-        const fetchQuiz = async () => {
+        const loadQuiz = async () => {
             try {
                 setLoading(true);
                 setError(null);
                 
-                // 🔥 THE 400 ERROR FIX: Sending explicitly formatted body
-                const res = await axios.post(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/quiz`, 
-                    { 
-                        count: quizCount, // Number format
-                        force_refresh: true 
-                    },
-                    {
-                        headers: { 
-                            Authorization: `Bearer ${localStorage.getItem('token')}`,
-                            'Content-Type': 'application/json'
-                        },
-                        timeout: 90000 // Increased timeout for AI generation
-                    }
-                );
-
-                if (res.data.success && res.data.data) {
-                    setQuestions(res.data.data);
-                } else {
-                    throw new Error("Failed to receive questions from AI.");
-                }
-            } catch (err) {
-                console.error("❌ Frontend Request Error:", err.response?.data || err.message);
+                let quizQuestions;
+                let quizMetadata;
                 
-                // Handling specific 400 error message from backend
-                const errorMsg = err.response?.data?.message || "AI failed to understand the request (400).";
-                setError(errorMsg);
+                // If quiz passed via state, use it directly
+                if (quizData?.questions) {
+                    quizQuestions = quizData.questions;
+                    quizMetadata = quizData;
+                    console.log("✅ Using quiz from state:", quizQuestions.length, "questions");
+                } else if (quizId) {
+                    // Otherwise fetch it
+                    const res = await axios.get(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/quiz/${quizId}`, {
+                        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                    });
+                    quizQuestions = res.data.data?.questions || res.data.questions || [];
+                    quizMetadata = res.data.data || res.data;
+                    console.log("✅ Fetched quiz from backend:", quizQuestions.length, "questions");
+                } else {
+                    throw new Error("No quiz data provided");
+                }
+                
+                if (!quizQuestions || quizQuestions.length === 0) {
+                    throw new Error("Quiz has no questions");
+                }
+                
+                setQuestions(quizQuestions);
+                setQuizMeta(quizMetadata);
+            } catch (err) {
+                console.error("❌ Load Quiz Error:", err.response?.data || err.message);
+                setError(err.response?.data?.message || err.message);
             } finally {
                 setLoading(false);
             }
         };
 
-        if (id) fetchQuiz();
-    }, [id, quizCount]);
+        loadQuiz();
+    }, [id, quizId, quizData]);
 
-    const saveResultToDB = async (finalScore, finalAnswers) => {
+    const saveResultToDB = async (finalAnswers) => {
         setIsSaving(true);
         try {
             const timeSpent = Math.round((Date.now() - startTime) / 1000);
+            console.log("💾 Saving quiz result with answers:", finalAnswers.length);
             
-            // Whole number accuracy protection
-            const accuracyVal = questions.length > 0 
-                ? Math.round((finalScore / questions.length) * 100) 
-                : 0;
-            
-            const response = await axios.post(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/quiz/save`, {
-                score: finalScore,
-                totalQuestions: questions.length,
-                title: `Quiz Session - ${new Date().toLocaleDateString()}`,
-                accuracy: accuracyVal,
-                xpEarned: finalScore * 10,
-                timeSpent: timeSpent,
-                questions: questions,
-                userAnswers: finalAnswers 
+            // Call backend to save and calculate score
+            const response = await axios.post(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/quiz/${quizMeta?._id}/save`, {
+                userAnswers: finalAnswers  // [{questionIndex, selectedAnswer}, ...]
             }, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
 
-            // Navigate to result with clean whole number data
-            navigate(`/quiz/${response.data.data._id}`, { 
-                state: { 
-                    score: finalScore, 
-                    total: questions.length, 
-                    accuracy: accuracyVal 
-                } 
-            });
+            if (response.data.success) {
+                console.log("✅ Quiz result saved successfully");
+                // Navigate to result page with full quiz data
+                navigate(`/quiz/${response.data.data.quizId || quizMeta?._id}`, { 
+                    state: { 
+                        score: response.data.data.score,
+                        total: response.data.data.totalQuestions,
+                        accuracy: response.data.data.accuracy,
+                        userAnswers: response.data.data.userAnswers,
+                        questions: response.data.data.questions,
+                        timeSpent: timeSpent
+                    } 
+                });
+            }
         } catch (err) {
-            console.error("❌ Save error:", err);
-            alert("Failed to save result. Check console for details.");
-            navigate('/dashboard');
+            console.error("❌ Save error:", err.response?.data || err.message);
+            alert("Failed to save result: " + (err.response?.data?.message || err.message));
         } finally {
             setIsSaving(false);
         }
@@ -106,23 +106,19 @@ const QuizTakePage = () => {
     const handleNext = () => {
         if (!selected) return;
 
-        const isCorrect = selected === questions[currentIdx].correctAnswer;
-        const newScore = isCorrect ? score + 1 : score;
-        
         const updatedAnswers = [...userAnswers, {
             questionIndex: currentIdx,
-            selectedAnswer: selected, 
-            isCorrect: isCorrect
+            selectedAnswer: selected
         }];
 
-        if (isCorrect) setScore(newScore);
         setUserAnswers(updatedAnswers);
 
         if (currentIdx + 1 < questions.length) {
             setCurrentIdx(currentIdx + 1);
             setSelected(null);
         } else {
-            saveResultToDB(newScore, updatedAnswers);
+            // Quiz completed - save results
+            saveResultToDB(updatedAnswers);
         }
     };
 

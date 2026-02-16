@@ -1843,7 +1843,7 @@ const FlashcardTab = ({ flashcards, onGenerate, isGenerating }) => {
 const DocumentDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [doc, setDoc] = useState(null); // Rename for clarity
+  const [doc, setDoc] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('pdf');
   const [question, setQuestion] = useState('');
@@ -1852,7 +1852,9 @@ const DocumentDetailPage = () => {
   const [flashcards, setFlashcards] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showQuizModal, setShowQuizModal] = useState(false);
-  const [quizCount, setQuizCount] = useState(10);
+  const [quizCount, setQuizCount] = useState(5);
+  const [flashcardCount, setFlashcardCount] = useState(5);  // 🔥 NEW: Flashcard count state
+  const [showFlashcardSelector, setShowFlashcardSelector] = useState(false);  // 🔥 NEW: Show selector modal
   
   const [notes, setNotes] = useState("");
   const [showNotes, setShowNotes] = useState(false);
@@ -1889,15 +1891,42 @@ const DocumentDetailPage = () => {
     try {
         setIsGenerating(true);
         const token = localStorage.getItem('token');
+        console.log("📤 Generating flashcards with count:", flashcardCount);
         const response = await axios.post(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/flashcards`, 
-            { force_refresh: true }, 
+            { count: flashcardCount },  // 🔥 SEND COUNT TO BACKEND
             { headers: { Authorization: `Bearer ${token}` } }
         );
         if (response.data.success) {
             setFlashcards(response.data.flashcards);
+            setShowFlashcardSelector(false);
+            alert(`✅ Generated ${response.data.flashcards.length} flashcards!`);
         }
     } catch (err) { 
-        alert("AI is exploring different sections, please wait..."); 
+        console.error("Flashcard generation error:", err);
+        alert("Error generating flashcards: " + (err.response?.data?.message || err.message)); 
+    } finally { 
+        setIsGenerating(false); 
+    }
+  };
+
+  const handleGenerateQuiz = async () => {
+    try {
+        setIsGenerating(true);
+        const token = localStorage.getItem('token');
+        console.log("📤 Generating quiz with count:", quizCount);
+        const response = await axios.post(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/quiz`, 
+            { count: quizCount },  // 🔥 SEND COUNT TO BACKEND
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (response.data.success) {
+            console.log("✅ Quiz generated successfully");
+            setShowQuizModal(false);
+            // Navigate to quiz taking page with the quiz ID
+            navigate(`/documents/${id}/quiz/take`, { state: { quizId: response.data.quiz._id, quiz: response.data.quiz } });
+        }
+    } catch (err) { 
+        console.error("Quiz generation error:", err);
+        alert("Error generating quiz: " + (err.response?.data?.message || err.message)); 
     } finally { 
         setIsGenerating(false); 
     }
@@ -2049,7 +2078,90 @@ const DocumentDetailPage = () => {
               </form>
             </div>
           ) : activeTab === 'flashcards' ? (
-            <FlashcardTab flashcards={flashcards} onGenerate={handleGenerateFlashcards} isGenerating={isGenerating} />
+            <div className="flex flex-col h-full">
+              {!showFlashcardSelector ? (
+                <>
+                  {flashcards.length > 0 ? (
+                    <div className="flex flex-col h-full">
+                      <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+                        {flashcards.map((card, idx) => (
+                          <div key={idx} className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-3xl shadow-sm">
+                            <p className="text-[11px] text-blue-600 font-black uppercase tracking-widest mb-2">Q{idx + 1}</p>
+                            <p className="font-black text-slate-900 mb-3">{card.question}</p>
+                            <p className="text-slate-600 text-sm leading-relaxed">{card.answer}</p>
+                            <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-3">Difficulty: {card.difficulty || 'medium'}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <button 
+                        onClick={() => setShowFlashcardSelector(true)}
+                        className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-3xl font-black text-[11px] uppercase tracking-widest hover:shadow-2xl shadow-blue-100 transition-all flex items-center justify-center gap-2"
+                      >
+                        <Zap size={16} /> Generate More
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-center">
+                      <Zap size={48} className="text-slate-300 mb-4" />
+                      <p className="text-slate-500 font-black text-sm uppercase tracking-widest mb-4">No Flashcards Yet</p>
+                      <button 
+                        onClick={() => setShowFlashcardSelector(true)}
+                        className="px-8 py-3 bg-blue-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-blue-700 transition-all"
+                      >
+                        Create Now
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-center">
+                  <Zap size={48} className="text-blue-600 mb-4" />
+                  <h3 className="text-slate-900 font-black text-lg mb-4 uppercase tracking-tight">How Many Flashcards?</h3>
+                  <p className="text-slate-500 text-[12px] font-bold uppercase tracking-widest mb-6">Choose between 5-10 questions</p>
+                  
+                  <div className="mb-6">
+                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Count</p>
+                    <div className="inline-block px-6 py-2 bg-blue-600 text-white rounded-2xl font-black text-xl shadow-lg shadow-blue-100">
+                      {flashcardCount}
+                    </div>
+                  </div>
+                  
+                  <input 
+                    type="range" 
+                    min="5" 
+                    max="10" 
+                    step="1"
+                    value={flashcardCount} 
+                    onChange={(e) => setFlashcardCount(parseInt(e.target.value))} 
+                    className="w-full max-w-xs h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer mb-8 accent-blue-600" 
+                  />
+                  
+                  <div className="space-y-3 w-full max-w-xs">
+                    <button 
+                      onClick={handleGenerateFlashcards}
+                      disabled={isGenerating}
+                      className="w-full bg-blue-600 text-white py-4 rounded-3xl font-black text-[11px] uppercase tracking-widest hover:bg-blue-700 disabled:opacity-50 shadow-2xl shadow-blue-100 transition-all flex items-center justify-center gap-2"
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 size={14} className="animate-spin" /> Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Zap size={14} /> Generate {flashcardCount} Cards
+                        </>
+                      )}
+                    </button>
+                    <button 
+                      onClick={() => setShowFlashcardSelector(false)}
+                      className="w-full py-2 text-slate-300 font-bold text-[10px] uppercase"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           ) : null}
         </div>
       </div>
@@ -2078,10 +2190,19 @@ const DocumentDetailPage = () => {
             />
             <div className="space-y-3">
                 <button 
-                  onClick={() => navigate(`/documents/${id}/quiz/take`, { state: { quizCount } })} 
-                  className="w-full bg-blue-600 text-white py-4 rounded-3xl font-black text-[11px] uppercase tracking-widest hover:bg-blue-700 shadow-2xl shadow-blue-100 transition-all"
+                  onClick={handleGenerateQuiz}
+                  disabled={isGenerating}
+                  className="w-full bg-blue-600 text-white py-4 rounded-3xl font-black text-[11px] uppercase tracking-widest hover:bg-blue-700 disabled:opacity-50 shadow-2xl shadow-blue-100 transition-all flex items-center justify-center gap-2"
                 >
-                  Start Session
+                  {isGenerating ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" /> Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Brain size={14} /> Start {quizCount}-Question Quiz
+                    </>
+                  )}
                 </button>
                 <button onClick={() => setShowQuizModal(false)} className="w-full py-2 text-slate-300 font-bold text-[10px] uppercase">Cancel</button>
             </div>
