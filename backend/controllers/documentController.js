@@ -461,6 +461,37 @@ export const uploadDocument = async (req, res) => {
     }
 };
 
+// ye get document aur get documents ke liye 
+
+// ✅ Single document fetch karne ke liye function
+export const getDocument = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const document = await Document.findOne({ _id: id, userId: req.user._id });
+        
+        if (!document) {
+            return res.status(404).json({ success: false, message: "Document not found" });
+        }
+        
+        res.status(200).json({ success: true, data: document });
+    } catch (error) {
+        console.error("❌ GET DOCUMENT ERROR:", error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// ✅ Saare documents list karne ke liye (Agar Dashboard pe chahiye)
+export const getDocuments = async (req, res) => {
+    try {
+        const docs = await Document.find({ userId: req.user._id }).sort({ createdAt: -1 });
+        res.status(200).json({ success: true, data: docs });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+
 export const deleteDocument = async (req, res) => {
     try {
         const { id } = req.params;

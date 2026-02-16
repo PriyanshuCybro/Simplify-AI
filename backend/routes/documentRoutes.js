@@ -30,10 +30,13 @@ router.use(protect);
 router.post('/upload', protect, uploadCloud.single('file'), uploadDocument);
 
 // Basic CRUD routes
-router.get('/', getDocuments);
+// Routes set karo
+router.get('/', protect, getDocuments);      // Saare docs ke liye
+router.get('/:id', protect, getDocument);    // Single doc ke liye
+
 // List all flashcard generations for user (placed before '/:id' to avoid route conflicts)
 router.get('/flashcards', getUserFlashcards);
-router.get('/:id', getDocument);
+
 router.delete('/:id', deleteDocument);
 router.put('/:id', updateDocument);
 
