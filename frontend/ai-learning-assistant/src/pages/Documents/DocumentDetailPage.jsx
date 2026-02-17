@@ -1998,13 +1998,18 @@ const DocumentDetailPage = () => {
             <h2 className="text-slate-800 font-black text-xs uppercase tracking-tight max-w-[300px] truncate">{doc?.title}</h2>
             <button 
                 onClick={() => {
-                    const link = document.createElement('a');
-                    link.href = doc?.filePath;
-                    link.download = doc?.title || 'document.pdf';
-                    link.target = '_blank';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+                    const pdfUrl = doc?.filePath;
+                    if (pdfUrl) {
+                        // Add ?dl=1 parameter to force download
+                        const downloadUrl = pdfUrl.includes('?') ? pdfUrl + '&dl=1' : pdfUrl + '?dl=1';
+                        const link = document.createElement('a');
+                        link.href = downloadUrl;
+                        link.download = doc?.title || 'document.pdf';
+                        link.target = '_blank';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
                 }}
                 className="p-2.5 bg-white rounded-xl border border-slate-100 text-blue-600 shadow-sm hover:shadow-md transition-all"
                 title="Download PDF"
