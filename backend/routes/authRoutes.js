@@ -23,7 +23,6 @@ const registerValidation = [
 
     body('email')
     .isEmail()
-    .normalizeEmail()
     .withMessage('Please enter a valid email address'),
 
     body('password')
@@ -34,7 +33,6 @@ const registerValidation = [
 const loginValidation = [
     body('email')
     .isEmail()
-    .normalizeEmail()
     .withMessage('Please enter a valid email address'),
 
     body('password')
@@ -46,7 +44,6 @@ const loginValidation = [
 const forgotPasswordValidation = [
     body('email')
     .isEmail()
-    .normalizeEmail()
     .withMessage('Please enter a valid email address')
 ];
 

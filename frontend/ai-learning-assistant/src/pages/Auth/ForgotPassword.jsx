@@ -9,15 +9,27 @@ const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
+
+    if (!isValidEmail(email)) {
+      setError("Please enter a valid email format.");
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = await axios.post('https://simplify-ai-mrrh.onrender.com/api/auth/forgot-password', { email });
+      await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { email });
+      setError("");
       setMessage("Check your Inbox! Reset link bhej diya gaya hai.");
     } catch (err) {
-      setMessage("Email galat hai ya user nahi mila.");
+      const serverError = err.response?.data?.error || err.response?.data?.message;
+      setError(serverError || "Email galat hai ya user nahi mila.");
     } finally {
       setLoading(false);
     }
@@ -42,7 +54,17 @@ const ForgotPasswordPage = () => {
                 required 
                 placeholder="pawan@gmail.com" 
                 value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setEmail(value);
+                  if (!value) {
+                    setError("");
+                  } else if (!isValidEmail(value)) {
+                    setError("Please enter a valid email format.");
+                  } else {
+                    setError("");
+                  }
+                }} 
                 className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 font-bold" 
               />
             </div>
@@ -59,7 +81,8 @@ const ForgotPasswordPage = () => {
           </Link>
         </div>
 
-        {message && <p className="mt-6 p-4 bg-blue-50 text-blue-600 rounded-2xl text-xs font-bold text-center border border-blue-100">{message}</p>}
+        {error && <p className="mt-6 p-4 bg-rose-50 text-rose-600 rounded-2xl text-xs font-bold text-center border border-rose-100">{error}</p>}
+        {message && <p className="mt-4 p-4 bg-blue-50 text-blue-600 rounded-2xl text-xs font-bold text-center border border-blue-100">{message}</p>}
       </div>
     </div>
   );

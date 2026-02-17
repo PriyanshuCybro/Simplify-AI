@@ -252,7 +252,6 @@
 
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto'; // Required for password reset hashing
-import nodemailer from 'nodemailer'; // Required for sending reset emails
 import User from '../models/User.js';
 import sendEmail from '../utils/sendEmail.js';
 
@@ -361,7 +360,17 @@ export const login = async (req, res, next) => {
 // @route   POST /api/auth/forgot-password
 export const forgotPassword = async (req, res, next) => {
     try {
-        const user = await User.findOne({ email: req.body.email });
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ success: false, error: "Email is required" });
+        }
+
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+            return res.status(500).json({ success: false, error: "Email service is not configured" });
+        }
+
+        const user = await User.findOne({ email });
 
         if (!user) {
             return res.status(404).json({ success: false, error: "Bhai, ye email database mein nahi hai!" });
@@ -374,27 +383,16 @@ export const forgotPassword = async (req, res, next) => {
         await user.save({ validateBeforeSave: false });
 
         // 3. Reset URL (POINTING TO FRONTEND)
-        // Note: Real-time mein yahan localhost:5173 (Frontend) aayega na ki backend port
-        const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        const resetUrl = `${frontendUrl.replace(/\/$/, "")}/reset-password/${resetToken}`;
 
         const message = `Aapne password reset request ki hai. Naya password banane ke liye niche diye gaye link par click karein:\n\n${resetUrl}\n\nYe link 10 minute mein expire ho jayega.`;
 
         try {
-            // ✅ Optimization: Transporter ko function ke andar rakhna theek hai par reuse better hai
-            const transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: process.env.EMAIL_USER,
-                    pass: process.env.EMAIL_PASS,
-                },
-            });
-
-            await transporter.sendMail({
-                from: `"AI Learning Assistant" <${process.env.EMAIL_USER}>`,
-                to: user.email,
+            await sendEmail({
+                email: user.email,
                 subject: 'Neural Access Recovery - Password Reset',
-                text: message,
-                // HTML version (Professional look ke liye)
+                message,
                 html: `<b>Neural Access Recovery</b><br/><p>Niche diye gaye link par click karein:</p><a href="${resetUrl}">${resetUrl}</a>`
             });
 
@@ -407,7 +405,7 @@ export const forgotPassword = async (req, res, next) => {
             console.error("MAIL ERROR:", err.message);
             // Agar mail fail ho jaye toh token hata do
             user.resetPasswordToken = undefined;
-            user.resetPasswordExpires = undefined; // Sync with your Model field name
+            user.resetPasswordExpire = undefined; // Sync with your Model field name
             await user.save({ validateBeforeSave: false });
             return res.status(500).json({ success: false, error: "Email nahi ja paya. Settings check karein." });
         }
