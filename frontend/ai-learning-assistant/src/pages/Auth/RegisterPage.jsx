@@ -46,10 +46,10 @@ const RegisterPage = () => {
     e.preventDefault();
     setError("");
 
-    // Age Check: No negative or zero age
+    // Age Check: Valid age range 7 to 100
     const ageNum = parseInt(formData.age);
-    if (!formData.age || ageNum <= 0 || ageNum > 120) {
-      setError("Please enter a valid age between 1 and 120 years.");
+    if (!formData.age || ageNum < 7 || ageNum > 100) {
+      setError("Please enter a valid age between 7 and 100 years.");
       return;
     }
 
@@ -146,7 +146,7 @@ const RegisterPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-2 block text-left">Age</label>
-                    <input type="number" min="1" max="120" placeholder="21" value={formData.age} onChange={(e) => setFormData({...formData, age: e.target.value})} className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-blue-50 font-bold text-sm" />
+                    <input type="number" min="7" max="100" placeholder="21" value={formData.age} onChange={(e) => setFormData({...formData, age: e.target.value})} className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-blue-50 font-bold text-sm" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-2 block text-left">Gender</label>

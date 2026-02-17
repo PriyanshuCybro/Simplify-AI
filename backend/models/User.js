@@ -36,8 +36,8 @@ const userSchema = new mongoose.Schema({
     // 🚀 NEW: Personal & Professional Details (As per your request)
     age: {
         type: Number,
-        min: [10, 'Minimum age should be 10'],
-        max: [100, 'Maximum age limit exceeded']
+        min: [7, 'Minimum age should be 7'],
+        max: [100, 'Maximum age should be 100']
     },
     gender: {
         type: String,
