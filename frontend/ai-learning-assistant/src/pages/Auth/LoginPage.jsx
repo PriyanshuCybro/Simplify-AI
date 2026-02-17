@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Mail, Lock, LogIn, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
+import { Mail, Lock, LogIn, Sparkles, AlertCircle, Loader2, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
@@ -10,6 +10,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.o
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -110,13 +111,20 @@ const LoginPage = () => {
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
               <input 
-                type="password" 
+                type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                className={`w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 transition-all font-bold text-sm ${error ? 'focus:ring-rose-100' : 'focus:ring-blue-100'}`}
+                className={`w-full pl-12 pr-12 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 transition-all font-bold text-sm ${error ? 'focus:ring-rose-100' : 'focus:ring-blue-100'}`}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
 
