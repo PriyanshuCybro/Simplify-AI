@@ -19,7 +19,7 @@ const AppLayout = ({ children }) => {
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
       <aside className="w-64 bg-white shadow-md flex flex-col">
-        <div className="p-6 border-b flex justify-center">
+        <div className="p-4 pl-5 border-b flex items-center">
           <Logo size={48} showText={true} />
         </div>
         <nav className="flex-1 p-4 space-y-2">

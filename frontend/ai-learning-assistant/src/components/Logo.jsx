@@ -11,8 +11,8 @@ const Logo = ({ size = 56, showText = true, variant = 'default', className = "" 
   const colors = getColors();
 
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
-      {/* Logo Mark - Open Book with AI Spark */}
+    <div className={`flex items-center gap-2 ${className}`}>
+      {/* Logo Mark */}
       <div className="relative flex-shrink-0" style={{ width: `${size}px`, height: `${size}px` }}>
         <svg
           width={size}
@@ -106,31 +106,32 @@ const Logo = ({ size = 56, showText = true, variant = 'default', className = "" 
 
       {/* Brand Text */}
       {showText && variant !== 'icon-only' && (
-        <div className="flex flex-col leading-tight">
-          <div style={{ display: 'flex', gap: '0px', alignItems: 'baseline' }}>
+        <div className="flex flex-col leading-tight mt-0.5">
+          <div style={{ display: 'flex', gap: '0px', alignItems: 'center' }}>
             <span className="font-black tracking-tighter" style={{ 
               fontSize: `${16 * (size / 40)}px`,
               color: colors.text,
-              letterSpacing: '-1px',
-              lineHeight: '1.1'
+              letterSpacing: '-0.8px',
+              lineHeight: '1.05'
             }}>
               Simplify
             </span>
             <span className="font-black" style={{ 
               fontSize: `${14 * (size / 40)}px`,
               color: colors.accent,
-              letterSpacing: '0.5px',
-              lineHeight: '1.1'
+              letterSpacing: '0.3px',
+              lineHeight: '1.05',
+              marginLeft: '2px'
             }}>
               AI
             </span>
           </div>
           {variant === 'default' && (
-            <span className="text-[10px] font-bold" style={{ 
+            <span className="text-[9px] font-bold" style={{ 
               color: colors.text,
-              opacity: 0.65,
-              marginTop: '2px',
-              letterSpacing: '0.5px'
+              opacity: 0.6,
+              marginTop: '1px',
+              letterSpacing: '0.4px'
             }}>
               Learn & Grow
             </span>
