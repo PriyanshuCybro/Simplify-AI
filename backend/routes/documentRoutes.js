@@ -5,7 +5,6 @@ import {
     getDocument,
     deleteDocument,
     updateDocument,
-    downloadDocument,
     askAI,
     generateFlashcards,
     getUserFlashcards,
@@ -32,7 +31,6 @@ router.get('/quiz/:quizId', getQuizDetails);
 router.post('/upload', uploadCloud.single('file'), uploadDocument);
 router.get('/', getDocuments);
 router.get('/:id', getDocument);
-router.get('/:id/download', downloadDocument);
 router.delete('/:id', deleteDocument);
 router.put('/:id', updateDocument);
 

@@ -1766,7 +1766,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { 
   ArrowLeft, Loader2, MessageSquare, Zap, Send, User, Bot, Brain, File, 
-  Sparkles, ChevronLeft, ChevronRight, Download, Edit3, Save, X, FileText
+  Sparkles, ChevronLeft, ChevronRight, Edit3, Save, X, FileText
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import PDFViewer from '../../components/PDFViewer';
@@ -1996,16 +1996,6 @@ const DocumentDetailPage = () => {
         </button>
         <div className="flex items-center gap-4">
             <h2 className="text-slate-800 font-black text-xs uppercase tracking-tight max-w-[300px] truncate">{doc?.title}</h2>
-            <button 
-                onClick={() => {
-                    const token = localStorage.getItem('token');
-                    window.open(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/download`, '_blank');
-                }}
-                className="p-2.5 bg-white rounded-xl border border-slate-100 text-blue-600 shadow-sm hover:shadow-md transition-all"
-                title="Download PDF"
-            >
-                <Download size={16} />
-            </button>
         </div>
       </div>
 

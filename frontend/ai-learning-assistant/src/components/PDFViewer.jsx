@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { 
   ChevronLeft, ChevronRight, ZoomIn, ZoomOut, 
-  RotateCcw, Maximize2, Loader2, AlertCircle 
+  RotateCcw, Loader2, AlertCircle 
 } from 'lucide-react';
 
 import 'react-pdf/dist/Page/AnnotationLayer.css';
@@ -89,16 +89,6 @@ const PDFViewer = ({ pdfPath, fileName }) => {
         setLoading(false);
     };
 
-    const openInNewTab = () => {
-        const url = fileProp || pdfPath;
-        if (url) {
-            // Remove any download parameters that might force download
-            const cleanUrl = url.replace(/[?&]dl=1/g, '');
-            console.log("🔥 Opening in new tab:", cleanUrl);
-            window.open(cleanUrl, '_blank');
-        }
-    };
-
     if (!fileProp) {
         return (
             <div className="flex flex-col h-full bg-[#1e1e1e] rounded-3xl overflow-hidden border border-white/10 shadow-2xl items-center justify-center">
@@ -114,10 +104,7 @@ const PDFViewer = ({ pdfPath, fileName }) => {
         <div className="flex flex-col h-full bg-[#1e1e1e] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
             {/* --- PREMIUM TOOLBAR --- */}
             <div className="bg-[#2d2d2d] px-6 py-4 flex items-center justify-between border-b border-white/5 z-30">
-                <div className="flex items-center gap-4 max-w-[30%]">
-                    <button onClick={openInNewTab} className="p-2 bg-blue-500/10 rounded-lg hover:bg-blue-500/20 transition-all" title="Open in New Tab">
-                        <Maximize2 className="text-blue-500" size={16} />
-                    </button>
+                <div className="flex items-center gap-4 max-w-[50%]">
                     <p className="text-white/90 font-bold text-xs truncate uppercase tracking-tighter">{fileName}</p>
                 </div>
 
