@@ -1997,8 +1997,17 @@ const DocumentDetailPage = () => {
         <div className="flex items-center gap-4">
             <h2 className="text-slate-800 font-black text-xs uppercase tracking-tight max-w-[300px] truncate">{doc?.title}</h2>
             <button 
-                onClick={() => window.open(doc?.filePath, '_blank')} 
+                onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = doc?.filePath;
+                    link.download = doc?.title || 'document.pdf';
+                    link.target = '_blank';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }}
                 className="p-2.5 bg-white rounded-xl border border-slate-100 text-blue-600 shadow-sm hover:shadow-md transition-all"
+                title="Download PDF"
             >
                 <Download size={16} />
             </button>
