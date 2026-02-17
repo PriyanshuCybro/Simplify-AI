@@ -29,12 +29,12 @@ const RegisterPage = () => {
   // ✅ Step 1 Validation (Credentials)
   const handleNext = () => {
     if (!formData.username || !formData.email || !formData.password || !formData.name) {
-      setError("Bhai, saare fields bharna zaroori hai!");
+      setError("All fields are required. Please fill in all the information.");
       return;
     }
     // Password Check: Min 6 characters
     if (formData.password.length < 6) {
-      setError("Password kam se kam 6 letters ka hona chahiye!");
+      setError("Password must be at least 6 characters long.");
       return;
     }
     setError("");
@@ -49,7 +49,7 @@ const RegisterPage = () => {
     // Age Check: No negative or zero age
     const ageNum = parseInt(formData.age);
     if (!formData.age || ageNum <= 0 || ageNum > 120) {
-      setError("Bhai, sahi Age dalo (1 - 120)!");
+      setError("Please enter a valid age between 1 and 120 years.");
       return;
     }
 

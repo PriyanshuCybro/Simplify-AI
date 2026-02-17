@@ -1241,7 +1241,7 @@ const DashboardPage = () => {
 
   const handleDelete = async (e, id) => {
     e.stopPropagation(); 
-    if (window.confirm("Bhai, delete kar dein?")) {
+    if (window.confirm("Are you sure you want to delete this item?")) {
       try {
         await deleteDocument(id);
         fetchAllData(); 

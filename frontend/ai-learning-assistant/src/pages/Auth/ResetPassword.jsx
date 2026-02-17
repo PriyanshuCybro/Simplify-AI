@@ -16,21 +16,21 @@ const ResetPasswordPage = () => {
   const handleReset = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      setError("Passwords match nahi ho rahe bhai!");
+      setError("Passwords do not match. Please ensure both passwords are identical.");
       return;
     }
     if (password.length < 6) {
-      setError("Password kam se kam 6 letters ka hona chahiye!");
+      setError("Password must be at least 6 characters long.");
       return;
     }
 
     setLoading(true);
     try {
       const res = await axios.put(`https://simplify-ai-mrrh.onrender.com/api/auth/reset-password/${resetToken}`, { password });
-      alert("Password Reset Successful! Ab naye password se login karo.");
+      alert("Password reset successful! Please log in with your new password.");
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.message || "Reset failed. Link expire ho gaya shayad.");
+      setError(err.response?.data?.message || "Password reset failed. The link may have expired. Please request a new one.");
     } finally {
       setLoading(false);
     }

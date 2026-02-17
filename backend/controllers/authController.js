@@ -376,7 +376,7 @@ export const forgotPassword = async (req, res, next) => {
         const user = await User.findOne({ email });
 
         if (!user) {
-            return res.status(404).json({ success: false, error: "Bhai, ye email database mein nahi hai!" });
+            return res.status(404).json({ success: false, error: "This email is not registered in our system. Please check and try again." });
         }
 
         // 1. Get reset token from model method (Jo User.js mein pehle se hai)
@@ -389,7 +389,7 @@ export const forgotPassword = async (req, res, next) => {
         const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
         const resetUrl = `${frontendUrl.replace(/\/$/, "")}/reset-password/${resetToken}`;
 
-        const message = `Aapne password reset request ki hai. Naya password banane ke liye niche diye gaye link par click karein:\n\n${resetUrl}\n\nYe link 10 minute mein expire ho jayega.`;
+        const message = `You have requested a password reset. Please click the link below to create a new password:\n\n${resetUrl}\n\nThis link will expire in 10 minutes.`;
 
         try {
             await sendEmail({
@@ -410,7 +410,7 @@ export const forgotPassword = async (req, res, next) => {
             user.resetPasswordToken = undefined;
             user.resetPasswordExpire = undefined; // Sync with your Model field name
             await user.save({ validateBeforeSave: false });
-            return res.status(500).json({ success: false, error: "Email nahi ja paya. Settings check karein." });
+            return res.status(500).json({ success: false, error: "Failed to send email. Please verify your email settings and try again." });
         }
     } catch (error) {
         next(error);

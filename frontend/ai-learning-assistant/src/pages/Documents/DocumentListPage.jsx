@@ -34,7 +34,7 @@ const DocumentListPage = () => {
     // 🔥 Delete Functionality
     const handleDelete = async (e, id) => {
         e.stopPropagation(); // Card click event ko rokne ke liye
-        if (!window.confirm("Bhai, pakka delete karna hai?")) return;
+        if (!window.confirm("Are you sure you want to delete this document? This action cannot be undone.")) return;
 
         try {
             await axios.delete(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}`, {

@@ -26,10 +26,10 @@ const ForgotPasswordPage = () => {
     try {
       await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { email });
       setError("");
-      setMessage("Check your Inbox! Reset link bhej diya gaya hai.");
+      setMessage("Check your inbox! A password reset link has been sent to your email.");
     } catch (err) {
       const serverError = err.response?.data?.error || err.response?.data?.message;
-      setError(serverError || "Email galat hai ya user nahi mila.");
+      setError(serverError || "Invalid email or user not found. Please check and try again.");
     } finally {
       setLoading(false);
     }
