@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Mail, Lock, ArrowRight, ArrowLeft, Briefcase, MapPin, Phone, Sparkles, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Lock, ArrowRight, ArrowLeft, Briefcase, MapPin, Phone, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import Logo from '../../components/Logo';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
 
@@ -74,11 +75,11 @@ const RegisterPage = () => {
         
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex p-3 bg-blue-50 text-blue-600 rounded-2xl mb-4">
-            <Sparkles size={28} />
+          <div className="flex justify-center mb-6">
+            <Logo size={48} showText={false} />
           </div>
           <h2 className="text-3xl font-black text-slate-900 tracking-tight">Join Simplify AI</h2>
-          <p className="text-slate-600 text-sm mt-2">Master your learning with intelligent assistance</p>
+          <p className="text-slate-500 text-sm mt-2">Start mastering your learning today</p>
           <div className="flex justify-center gap-2 mt-3">
             <div className={`h-1.5 w-10 rounded-full ${step === 1 ? 'bg-blue-600' : 'bg-slate-200'}`} />
             <div className={`h-1.5 w-10 rounded-full ${step === 2 ? 'bg-blue-600' : 'bg-slate-200'}`} />

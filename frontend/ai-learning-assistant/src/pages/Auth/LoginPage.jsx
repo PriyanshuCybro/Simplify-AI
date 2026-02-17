@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Mail, Lock, LogIn, Sparkles, AlertCircle, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, LogIn, AlertCircle, Loader2, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import Logo from '../../components/Logo';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
 
@@ -49,11 +50,11 @@ const LoginPage = () => {
         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 blur-3xl"></div>
 
         <div className="text-center mb-8 relative z-10">
-          <div className="inline-flex p-3 bg-blue-50 text-blue-600 rounded-2xl mb-4">
-            <Sparkles size={28} />
+          <div className="flex justify-center mb-6">
+            <Logo size={50} showText={false} />
           </div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Simplify AI</h2>
-          <p className="text-slate-400 text-[10px] font-black uppercase mt-2 tracking-widest">Master Your Learning</p>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Welcome Back</h2>
+          <p className="text-slate-500 text-sm mt-2">Sign in to continue learning with Simplify AI</p>
         </div>
 
         {/* Universal Error Alert */}

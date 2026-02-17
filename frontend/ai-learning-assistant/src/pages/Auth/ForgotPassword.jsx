@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Mail, ArrowLeft, Loader2, Sparkles } from 'lucide-react';
+import { Mail, ArrowLeft, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import Logo from '../../components/Logo';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
 
@@ -39,9 +40,11 @@ const ForgotPasswordPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-[#F9FAFB] p-6">
       <div className="bg-white p-10 rounded-[3rem] shadow-2xl max-w-md w-full border border-slate-50">
         <div className="text-center mb-8">
-           <div className="inline-flex p-3 bg-blue-50 text-blue-600 rounded-2xl mb-4"><Sparkles size={28} /></div>
+           <div className="flex justify-center mb-6">
+             <Logo size={45} showText={false} />
+           </div>
            <h2 className="text-2xl font-black text-slate-900">Account Recovery</h2>
-           <p className="text-slate-400 text-[10px] font-black uppercase mt-2">Regain access to your account</p>
+           <p className="text-slate-500 text-sm mt-2">Enter your email to receive password reset instructions</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
