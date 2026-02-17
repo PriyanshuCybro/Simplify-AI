@@ -1,6 +1,19 @@
 import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 
 const sendEmail = async (options) => {
+  if (process.env.SENDGRID_API_KEY) {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    await sgMail.send({
+      to: options.email,
+      from: process.env.FROM_EMAIL || process.env.EMAIL_USER || process.env.EMAIL,
+      subject: options.subject,
+      text: options.message,
+      html: options.html,
+    });
+    return;
+  }
+
   const emailUser = process.env.EMAIL_USER || process.env.EMAIL;
   const emailPass = process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD || process.env.EMAIL_APP_PASSWORD;
 
