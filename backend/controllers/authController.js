@@ -366,7 +366,10 @@ export const forgotPassword = async (req, res, next) => {
             return res.status(400).json({ success: false, error: "Email is required" });
         }
 
-        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        const emailUser = process.env.EMAIL_USER || process.env.EMAIL;
+        const emailPass = process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD || process.env.EMAIL_APP_PASSWORD;
+
+        if (!emailUser || !emailPass) {
             return res.status(500).json({ success: false, error: "Email service is not configured" });
         }
 
