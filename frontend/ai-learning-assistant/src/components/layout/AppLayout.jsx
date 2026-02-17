@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, FileText, Brain, User, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import Logo from '../Logo';
 
 const AppLayout = ({ children }) => {
   const navigate = useNavigate();
@@ -19,9 +20,7 @@ const AppLayout = ({ children }) => {
       {/* Sidebar */}
       <aside className="w-64 bg-white shadow-md flex flex-col">
         <div className="p-6 border-b">
-          <h2 className="text-xl font-bold text-blue-600 flex items-center gap-2">
-            <Brain /> AI Assistant
-          </h2>
+          <Logo size={28} showText={true} />
         </div>
         <nav className="flex-1 p-4 space-y-2">
           {menuItems.map((item) => (
