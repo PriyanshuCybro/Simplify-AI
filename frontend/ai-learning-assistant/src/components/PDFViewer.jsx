@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { 
   ChevronLeft, ChevronRight, ZoomIn, ZoomOut, 
-  RotateCcw, Maximize2, Loader2, AlertCircle, Download 
+  RotateCcw, Maximize2, Loader2, AlertCircle 
 } from 'lucide-react';
 
 import 'react-pdf/dist/Page/AnnotationLayer.css';
@@ -99,22 +99,6 @@ const PDFViewer = ({ pdfPath, fileName }) => {
         }
     };
 
-    const downloadPDF = () => {
-        const url = fileProp || pdfPath;
-        if (url) {
-            // Add download parameter for actual download
-            const downloadUrl = url.includes('?') ? url + '&dl=1' : url + '?dl=1';
-            console.log("📥 Downloading PDF:", downloadUrl);
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = fileName || 'document.pdf';
-            link.target = '_blank';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    };
-
     if (!fileProp) {
         return (
             <div className="flex flex-col h-full bg-[#1e1e1e] rounded-3xl overflow-hidden border border-white/10 shadow-2xl items-center justify-center">
@@ -133,9 +117,6 @@ const PDFViewer = ({ pdfPath, fileName }) => {
                 <div className="flex items-center gap-4 max-w-[30%]">
                     <button onClick={openInNewTab} className="p-2 bg-blue-500/10 rounded-lg hover:bg-blue-500/20 transition-all" title="Open in New Tab">
                         <Maximize2 className="text-blue-500" size={16} />
-                    </button>
-                    <button onClick={downloadPDF} className="p-2 bg-emerald-500/10 rounded-lg hover:bg-emerald-500/20 transition-all" title="Download PDF">
-                        <Download className="text-emerald-500" size={16} />
                     </button>
                     <p className="text-white/90 font-bold text-xs truncate uppercase tracking-tighter">{fileName}</p>
                 </div>

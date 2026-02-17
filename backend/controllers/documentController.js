@@ -879,6 +879,27 @@ export const deleteDocument = async (req, res) => {
     }
 };
 
+// 🔥 NEW: Download PDF with proper headers
+export const downloadDocument = async (req, res) => {
+    try {
+        const document = await Document.findOne({ _id: req.params.id, userId: req.user._id });
+        if (!document) return res.status(404).json({ success: false, message: "Document not found" });
+
+        const pdfUrl = document.filePath;
+        if (!pdfUrl) return res.status(400).json({ success: false, message: "PDF URL not found" });
+
+        // 🔥 Set proper Content-Disposition header for PDF download
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${document.title || 'document'}.pdf"`);
+
+        // Redirect to the Cloudinary URL with download parameter
+        const downloadUrl = pdfUrl.includes('?') ? pdfUrl + '&dl=1' : pdfUrl + '?dl=1';
+        res.redirect(downloadUrl);
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // ... (getUserFlashcards, getDocFlashcards, deleteFlashcard logic same as yours, they are safe)
 export const getUserFlashcards = async (req, res) => {
     try {
