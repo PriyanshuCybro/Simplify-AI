@@ -38,14 +38,14 @@ const ResetPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F9FAFB] p-6">
-      <div className="bg-white p-10 rounded-[3rem] shadow-2xl max-w-md w-full border border-slate-50">
-        <div className="text-center mb-8">
-           <div className="flex justify-center mb-6">
-             <Logo size={60} showText={false} />
+    <div className="min-h-screen flex items-center justify-center bg-[#F9FAFB] p-3 sm:p-4 md:p-6">
+      <div className="bg-white p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl md:rounded-[3rem] shadow-2xl max-w-xs sm:max-w-sm w-full border border-slate-50">
+        <div className="text-center mb-6 sm:mb-8">
+           <div className="flex justify-center mb-4 sm:mb-6">
+             <Logo size={52} showText={false} />
            </div>
-           <h2 className="text-2xl font-black text-slate-900">Reset Password</h2>
-           <p className="text-slate-500 text-sm mt-2">Enter your new secure password</p>
+           <h2 className="text-xl sm:text-2xl font-black text-slate-900">Reset Password</h2>
+           <p className="text-slate-500 text-xs sm:text-sm mt-1 sm:mt-2">Enter your new secure password</p>
         </div>
 
         {error && (

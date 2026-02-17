@@ -70,19 +70,19 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F9FAFB] p-4 md:p-6 font-sans">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-8 md:p-12 rounded-[3rem] shadow-2xl max-w-2xl w-full border border-slate-50 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-[#F9FAFB] p-3 sm:p-4 md:p-6 font-sans">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-6 sm:p-8 md:p-12 rounded-2xl sm:rounded-3xl md:rounded-[3rem] shadow-2xl max-w-2xl w-full border border-slate-50 relative overflow-hidden">
         
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-6">
-            <Logo size={66} showText={false} />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="flex justify-center mb-4 sm:mb-6">
+            <Logo size={56} showText={false} />
           </div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Join Simplify AI</h2>
-          <p className="text-slate-500 text-sm mt-2">Start mastering your learning today</p>
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Join Simplify AI</h2>
+          <p className="text-slate-500 text-xs sm:text-sm mt-1 sm:mt-2">Start mastering your learning today</p>
           <div className="flex justify-center gap-2 mt-3">
-            <div className={`h-1.5 w-10 rounded-full ${step === 1 ? 'bg-blue-600' : 'bg-slate-200'}`} />
-            <div className={`h-1.5 w-10 rounded-full ${step === 2 ? 'bg-blue-600' : 'bg-slate-200'}`} />
+            <div className={`h-1.5 w-8 sm:w-10 rounded-full ${step === 1 ? 'bg-blue-600' : 'bg-slate-200'}`} />
+            <div className={`h-1.5 w-8 sm:w-10 rounded-full ${step === 2 ? 'bg-blue-600' : 'bg-slate-200'}`} />
           </div>
         </div>
 

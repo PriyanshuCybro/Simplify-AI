@@ -41,20 +41,20 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F9FAFB] p-6 font-sans">
+    <div className="min-h-screen flex items-center justify-center bg-[#F9FAFB] p-3 sm:p-4 md:p-6 font-sans">
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }} 
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white p-10 rounded-[3rem] shadow-2xl w-full max-w-md border border-slate-50 relative overflow-hidden"
+        className="bg-white p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl md:rounded-[3rem] shadow-2xl w-full max-w-sm border border-slate-50 relative overflow-hidden"
       >
-        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-blue-50 rounded-full -mr-8 sm:-mr-16 -mt-8 sm:-mt-16 blur-3xl"></div>
 
-        <div className="text-center mb-8 relative z-10">
-          <div className="flex justify-center mb-6">
-            <Logo size={70} showText={false} />
+        <div className="text-center mb-6 sm:mb-8 relative z-10">
+          <div className="flex justify-center mb-4 sm:mb-6">
+            <Logo size={60} showText={false} />
           </div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Welcome Back</h2>
-          <p className="text-slate-500 text-sm mt-2">Sign in to continue learning with Simplify AI</p>
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Welcome Back</h2>
+          <p className="text-slate-500 text-xs sm:text-sm mt-1 sm:mt-2">Sign in to continue learning with Simplify AI</p>
         </div>
 
         {/* Universal Error Alert */}
@@ -70,15 +70,15 @@ const LoginPage = () => {
           )}
         </AnimatePresence>
 
-        <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 relative z-10">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-slate-400 pl-2">Valid Email</label>
+            <label className="text-[9px] sm:text-[10px] font-black uppercase text-slate-400 pl-2">Valid Email</label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} className="sm:size-5" />
               <input 
                 type="email" 
-                placeholder="Enter your email "
-                className={`w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 transition-all font-bold text-sm ${error ? 'focus:ring-rose-100' : 'focus:ring-blue-100'}`}
+                placeholder="Enter your email"
+                className={`w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 bg-slate-50 border-none rounded-xl sm:rounded-2xl outline-none focus:ring-4 transition-all font-bold text-sm ${error ? 'focus:ring-rose-100' : 'focus:ring-blue-100'}`}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -87,8 +87,8 @@ const LoginPage = () => {
           </div>
 
           <div className="space-y-2">
-            <div className="flex justify-between items-center px-2">
-              <label className="text-[10px] font-black uppercase text-slate-400">Security Key</label>
+            <div className="flex justify-between items-center px-2 flex-wrap gap-1">
+              <label className="text-[9px] sm:text-[10px] font-black uppercase text-slate-400">Security Key</label>
               
               {/* ✅ Animated Forgot Password Link (Universal Fix) */}
               <motion.div
