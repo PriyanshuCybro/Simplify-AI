@@ -40,6 +40,6 @@ router.post('/:id/flashcards', generateFlashcards);
 router.get('/:id/flashcards', getDocFlashcards);
 router.delete('/flashcards/:id', deleteFlashcard); // Delete by Flashcard ID
 router.post('/:id/quiz', generateQuiz);
-router.post('/:id/quiz/save', saveQuizResult);
+router.post('/:id/quiz/:quizId/save', saveQuizResult);
 
 export default router;

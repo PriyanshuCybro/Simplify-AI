@@ -1153,11 +1153,11 @@ MANDATORY REQUIREMENTS:
 
 export const saveQuizResult = async (req, res) => {
     try {
-        const { id } = req.params; // quizId
+        const { quizId } = req.params; // Get quizId from route params
         const { userAnswers } = req.body; // [{ questionIndex, selectedAnswer }, ...]
 
         // Find the quiz
-        const quiz = await Quiz.findById(id);
+        const quiz = await Quiz.findById(quizId);
         if (!quiz) return res.status(404).json({ success: false, message: "Quiz not found" });
         if (quiz.userId.toString() !== req.user._id.toString()) {
             return res.status(403).json({ success: false, message: "Unauthorized" });
