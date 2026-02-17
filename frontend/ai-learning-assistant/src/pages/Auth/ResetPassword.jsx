@@ -42,7 +42,7 @@ const ResetPasswordPage = () => {
       <div className="bg-white p-10 rounded-[3rem] shadow-2xl max-w-md w-full border border-slate-50">
         <div className="text-center mb-8">
            <div className="flex justify-center mb-6">
-             <Logo size={45} showText={false} />
+             <Logo size={60} showText={false} />
            </div>
            <h2 className="text-2xl font-black text-slate-900">Reset Password</h2>
            <p className="text-slate-500 text-sm mt-2">Enter your new secure password</p>

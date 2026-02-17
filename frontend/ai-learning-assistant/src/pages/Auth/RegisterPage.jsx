@@ -76,7 +76,7 @@ const RegisterPage = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
-            <Logo size={48} showText={false} />
+            <Logo size={66} showText={false} />
           </div>
           <h2 className="text-3xl font-black text-slate-900 tracking-tight">Join Simplify AI</h2>
           <p className="text-slate-500 text-sm mt-2">Start mastering your learning today</p>

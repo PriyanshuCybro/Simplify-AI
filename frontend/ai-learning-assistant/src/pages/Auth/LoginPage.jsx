@@ -51,7 +51,7 @@ const LoginPage = () => {
 
         <div className="text-center mb-8 relative z-10">
           <div className="flex justify-center mb-6">
-            <Logo size={50} showText={false} />
+            <Logo size={70} showText={false} />
           </div>
           <h2 className="text-3xl font-black text-slate-900 tracking-tight">Welcome Back</h2>
           <p className="text-slate-500 text-sm mt-2">Sign in to continue learning with Simplify AI</p>

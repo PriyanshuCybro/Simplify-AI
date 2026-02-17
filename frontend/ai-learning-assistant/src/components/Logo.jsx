@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Logo = ({ size = 40, showText = true, variant = 'default', className = "" }) => {
+const Logo = ({ size = 56, showText = true, variant = 'default', className = "" }) => {
   const getColors = () => {
     if (variant === 'dark') {
       return { primary: '#1E40AF', accent: '#0EA5E9', text: '#ffffff' };
