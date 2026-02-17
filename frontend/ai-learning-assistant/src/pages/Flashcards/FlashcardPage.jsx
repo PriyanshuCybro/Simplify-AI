@@ -88,8 +88,13 @@ const FlashcardPage = () => {
                     <button onClick={(e) => handleDelete(s._id, e)} className="absolute top-4 right-4 p-2 text-slate-300 hover:text-rose-600 rounded-xl opacity-0 group-hover:opacity-100 bg-white shadow-sm transition-all"> <Trash2 size={16} /></button>
                     <div className="p-4 bg-emerald-50 text-emerald-600 rounded-2xl w-fit mb-4"> <BookOpen size={24} /></div>
                     <h3 className="font-bold text-slate-800 text-sm mb-1 line-clamp-2">{s.documentId?.title || 'AI Generated Set'}</h3>
-                    <div className="flex items-center gap-2 text-[10px] text-slate-400 uppercase tracking-wider mb-6">
-                      <Calendar size={12}/> {new Date(s.createdAt).toLocaleDateString()}
+                    <div className="flex flex-col gap-1 text-[10px] text-slate-400 uppercase tracking-wider mb-6">
+                      <div className="flex items-center gap-2">
+                        <Calendar size={12}/> {new Date(s.createdAt).toLocaleDateString()}
+                      </div>
+                      <div className="text-[9px] text-slate-300">
+                        {new Date(s.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                      </div>
                     </div>
                     <div className="flex items-center justify-between text-[10px] text-slate-500 font-black uppercase mb-4">
                       <span>Total Cards</span>

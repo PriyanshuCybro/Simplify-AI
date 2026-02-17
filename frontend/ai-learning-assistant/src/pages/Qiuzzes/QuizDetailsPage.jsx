@@ -280,12 +280,13 @@ const QuizDetailsPage = () => {
                         <div className="flex items-center gap-2">
                             <Clock size={18} className="text-blue-600" />
                             <span>
-                                <strong>Date:</strong> {new Date(quiz.createdAt).toLocaleDateString('en-US', {
+                                <strong>Date:</strong> {new Date(quiz.createdAt).toLocaleString('en-US', {
                                     year: 'numeric',
                                     month: 'long',
                                     day: 'numeric',
                                     hour: '2-digit',
-                                    minute: '2-digit'
+                                    minute: '2-digit',
+                                    hour12: true
                                 })}
                             </span>
                         </div>

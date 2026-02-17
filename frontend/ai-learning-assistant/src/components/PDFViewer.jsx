@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { 
   ChevronLeft, ChevronRight, ZoomIn, ZoomOut, 
-  RotateCcw, Maximize2, Loader2, AlertCircle 
+  RotateCcw, Maximize2, Loader2, AlertCircle, Download 
 } from 'lucide-react';
 
 import 'react-pdf/dist/Page/AnnotationLayer.css';
@@ -89,7 +89,21 @@ const PDFViewer = ({ pdfPath, fileName }) => {
         setLoading(false);
     };
 
-    const openInNewTab = () => window.open(fileProp || pdfPath, '_blank');
+    const openInNewTab = () => {
+        const url = fileProp || pdfPath;
+        window.open(url, '_blank');
+    };
+
+    const downloadPDF = () => {
+        const url = fileProp || pdfPath;
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName || 'document.pdf';
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     if (!fileProp) {
         return (
@@ -107,8 +121,11 @@ const PDFViewer = ({ pdfPath, fileName }) => {
             {/* --- PREMIUM TOOLBAR --- */}
             <div className="bg-[#2d2d2d] px-6 py-4 flex items-center justify-between border-b border-white/5 z-30">
                 <div className="flex items-center gap-4 max-w-[30%]">
-                    <button onClick={openInNewTab} className="p-2 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-all">
+                    <button onClick={openInNewTab} className="p-2 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-all" title="Open in New Tab">
                         <Maximize2 className="text-red-500" size={16} />
+                    </button>
+                    <button onClick={downloadPDF} className="p-2 bg-blue-500/10 rounded-lg hover:bg-blue-500/20 transition-all" title="Download PDF">
+                        <Download className="text-blue-500" size={16} />
                     </button>
                     <p className="text-white/90 font-bold text-xs truncate uppercase tracking-tighter">{fileName}</p>
                 </div>
