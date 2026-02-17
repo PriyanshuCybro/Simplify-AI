@@ -335,7 +335,11 @@ const ProfilePage = () => {
         <h2 className="text-2xl font-black text-slate-900 mb-10">Recent Activity</h2>
         <div className="space-y-4">
           {data?.recentActivity?.length > 0 ? data.recentActivity.map((quiz) => (
-            <div key={quiz._id} className="flex flex-col sm:flex-row items-center justify-between p-6 bg-slate-50/50 rounded-[2.5rem] border hover:border-blue-200 transition-all gap-4">
+            <div 
+              key={quiz._id} 
+              className="flex flex-col sm:flex-row items-center justify-between p-6 bg-slate-50/50 rounded-[2.5rem] border hover:border-blue-200 transition-all gap-4 cursor-pointer"
+              onClick={() => navigate(`/quiz/${quiz._id}`)}
+            >
               <div className="flex items-center gap-5">
                 <div className="p-4 bg-white rounded-2xl"><FileText size={24} className="text-blue-500" /></div>
                 <div>
@@ -345,7 +349,26 @@ const ProfilePage = () => {
               </div>
               <div className="flex items-center gap-4">
                  <p className="text-xl font-black text-slate-900">{quiz.score}/{quiz.totalQuestions}</p>
-                 <button onClick={() => navigate('/dashboard')} className="p-3 bg-white rounded-xl text-rose-500"><Trash2 size={18} /></button>
+                 <button 
+                   onClick={async (e) => {
+                     e.stopPropagation(); // Prevent navigation when clicking delete
+                     if (window.confirm("Delete this quiz result?")) {
+                       try {
+                         await axios.delete(`https://simplify-ai-mrrh.onrender.com/api/users/quizzes/${quiz._id}`, {
+                           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                         });
+                         alert("Quiz deleted successfully!");
+                         fetchProfile(); // Reload profile data
+                       } catch (err) {
+                         console.error("Delete error:", err);
+                         alert("Failed to delete quiz: " + (err.response?.data?.message || err.message));
+                       }
+                     }
+                   }}
+                   className="p-3 bg-white rounded-xl text-rose-500 hover:bg-rose-50 transition-all"
+                 >
+                   <Trash2 size={18} />
+                 </button>
               </div>
             </div>
           )) : <div className="text-center py-10 text-slate-400 font-bold uppercase text-xs">No activity yet</div>}

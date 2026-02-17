@@ -1181,15 +1181,17 @@ export const saveQuizResult = async (req, res) => {
         const totalQuestions = quiz.questions.length;
         const accuracy = (correctCount / totalQuestions) * 100;
         const score = correctCount;
+        const xpEarned = correctCount * 10; // 10 XP per correct answer
 
         // Update quiz with results
         quiz.userAnswers = updatedAnswers;
         quiz.score = score;
         quiz.accuracy = accuracy;
+        quiz.xpEarned = xpEarned;
         quiz.status = 'completed';
         await quiz.save();
 
-        console.log(`✅ Quiz completed: ${correctCount}/${totalQuestions} (${accuracy.toFixed(2)}%)`);
+        console.log(`✅ Quiz completed: ${correctCount}/${totalQuestions} (${accuracy.toFixed(2)}%) - ${xpEarned} XP`);
 
         res.status(200).json({ 
             success: true, 
@@ -1198,6 +1200,7 @@ export const saveQuizResult = async (req, res) => {
                 score: correctCount,
                 totalQuestions: totalQuestions,
                 accuracy: accuracy.toFixed(2),
+                xpEarned: xpEarned,
                 userAnswers: updatedAnswers,
                 questions: quiz.questions
             }
