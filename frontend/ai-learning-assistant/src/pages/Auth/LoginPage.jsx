@@ -52,8 +52,8 @@ const LoginPage = () => {
           <div className="inline-flex p-3 bg-blue-50 text-blue-600 rounded-2xl mb-4">
             <Sparkles size={28} />
           </div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">AI Study Assistant</h2>
-          <p className="text-slate-400 text-[10px] font-black uppercase mt-2 tracking-widest">Master Your Domain Knowledge</p>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Simplify AI</h2>
+          <p className="text-slate-400 text-[10px] font-black uppercase mt-2 tracking-widest">Master Your Learning</p>
         </div>
 
         {/* Universal Error Alert */}

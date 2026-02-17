@@ -366,7 +366,7 @@
 //     doc.setFont("helvetica", "bold");
 //     doc.setFontSize(18);
 //     doc.setTextColor(255, 255, 255);
-//     doc.text("AI STUDY ASSISTANT - FLASHCARDS", 20, 17);
+//     doc.text("SIMPLIFY AI - FLASHCARDS", 20, 17);
 
 //     flashcards.forEach((card, index) => {
 //         // Text ko wrap karna (taaki overlap na ho)
@@ -827,7 +827,7 @@
 //         doc.setFont("helvetica", "bold");
 //         doc.setFontSize(18);
 //         doc.setTextColor(255, 255, 255);
-//         doc.text("AI STUDY ASSISTANT - FLASHCARDS", 20, 17);
+//         doc.text("SIMPLIFY AI - FLASHCARDS", 20, 17);
 
 //         flashcards.forEach((card, index) => {
 //             const qLines = doc.splitTextToSize(`Q: ${card.question}`, pageWidth - 40);
@@ -1787,7 +1787,7 @@ const FlashcardTab = ({ flashcards, onGenerate, isGenerating }) => {
         doc.rect(0, 0, 210, 25, 'F');
         doc.setFont("helvetica", "bold");
         doc.setTextColor(255, 255, 255);
-        doc.text("AI STUDY ASSISTANT - FLASHCARDS", 20, 17);
+        doc.text("SIMPLIFY AI - FLASHCARDS", 20, 17);
         flashcards.forEach((card, i) => {
             const y = 40 + (i * 35);
             if (y > 270) doc.addPage();

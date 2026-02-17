@@ -9,7 +9,7 @@ const sendEmail = async (options) => {
       to: options.email,
       from: {
         email: process.env.FROM_EMAIL || process.env.EMAIL_USER || process.env.EMAIL,
-        name: 'AI Learning Assistant'
+        name: 'Simplify AI'
       },
       replyTo: process.env.FROM_EMAIL || process.env.EMAIL_USER || process.env.EMAIL,
       subject: options.subject,
@@ -51,7 +51,7 @@ const sendEmail = async (options) => {
   });
 
   const mailOptions = {
-    from: `"AI Learning Assistant" <${emailUser}>`,
+    from: `"Simplify AI" <${emailUser}>`,
     to: options.email,
     subject: options.subject,
     text: options.message,

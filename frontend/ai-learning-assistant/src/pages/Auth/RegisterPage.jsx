@@ -77,7 +77,8 @@ const RegisterPage = () => {
           <div className="inline-flex p-3 bg-blue-50 text-blue-600 rounded-2xl mb-4">
             <Sparkles size={28} />
           </div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Join AI Assistant</h2>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Join Simplify AI</h2>
+          <p className="text-slate-600 text-sm mt-2">Master your learning with intelligent assistance</p>
           <div className="flex justify-center gap-2 mt-3">
             <div className={`h-1.5 w-10 rounded-full ${step === 1 ? 'bg-blue-600' : 'bg-slate-200'}`} />
             <div className={`h-1.5 w-10 rounded-full ${step === 2 ? 'bg-blue-600' : 'bg-slate-200'}`} />

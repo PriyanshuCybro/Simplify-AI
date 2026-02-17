@@ -41,8 +41,8 @@ const ResetPasswordPage = () => {
       <div className="bg-white p-10 rounded-[3rem] shadow-2xl max-w-md w-full border border-slate-50">
         <div className="text-center mb-8">
            <div className="inline-flex p-3 bg-blue-50 text-blue-600 rounded-2xl mb-4"><ShieldCheck size={28} /></div>
-           <h2 className="text-2xl font-black text-slate-900">Reset Neural Access</h2>
-           <p className="text-slate-400 text-[10px] font-black uppercase mt-2">Set your new strong password</p>
+           <h2 className="text-2xl font-black text-slate-900">Reset Password</h2>
+           <p className="text-slate-400 text-[10px] font-black uppercase mt-2">Set your new secure password</p>
         </div>
 
         {error && (

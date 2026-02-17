@@ -394,14 +394,14 @@ export const forgotPassword = async (req, res, next) => {
         try {
             await sendEmail({
                 email: user.email,
-                subject: 'Neural Access Recovery - Password Reset',
+                subject: 'Simplify AI - Password Reset Request',
                 message,
-                html: `<b>Neural Access Recovery</b><br/><p>Niche diye gaye link par click karein:</p><a href="${resetUrl}">${resetUrl}</a>`
+                html: `<b>Password Reset</b><br/><p>Please click the link below to reset your password:</p><a href="${resetUrl}">${resetUrl}</a>`
             });
 
             res.status(200).json({ 
                 success: true, 
-                message: "Email bhej diya gaya hai! Check your Inbox." 
+                message: "Password reset email has been sent successfully. Check your inbox." 
             });
 
         } catch (err) {
