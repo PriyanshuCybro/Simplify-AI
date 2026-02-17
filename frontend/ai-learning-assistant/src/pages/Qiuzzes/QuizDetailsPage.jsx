@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowLeft, Download, RefreshCw, CheckCircle2, XCircle, Clock, Target, Award, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { jsPDF } from 'jspdf';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
 
@@ -44,34 +45,94 @@ const QuizDetailsPage = () => {
     };
 
     const handleDownload = () => {
-        // Create a text file with quiz results
-        let content = `Quiz Results\n`;
-        content += `Date: ${new Date(quiz.createdAt).toLocaleDateString()}\n`;
-        content += `Score: ${quiz.score}/${quiz.totalQuestions}\n`;
-        // 🔥 FIX 1: Rounded accuracy in download file
-        content += `Accuracy: ${Math.round(quiz.accuracy)}%\n`;
-        content += `XP Earned: ${quiz.xpEarned}\n\n`;
-        content += `===== DETAILED BREAKDOWN =====\n\n`;
-
+        const doc = new jsPDF();
+        
+        // Header background
+        doc.setFillColor(37, 99, 235);
+        doc.rect(0, 0, 210, 30, 'F');
+        
+        // Title
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(18);
+        doc.setTextColor(255, 255, 255);
+        doc.text("QUIZ RESULTS", 105, 15, { align: 'center' });
+        
+        // Subtitle
+        doc.setFontSize(10);
+        doc.text(new Date(quiz.createdAt).toLocaleDateString(), 105, 22, { align: 'center' });
+        
+        // Score summary box
+        doc.setFillColor(240, 249, 255);
+        doc.roundedRect(15, 40, 180, 30, 3, 3, 'F');
+        
+        doc.setFontSize(12);
+        doc.setTextColor(37, 99, 235);
+        doc.setFont("helvetica", "bold");
+        doc.text(`Score: ${quiz.score}/${quiz.totalQuestions}`, 25, 50);
+        doc.text(`Accuracy: ${Math.round(quiz.accuracy)}%`, 25, 58);
+        doc.text(`XP Earned: ${quiz.xpEarned}`, 25, 66);
+        
+        // Questions breakdown
+        let yPosition = 85;
+        
+        doc.setFontSize(14);
+        doc.setTextColor(0, 0, 0);
+        doc.text("Detailed Breakdown", 15, yPosition);
+        yPosition += 10;
+        
         quiz.questions.forEach((q, idx) => {
-            const userAnswer = quiz.userAnswers.find(ua => ua.questionIndex === idx);
-            content += `Q${idx + 1}: ${q.question}\n`;
-            content += `Your Answer: ${userAnswer?.selectedAnswer || 'Not answered'}\n`;
-            content += `Correct Answer: ${q.correctAnswer}\n`;
-            content += `Result: ${userAnswer?.isCorrect ? '✓ CORRECT' : '✗ WRONG'}\n`;
-            if (q.explanation) {
-                content += `Explanation: ${q.explanation}\n`;
+            // Check if we need a new page
+            if (yPosition > 250) {
+                doc.addPage();
+                yPosition = 20;
             }
-            content += `\n`;
+            
+            const userAnswer = quiz.userAnswers.find(ua => ua.questionIndex === idx);
+            const isCorrect = userAnswer?.isCorrect;
+            
+            // Question number and status
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "bold");
+            if (isCorrect) {
+                doc.setTextColor(34, 197, 94); // green
+                doc.text(`✓ Q${idx + 1}`, 15, yPosition);
+            } else {
+                doc.setTextColor(239, 68, 68); // red
+                doc.text(`✗ Q${idx + 1}`, 15, yPosition);
+            }
+            
+            // Question text
+            doc.setTextColor(0, 0, 0);
+            doc.setFont("helvetica", "normal");
+            const questionLines = doc.splitTextToSize(q.question, 170);
+            doc.text(questionLines, 30, yPosition);
+            yPosition += (questionLines.length * 5) + 3;
+            
+            // Your answer
+            doc.setFontSize(9);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Your Answer: ${userAnswer?.selectedAnswer || 'Not answered'}`, 30, yPosition);
+            yPosition += 5;
+            
+            // Correct answer (if wrong)
+            if (!isCorrect) {
+                doc.setTextColor(34, 197, 94);
+                doc.text(`Correct: ${q.correctAnswer}`, 30, yPosition);
+                yPosition += 5;
+            }
+            
+            // Explanation (if available)
+            if (q.explanation) {
+                doc.setTextColor(60, 60, 60);
+                const explanationLines = doc.splitTextToSize(`Explanation: ${q.explanation}`, 170);
+                doc.text(explanationLines, 30, yPosition);
+                yPosition += (explanationLines.length * 4) + 5;
+            }
+            
+            yPosition += 5; // spacing between questions
         });
-
-        const element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
-        element.setAttribute('download', `quiz-results-${quizId}.txt`);
-        element.style.display = 'none';
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
+        
+        doc.save(`quiz-results-${quizId}.pdf`);
     };
 
     if (loading) {

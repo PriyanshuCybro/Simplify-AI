@@ -39,10 +39,8 @@ const PDFViewer = ({ pdfPath, fileName }) => {
                 return fixedUrl;
             }
             
-            // Add ?dl=1 parameter to force download and avoid CORS/auth issues
-            const urlWithDownload = pdfPath.includes('?') ? pdfPath + '&dl=1' : pdfPath + '?dl=1';
-            console.log("✅ Loading from Cloudinary with download param:", urlWithDownload);
-            return urlWithDownload;
+            console.log("✅ Loading from Cloudinary:", pdfPath);
+            return pdfPath;
         }
         
         if (pdfPath.startsWith('http')) {
