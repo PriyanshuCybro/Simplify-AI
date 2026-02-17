@@ -4,13 +4,31 @@ import sgMail from '@sendgrid/mail';
 const sendEmail = async (options) => {
   if (process.env.SENDGRID_API_KEY) {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    await sgMail.send({
+    
+    const msg = {
       to: options.email,
-      from: process.env.FROM_EMAIL || process.env.EMAIL_USER || process.env.EMAIL,
+      from: {
+        email: process.env.FROM_EMAIL || process.env.EMAIL_USER || process.env.EMAIL,
+        name: 'AI Learning Assistant'
+      },
+      replyTo: process.env.FROM_EMAIL || process.env.EMAIL_USER || process.env.EMAIL,
       subject: options.subject,
       text: options.message,
       html: options.html,
-    });
+      trackingSettings: {
+        clickTracking: { enable: false },
+        openTracking: { enable: false }
+      }
+    };
+    
+    try {
+      const response = await sgMail.send(msg);
+      console.log('✅ SendGrid email sent successfully:', response[0].statusCode);
+      console.log('✅ Email sent to:', options.email);
+    } catch (error) {
+      console.error('❌ SendGrid Error:', error.response?.body || error.message);
+      throw error;
+    }
     return;
   }
 
