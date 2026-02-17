@@ -2073,7 +2073,7 @@ const DocumentDetailPage = () => {
                 <div ref={chatEndRef} />
               </div>
               <form onSubmit={handleSendMessage} className="flex gap-4 bg-slate-50 p-4 rounded-[2.5rem] border border-slate-100 shadow-inner sticky bottom-0">
-                <input type="text" value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Ask AI Assistant..." className="flex-1 bg-transparent border-none px-6 text-sm font-bold focus:ring-0 outline-none" />
+                <input type="text" value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Ask Simplify AI..." className="flex-1 bg-transparent border-none px-6 text-sm font-bold focus:ring-0 outline-none" />
                 <button type="submit" disabled={isTyping} className="bg-blue-600 text-white p-4 rounded-2xl hover:bg-blue-700 transition-all shadow-lg active:scale-90"><Send size={20}/></button>
               </form>
             </div>
