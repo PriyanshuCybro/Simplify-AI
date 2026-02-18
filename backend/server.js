@@ -23,20 +23,37 @@ const app = express();
 
 connectDB();
 
-// 🔥 ULTIMATE CORS BYPASS - Allow all origins for now to debug
+// 🔥 CORS - Allow Vercel Frontend
 app.use((req, res, next) => {
     const origin = req.headers.origin;
-    res.header("Access-Control-Allow-Origin", origin || "*");
+    // Allow both Vercel and any other origin for testing
+    const allowedOrigins = [
+        'https://simplify-ai-kappa.vercel.app',
+        'http://localhost:5173',
+        'http://localhost:3000'
+    ];
+    
+    if (allowedOrigins.includes(origin) || !origin) {
+        res.header("Access-Control-Allow-Origin", origin || "*");
+    }
+    
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-    if (req.method === "OPTIONS") return res.sendStatus(200);
+    
+    if (req.method === "OPTIONS") {
+        return res.sendStatus(200);
+    }
     next();
 });
 
 // Standard middleware as secondary layer
 app.use(cors({
-    origin: true,
+    origin: [
+        'https://simplify-ai-kappa.vercel.app',
+        'http://localhost:5173',
+        'http://localhost:3000'
+    ],
     credentials: true
 }));
 

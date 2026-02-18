@@ -3,11 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Mail, Lock, LogIn, AlertCircle, Loader2, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import { loginAPI } from '../../services/api';
 import Logo from '../../components/Logo';
-
-// Use relative path so it works on any domain
-const API_BASE_URL = "/api";
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -18,12 +15,6 @@ const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // Debug: Log API URL on mount
-  React.useEffect(() => {
-    console.log('🔗 API_BASE_URL:', API_BASE_URL);
-    console.log('🔗 Full Login Endpoint:', `${window.location.origin}${API_BASE_URL}/auth/login`);
-  }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -31,10 +22,8 @@ const LoginPage = () => {
 
     try {
       console.log('📌 Attempting login with email:', email);
-      const loginUrl = `${API_BASE_URL}/auth/login`;
-      console.log('📌 Calling endpoint:', loginUrl);
       
-      const res = await axios.post(loginUrl, { email, password });
+      const res = await loginAPI(email, password);
       console.log('✅ Login successful:', res.data);
       
       login(res.data.user, res.data.token);
