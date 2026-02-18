@@ -49,15 +49,72 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const frontendPath = path.join(__dirname, '../frontend/ai-learning-assistant/dist');
 app.use(express.static(frontendPath));
 
-app.use('/api/auth', authRoutes);
-app.use('/api/documents', documentRoutes);
-app.use('/api/users', userRoutes);
+// Mount routes with error handling
+try {
+    app.use('/api/auth', authRoutes);
+    console.log("✅ Auth routes mounted");
+} catch (err) {
+    console.error("❌ Error mounting auth routes:", err);
+}
+
+try {
+    app.use('/api/documents', documentRoutes);
+    console.log("✅ Document routes mounted");
+} catch (err) {
+    console.error("❌ Error mounting document routes:", err);
+}
+
+try {
+    app.use('/api/users', userRoutes);
+    console.log("✅ User routes mounted");
+} catch (err) {
+    console.error("❌ Error mounting user routes:", err);
+}
+
+// ✅ TEST ENDPOINT - This should ALWAYS work
+app.get("/api/test", (req, res) => {
+    console.log("✅ TEST ENDPOINT HIT");
+    res.json({ 
+        message: "✅ Backend is working!", 
+        timestamp: new Date().toISOString(),
+        routes: ["/api/auth/login", "/api/auth/register", "/api/documents", "/api/users"]
+    });
+});
+
+// ✅ SIMPLE LOGIN TEST - For testing without real DB
+app.post("/api/auth/test-login", (req, res) => {
+    const { email, password } = req.body;
+    console.log("🔐 TEST LOGIN ATTEMPT:", email);
+    
+    if (email === "test@gmail.com" && password === "test123") {
+        return res.json({
+            success: true,
+            user: {
+                id: "123",
+                email: email,
+                username: "testuser"
+            },
+            token: "test-jwt-token"
+        });
+    }
+    
+    res.status(401).json({ 
+        success: false,
+        error: "Invalid test credentials"
+    });
+});
 
 app.get("/", (req, res) => res.send("System Active 🚀"));
 
 // SPA fallback - serve index.html for all non-API routes
 app.use((req, res) => {
-    res.sendFile(path.join(frontendPath, 'index.html'));
+    console.log(`📄 SPA FALLBACK: Serving index.html for ${req.method} ${req.path}`);
+    try {
+        res.sendFile(path.join(frontendPath, 'index.html'));
+    } catch (err) {
+        console.error("❌ Error serving index.html:", err.message);
+        res.status(500).json({ error: "Could not serve frontend" });
+    }
 });
 
 app.use(errorHandler);
