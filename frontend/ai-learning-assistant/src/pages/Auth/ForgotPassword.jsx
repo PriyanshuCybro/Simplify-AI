@@ -25,7 +25,7 @@ const ForgotPasswordPage = () => {
 
     setLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { email });
+      await axios.post(`${API_BASE_URL}/auth/forgot-password`, { email });
       setError("");
       setMessage("Check your inbox! A password reset link has been sent to your email.");
     } catch (err) {

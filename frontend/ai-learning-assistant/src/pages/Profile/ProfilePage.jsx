@@ -234,7 +234,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Trash2, RotateCcw, FileText, ShieldCheck, Mail, Save, X, Briefcase, Calendar, Target } from "lucide-react";
 import axios from "axios";
-
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com/api";
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
 
 const ProfilePage = () => {
@@ -249,7 +249,7 @@ const ProfilePage = () => {
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`https://simplify-ai-mrrh.onrender.com/api/users/stats`, {
+      const res = await axios.get(`${API_BASE_URL}/auth/profile`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -257,12 +257,12 @@ const ProfilePage = () => {
         const uData = res.data.data;
         setData(uData); 
         setEditForm({ 
-          name: uData.user?.name || "", 
-          email: uData.user?.email || "",
-          age: uData.user?.age || "",         
-          gender: uData.user?.gender || "Male",
-          profession: uData.user?.profession || "Student",
-          purpose: uData.user?.purpose || "Personal"
+          name: uData.name || "", 
+          email: uData.email || "",
+          age: uData.age || "",         
+          gender: uData.gender || "Male",
+          profession: uData.profession || "Student",
+          purpose: uData.purpose || "Personal"
         });
       }
     } catch (err) { console.error("Profile fetch error:", err); } 
@@ -274,7 +274,7 @@ const ProfilePage = () => {
   const handleUpdate = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`https://simplify-ai-mrrh.onrender.com/api/users/profile`, editForm, {
+      await axios.put(`${API_BASE_URL}/auth/profile`, editForm, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setIsEditing(false);
