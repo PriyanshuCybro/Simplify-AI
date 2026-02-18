@@ -4,7 +4,6 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
-import fs from "fs";
 import connectDB from "./config/db.js";
 import errorHandler from './middleware/errorHandler.js';
 
@@ -39,16 +38,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Serve React SPA build files
-const distPath1 = path.join(__dirname, '../frontend/ai-learning-assistant/dist');
-const distPath2 = path.join(__dirname, '../../frontend/ai-learning-assistant/dist');
-const frontendPath = fs.existsSync(distPath1) ? distPath1 : fs.existsSync(distPath2) ? distPath2 : distPath1;
-
-console.log('📁 Frontend Path:', frontendPath);
-console.log('📁 Dist Exists:', fs.existsSync(frontendPath));
-
-if (fs.existsSync(frontendPath)) {
-    app.use(express.static(frontendPath));
-}
+const frontendPath = path.join(__dirname, '../frontend/ai-learning-assistant/dist');
+app.use(express.static(frontendPath));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
@@ -58,12 +49,7 @@ app.get("/", (req, res) => res.send("System Active 🚀"));
 
 // SPA fallback - serve index.html for all non-API routes
 app.use((req, res) => {
-    const indexPath = path.join(frontendPath, 'index.html');
-    if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-    } else {
-        res.status(404).json({ error: 'Frontend build not found', distPath: frontendPath });
-    }
+    res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
 app.use(errorHandler);
