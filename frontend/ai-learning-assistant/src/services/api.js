@@ -48,5 +48,8 @@ export const generateQuiz = (id, count = 5) => API.post(`/documents/${id}/quiz`,
 export const getUserFlashcards = () => API.get('/documents/flashcards');
 export const getDocFlashcards = (id) => API.get(`/documents/${id}/flashcards`);
 export const deleteFlashcard = (id) => API.delete(`/documents/flashcards/${id}`);
+export const getQuizDetails = (quizId) => API.get(`/documents/quiz/${quizId}`);
+export const saveQuizResult = (id, quizId, answers) => API.post(`/documents/${id}/quiz/${quizId}/save`, { answers });
+export const getUserStats = () => API.get('/users/stats');
 
 export default API;

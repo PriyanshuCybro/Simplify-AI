@@ -208,11 +208,7 @@ const DocumentDetailPage = () => {
     setQuestion('');
     setIsTyping(true);
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.post(`${API_BASE_URL}/documents/${id}/chat`, 
-        { question }, 
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await askAI(id, question);
       if (res.data?.success && res.data?.answer) {
         setChatHistory(prev => [...prev, { role: 'bot', text: res.data.answer }]);
       }
@@ -225,11 +221,7 @@ const DocumentDetailPage = () => {
   const handleSaveNotes = async () => {
     setIsSavingNotes(true);
     try {
-        const token = localStorage.getItem('token');
-        await axios.put(`${API_BASE_URL}/documents/${id}/notes`, 
-            { notes }, 
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await API.put(`/documents/${id}/notes`, { notes });
     } catch (err) { console.error("Notes save failed"); } 
     finally { 
         setTimeout(() => setIsSavingNotes(false), 1000);

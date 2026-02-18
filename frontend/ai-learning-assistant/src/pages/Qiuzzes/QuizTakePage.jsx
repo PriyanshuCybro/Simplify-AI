@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
 import { Trophy, ArrowRight, Loader2, AlertCircle, Save } from 'lucide-react';
-
-// Use relative path - works on any domain
-const API_BASE_URL = "/api";
+import { saveQuizResult } from '../../services/api';
+import API from '../../services/api';
 
 const QuizTakePage = () => {
     const { id } = useParams();
@@ -42,9 +40,7 @@ const QuizTakePage = () => {
                     console.log("✅ Using quiz from state:", quizQuestions.length, "questions");
                 } else if (quizId) {
                     // Otherwise fetch it
-                    const res = await axios.get(`${API_BASE_URL}/documents/${id}/quiz/${quizId}`, {
-                        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-                    });
+                    const res = await API.get(`/documents/${id}/quiz/${quizId}`);
                     quizQuestions = res.data.data?.questions || res.data.questions || [];
                     quizMetadata = res.data.data || res.data;
                     console.log("✅ Fetched quiz from backend:", quizQuestions.length, "questions");
@@ -76,11 +72,7 @@ const QuizTakePage = () => {
             console.log("💾 Saving quiz result with answers:", finalAnswers.length);
             
             // Call backend to save and calculate score
-            const response = await axios.post(`${API_BASE_URL}/documents/${id}/quiz/${quizMeta?._id}/save`, {
-                userAnswers: finalAnswers  // [{questionIndex, selectedAnswer}, ...]
-            }, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
+            const response = await saveQuizResult(id, quizMeta?._id, finalAnswers);
 
             if (response.data.success) {
                 console.log("✅ Quiz result saved successfully");
