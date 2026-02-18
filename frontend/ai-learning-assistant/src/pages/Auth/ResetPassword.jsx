@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Lock, ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
+import { Lock, ShieldCheck, Loader2, AlertCircle, Sparkles } from 'lucide-react';
 import axios from 'axios';
 import Logo from '../../components/Logo';
 
