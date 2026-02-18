@@ -1145,7 +1145,7 @@ import { getDocuments, deleteDocument } from '../../services/api';
 import axios from 'axios';
 
 // 🔥 API BASE URL: Render link ko use karega
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com/api";
 
 const DashboardPage = () => {
   const navigate = useNavigate();

@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import UploadModal from './UploadModal'; // Check if path matches your folder
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com/api";
 
 const DocumentListPage = () => {
     const [docs, setDocs] = useState([]);
@@ -16,7 +16,7 @@ const DocumentListPage = () => {
 
     const fetchDocs = async () => {
         try {
-            const res = await axios.get(`${API_BASE_URL}/api/documents`, {
+            const res = await axios.get(`${API_BASE_URL}/documents`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
             setDocs(res.data.data);
@@ -37,7 +37,7 @@ const DocumentListPage = () => {
         if (!window.confirm("Are you sure you want to delete this document? This action cannot be undone.")) return;
 
         try {
-            await axios.delete(`${API_BASE_URL}/api/documents/${id}`, {
+            await axios.delete(`${API_BASE_URL}/documents/${id}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
             setDocs(docs.filter(doc => doc._id !== id));

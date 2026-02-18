@@ -4,7 +4,7 @@ import { Lock, ShieldCheck, Loader2, AlertCircle, Sparkles } from 'lucide-react'
 import axios from 'axios';
 import Logo from '../../components/Logo';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com/api";
 
 const ResetPasswordPage = () => {
   const { resetToken } = useParams(); // URL se token uthayega

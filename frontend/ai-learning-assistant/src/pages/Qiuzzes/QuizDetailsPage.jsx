@@ -5,7 +5,7 @@ import { ArrowLeft, Download, RefreshCw, CheckCircle2, XCircle, Clock, Target, A
 import { motion } from 'framer-motion';
 import { jsPDF } from 'jspdf';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com/api";
 
 
 const QuizDetailsPage = () => {
@@ -19,7 +19,7 @@ const QuizDetailsPage = () => {
         const fetchQuizDetails = async () => {
             try {
                 const response = await axios.get(
-                    `${API_BASE_URL}/api/documents/quiz/${quizId}`,
+                    `${API_BASE_URL}/documents/quiz/${quizId}`,
                     {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem('token')}`

@@ -10,7 +10,7 @@ import {
 import { jsPDF } from 'jspdf';
 import PDFViewer from '../../components/PDFViewer';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com/api";
 
 // --- HARDCORE RESPONSIVE FLASHCARD COMPONENT ---
 const FlashcardTab = ({ flashcards, onGenerate, isGenerating, onShowSelector }) => {
@@ -152,7 +152,7 @@ const DocumentDetailPage = () => {
     const fetchDoc = async () => {
       try {
         const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_BASE_URL}/api/documents/${id}`, {
+      const res = await axios.get(`${API_BASE_URL}/documents/${id}`, {
             headers: { Authorization: `Bearer ${token}` } 
         });
         if (res.data.success) {
@@ -170,7 +170,7 @@ const DocumentDetailPage = () => {
     try {
         setIsGenerating(true);
         const token = localStorage.getItem('token');
-        const response = await axios.post(`${API_BASE_URL}/api/documents/${id}/flashcards`, 
+        const response = await axios.post(`${API_BASE_URL}/documents/${id}/flashcards`, 
             { count: flashcardCount },
             { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -190,7 +190,7 @@ const DocumentDetailPage = () => {
     try {
         setIsGenerating(true);
         const token = localStorage.getItem('token');
-        const response = await axios.post(`${API_BASE_URL}/api/documents/${id}/quiz`, 
+        const response = await axios.post(`${API_BASE_URL}/documents/${id}/quiz`, 
             { count: quizCount },
             { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -221,7 +221,7 @@ const DocumentDetailPage = () => {
     setIsTyping(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post(`${API_BASE_URL}/api/documents/${id}/chat`, 
+      const res = await axios.post(`${API_BASE_URL}/documents/${id}/chat`, 
         { question }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -238,7 +238,7 @@ const DocumentDetailPage = () => {
     setIsSavingNotes(true);
     try {
         const token = localStorage.getItem('token');
-        await axios.put(`${API_BASE_URL}/api/documents/${id}/notes`, 
+        await axios.put(`${API_BASE_URL}/documents/${id}/notes`, 
             { notes }, 
             { headers: { Authorization: `Bearer ${token}` } }
         );
