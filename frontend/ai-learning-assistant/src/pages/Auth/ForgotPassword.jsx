@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import { Mail, ArrowLeft, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { forgotPasswordAPI } from '../../services/api';
 import Logo from '../../components/Logo';
-
-// Use relative path - works on any domain
-const API_BASE_URL = "/api";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
@@ -26,7 +23,7 @@ const ForgotPasswordPage = () => {
 
     setLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/auth/forgot-password`, { email });
+      await forgotPasswordAPI(email);
       setError("");
       setMessage("Check your inbox! A password reset link has been sent to your email.");
     } catch (err) {
