@@ -17,11 +17,12 @@ const app = express();
 
 connectDB();
 
-// 🔥 ULTIMATE CORS BYPASS
+// 🔥 ULTIMATE CORS BYPASS - Allow all origins for now to debug
 app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "https://simplify-ai-kappa.vercel.app");
+    const origin = req.headers.origin;
+    res.header("Access-Control-Allow-Origin", origin || "*");
     res.header("Access-Control-Allow-Credentials", "true");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     if (req.method === "OPTIONS") return res.sendStatus(200);
     next();
@@ -29,12 +30,19 @@ app.use((req, res, next) => {
 
 // Standard middleware as secondary layer
 app.use(cors({
-    origin: "https://simplify-ai-kappa.vercel.app",
+    origin: true,
     credentials: true
 }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// 📝 Request Logging Middleware
+app.use((req, res, next) => {
+    console.log(`📌 ${req.method} ${req.path}`);
+    next();
+});
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Serve React SPA build files
