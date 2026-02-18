@@ -5,15 +5,13 @@ services:
     region: oregon
     plan: free
     buildCommand: |
-      npm --prefix frontend/ai-learning-assistant install && npm --prefix frontend/ai-learning-assistant run build && cd backend && npm install
-    startCommand: cd backend && npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: JWT_SECRET
-        sync: false
+      echo "Installing frontend dependencies..." && \
+      npm --prefix ./frontend/ai-learning-assistant install && \
+      echo "Building frontend..." && \
+      npm --prefix ./frontend/ai-learning-assistant run build && \
+      echo "Installing backend dependencies..." && \
+      npm --prefix ./backend install
+    startCommand: npm --prefix ./backend start
       - key: CLOUDINARY_NAME
         sync: false
       - key: CLOUDINARY_API_KEY
