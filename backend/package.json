@@ -4,8 +4,7 @@
   "main": "index.js",
   "scripts": {
     "server": "nodemon server.js",
-    "start": "node server.js",
-    "build": "cd ../frontend/ai-learning-assistant && npm install && npm run build"
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "Priyanshu",
