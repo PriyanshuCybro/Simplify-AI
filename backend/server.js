@@ -11,6 +11,11 @@ import authRoutes from './routes/authRoutes.js';
 import documentRoutes from './routes/documentRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 
+console.log('📦 Routes imported successfully:');
+console.log('  ✓ authRoutes:', typeof authRoutes);
+console.log('  ✓ documentRoutes:', typeof documentRoutes);
+console.log('  ✓ userRoutes:', typeof userRoutes);
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();

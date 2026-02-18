@@ -17,19 +17,38 @@ const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // Debug: Log API URL on mount
+  React.useEffect(() => {
+    console.log('🔗 API_BASE_URL:', API_BASE_URL);
+    console.log('🔗 Full Login Endpoint:', `${API_BASE_URL}/auth/login`);
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/auth/login`, { email, password });
+      console.log('📌 Attempting login with email:', email);
+      const loginUrl = `${API_BASE_URL}/auth/login`;
+      console.log('📌 Calling endpoint:', loginUrl);
+      
+      const res = await axios.post(loginUrl, { email, password });
+      console.log('✅ Login successful:', res.data);
+      
       login(res.data.user, res.data.token);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       navigate('/dashboard');
     } catch (err) {
       // ✅ Sabhi conditions ke liye common error handling
+      console.error('❌ Login error:', {
+        status: err.response?.status,
+        message: err.message,
+        url: err.config?.url,
+        data: err.response?.data
+      });
+      
       if (err.response?.status === 401 || err.response?.status === 404) {
         setError("Details Mismatch,Try again!");
       } else {
