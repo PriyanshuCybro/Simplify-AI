@@ -1179,17 +1179,17 @@ const DashboardPage = () => {
 
       // 2. Real-time Stats fetch
       try {
-        const statsRes = await axios.get(`https://simplify-ai-mrrh.onrender.com/api/users/stats`, {
+        const statsRes = await axios.get(`${API_BASE_URL}/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
         if (statsRes.data?.success) {
-          const metrics = statsRes.data.data.metrics;
+          const userData = statsRes.data.data;
           setStatsData({
-            docsCount: metrics.docsCount || 0,
-            flashcardsCount: metrics.flashcardsCount || 0,
-            successRate: metrics.successRate || 0,
-            avgAccuracy: metrics.avgAccuracy || 0
+            docsCount: userData.docsCount || 0,
+            flashcardsCount: userData.flashcardsCount || 0,
+            successRate: userData.successRate || 0,
+            avgAccuracy: userData.avgAccuracy || 0
           });
         }
       } catch (statsErr) {

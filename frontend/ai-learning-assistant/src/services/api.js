@@ -18,6 +18,17 @@ API.interceptors.request.use((req) => {
 });
 
 // ✅ ALL EXPORTS (Fixes Vercel Rollup Error)
+
+// Auth endpoints
+export const loginAPI = (email, password) => API.post('/auth/login', { email, password });
+export const registerAPI = (data) => API.post('/auth/register', data);
+export const forgotPasswordAPI = (email) => API.post('/auth/forgot-password', { email });
+export const resetPasswordAPI = (token, password) => API.put(`/auth/reset-password/${token}`, { password });
+export const getProfileAPI = () => API.get('/auth/profile');
+export const updateProfileAPI = (data) => API.put('/auth/profile', data);
+export const changePasswordAPI = (data) => API.post('/auth/change-password', data);
+
+// Document endpoints
 export const uploadDocument = (formData) => {
     return API.post('/documents/upload', formData, {
         headers: {

@@ -41,7 +41,7 @@ const QuizTakePage = () => {
                     console.log("✅ Using quiz from state:", quizQuestions.length, "questions");
                 } else if (quizId) {
                     // Otherwise fetch it
-                    const res = await axios.get(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/quiz/${quizId}`, {
+                    const res = await axios.get(`${API_BASE_URL}/api/documents/${id}/quiz/${quizId}`, {
                         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
                     });
                     quizQuestions = res.data.data?.questions || res.data.questions || [];
@@ -75,7 +75,7 @@ const QuizTakePage = () => {
             console.log("💾 Saving quiz result with answers:", finalAnswers.length);
             
             // Call backend to save and calculate score
-            const response = await axios.post(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/quiz/${quizMeta?._id}/save`, {
+            const response = await axios.post(`${API_BASE_URL}/api/documents/${id}/quiz/${quizMeta?._id}/save`, {
                 userAnswers: finalAnswers  // [{questionIndex, selectedAnswer}, ...]
             }, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }

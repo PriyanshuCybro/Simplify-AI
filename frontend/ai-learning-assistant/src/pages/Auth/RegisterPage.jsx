@@ -56,7 +56,7 @@ const RegisterPage = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post('https://simplify-ai-mrrh.onrender.com/api/auth/register', formData);
+      const res = await axios.post(`${API_BASE_URL}/auth/register`, formData);
       if (res.data.success) {
         localStorage.setItem('token', res.data.data.token);
         localStorage.setItem('user', JSON.stringify(res.data.data.user));

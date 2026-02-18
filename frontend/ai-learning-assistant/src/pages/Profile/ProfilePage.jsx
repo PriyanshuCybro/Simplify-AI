@@ -235,7 +235,6 @@ import { useNavigate } from "react-router-dom";
 import { Trash2, RotateCcw, FileText, ShieldCheck, Mail, Save, X, Briefcase, Calendar, Target } from "lucide-react";
 import axios from "axios";
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com/api";
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com";
 
 const ProfilePage = () => {
   const [data, setData] = useState(null);
@@ -354,7 +353,7 @@ const ProfilePage = () => {
                      e.stopPropagation(); // Prevent navigation when clicking delete
                      if (window.confirm("Delete this quiz result?")) {
                        try {
-                         await axios.delete(`https://simplify-ai-mrrh.onrender.com/api/users/quizzes/${quiz._id}`, {
+                         await axios.delete(`${API_BASE_URL}/users/quizzes/${quiz._id}`, {
                            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
                          });
                          alert("Quiz deleted successfully!");
