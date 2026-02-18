@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Lock, ShieldCheck, Loader2, AlertCircle, Sparkles } from 'lucide-react';
-import axios from 'axios';
+import { resetPasswordAPI } from '../../services/api';
 import Logo from '../../components/Logo';
-
-// Use relative path - works on any domain
-const API_BASE_URL = "/api";
 
 const ResetPasswordPage = () => {
   const { resetToken } = useParams(); // URL se token uthayega
@@ -28,7 +25,7 @@ const ResetPasswordPage = () => {
 
     setLoading(true);
     try {
-      const res = await axios.put(`${API_BASE_URL}/auth/reset-password/${resetToken}`, { password });
+      const res = await resetPasswordAPI(resetToken, password);
       alert("Password reset successful! Please log in with your new password.");
       navigate('/login');
     } catch (err) {
