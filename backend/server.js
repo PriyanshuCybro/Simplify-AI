@@ -23,26 +23,30 @@ const app = express();
 
 connectDB();
 
-// 🔥 CORS - Allow Vercel Frontend
+// 🔥 CORS - Allow Vercel Frontend (MUST BE FIRST)
 app.use((req, res, next) => {
     const origin = req.headers.origin;
-    // Allow both Vercel and any other origin for testing
     const allowedOrigins = [
         'https://simplify-ai-kappa.vercel.app',
         'http://localhost:5173',
         'http://localhost:3000'
     ];
     
-    if (allowedOrigins.includes(origin) || !origin) {
-        res.header("Access-Control-Allow-Origin", origin || "*");
+    // Set CORS headers for all requests
+    if (allowedOrigins.includes(origin)) {
+        res.header("Access-Control-Allow-Origin", origin);
+    } else if (!origin) {
+        res.header("Access-Control-Allow-Origin", "*");
     }
     
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     
+    // Handle preflight
     if (req.method === "OPTIONS") {
-        return res.sendStatus(200);
+        console.log(`✅ CORS Preflight: ${req.method} ${req.path}`);
+        return res.status(200).end();
     }
     next();
 });
@@ -68,13 +72,7 @@ app.use((req, res, next) => {
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// ✅ Serve React SPA build files
-const frontendPath = path.join(__dirname, '../frontend/ai-learning-assistant/dist');
-console.log('📁 Frontend path:', frontendPath);
-console.log('📁 Frontend dist exists:', fs.existsSync(frontendPath));
-app.use(express.static(frontendPath));
-
-// Mount routes with error handling
+// ✅ Mount API routes FIRST (before static files)
 try {
     app.use('/api/auth', authRoutes);
     console.log("✅ Auth routes mounted");
@@ -95,6 +93,12 @@ try {
 } catch (err) {
     console.error("❌ Error mounting user routes:", err);
 }
+
+// ✅ Serve React SPA build files AFTER API routes
+const frontendPath = path.join(__dirname, '../frontend/ai-learning-assistant/dist');
+console.log('📁 Frontend path:', frontendPath);
+console.log('📁 Frontend dist exists:', fs.existsSync(frontendPath));
+app.use(express.static(frontendPath));
 
 // ✅ TEST ENDPOINT - This should ALWAYS work
 app.get("/api/test", (req, res) => {
