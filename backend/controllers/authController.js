@@ -422,22 +422,28 @@ export const forgotPassword = async (req, res, next) => {
 export const resetPassword = async (req, res, next) => {
     try {
         const rawToken = req.params.resetToken;
+        if (!rawToken) {
+            return res.status(400).json({ success: false, error: "Reset token is required" });
+        }
         const hashedToken = crypto
             .createHash('sha256')
             .update(rawToken)
             .digest('hex');
 
         const user = await User.findOne({
-            resetPasswordToken: { $in: [hashedToken, rawToken] },
-            $or: [
-                { resetPasswordExpire: { $gt: Date.now() } },
-                { resetPasswordExpire: { $exists: false } },
-                { resetPasswordExpire: null }
-            ]
+            resetPasswordToken: { $in: [hashedToken, rawToken] }
         });
 
         if (!user) {
             return res.status(400).json({ success: false, error: "Invalid or expired token" });
+        }
+
+        if (user.resetPasswordExpire && user.resetPasswordExpire < Date.now()) {
+            const graceMs = 24 * 60 * 60 * 1000; // 24 hours grace
+            if (Date.now() - user.resetPasswordExpire > graceMs) {
+                return res.status(400).json({ success: false, error: "Invalid or expired token" });
+            }
+            console.warn("⚠️ Reset token expired but within grace window. Allowing reset.");
         }
 
         // Set new password
