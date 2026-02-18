@@ -3,6 +3,7 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
 import errorHandler from './middleware/errorHandler.js';
@@ -50,8 +51,10 @@ app.use((req, res, next) => {
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Serve React SPA build files
+// ✅ Serve React SPA build files
 const frontendPath = path.join(__dirname, '../frontend/ai-learning-assistant/dist');
+console.log('📁 Frontend path:', frontendPath);
+console.log('📁 Frontend dist exists:', fs.existsSync(frontendPath));
 app.use(express.static(frontendPath));
 
 // Mount routes with error handling
