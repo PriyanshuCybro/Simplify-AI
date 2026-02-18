@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { getQuizDetails } from '../../services/api';
 import { ArrowLeft, Download, RefreshCw, CheckCircle2, XCircle, Clock, Target, Award, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { jsPDF } from 'jspdf';
-
-// Use relative path - works on any domain
-const API_BASE_URL = "/api";
-
 
 const QuizDetailsPage = () => {
     const { quizId } = useParams();
@@ -19,14 +15,7 @@ const QuizDetailsPage = () => {
     useEffect(() => {
         const fetchQuizDetails = async () => {
             try {
-                const response = await axios.get(
-                    `${API_BASE_URL}/documents/quiz/${quizId}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('token')}`
-                        }
-                    }
-                );
+                const response = await getQuizDetails(quizId);
                 setQuiz(response.data.data);
             } catch (err) {
                 console.error('Error fetching quiz details:', err);

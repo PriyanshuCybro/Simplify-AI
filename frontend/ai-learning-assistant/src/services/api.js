@@ -51,5 +51,7 @@ export const deleteFlashcard = (id) => API.delete(`/documents/flashcards/${id}`)
 export const getQuizDetails = (quizId) => API.get(`/documents/quiz/${quizId}`);
 export const saveQuizResult = (id, quizId, userAnswers) => API.post(`/documents/${id}/quiz/${quizId}/save`, { userAnswers });
 export const getUserStats = () => API.get('/users/stats');
+export const updateUserProfile = (data) => API.put('/users/profile', data);
+export const deleteQuizResult = (id) => API.delete(`/users/quizzes/${id}`);
 
 export default API;

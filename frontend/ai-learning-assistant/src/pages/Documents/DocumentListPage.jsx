@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, Search, Plus, Trash2, Clock, ChevronRight, X } from 'lucide-react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import UploadModal from './UploadModal'; // Check if path matches your folder
-
-// Use relative path - works on any domain
-const API_BASE_URL = "/api";
+import { getDocuments, deleteDocument } from '../../services/api';
 
 const DocumentListPage = () => {
     const [docs, setDocs] = useState([]);
@@ -17,12 +14,12 @@ const DocumentListPage = () => {
 
     const fetchDocs = async () => {
         try {
-            const res = await axios.get(`${API_BASE_URL}/documents`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
-            setDocs(res.data.data);
+            const res = await getDocuments();
+            const list = Array.isArray(res.data.data) ? res.data.data : [];
+            setDocs(list);
         } catch (err) {
             console.error("Fetch error", err);
+            setDocs([]);
         } finally {
             setLoading(false);
         }
@@ -38,9 +35,7 @@ const DocumentListPage = () => {
         if (!window.confirm("Are you sure you want to delete this document? This action cannot be undone.")) return;
 
         try {
-            await axios.delete(`${API_BASE_URL}/documents/${id}`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
+            await deleteDocument(id);
             setDocs(docs.filter(doc => doc._id !== id));
             alert("✅ Document Deleted!");
         } catch (err) {
@@ -49,8 +44,8 @@ const DocumentListPage = () => {
         }
     };
 
-    const filteredDocs = docs.filter(doc => 
-        doc.title.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredDocs = (Array.isArray(docs) ? docs : []).filter(doc =>
+        (doc?.title || "").toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (

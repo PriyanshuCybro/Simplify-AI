@@ -1141,12 +1141,7 @@ import { Upload, Database, FileText, Brain, ArrowRight, Trash2, Search, Sparkles
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import UploadModal from '../Documents/UploadModal';
-import { getDocuments, deleteDocument } from '../../services/api';
-import axios from 'axios';
-
-// 🔥 API BASE URL: Render link ko use karega
-// Use relative path - works on any domain
-const API_BASE_URL = "/api";
+import { getDocuments, deleteDocument, getUserStats } from '../../services/api';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -1170,8 +1165,6 @@ const DashboardPage = () => {
   const fetchAllData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      
       // 1. Documents fetch
       const docsRes = await getDocuments();
       if (docsRes.data.success) {
@@ -1180,17 +1173,15 @@ const DashboardPage = () => {
 
       // 2. Real-time Stats fetch
       try {
-        const statsRes = await axios.get(`${API_BASE_URL}/auth/profile`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const statsRes = await getUserStats();
         
         if (statsRes.data?.success) {
-          const userData = statsRes.data.data;
+          const metrics = statsRes.data.data?.metrics || {};
           setStatsData({
-            docsCount: userData.docsCount || 0,
-            flashcardsCount: userData.flashcardsCount || 0,
-            successRate: userData.successRate || 0,
-            avgAccuracy: userData.avgAccuracy || 0
+            docsCount: metrics.docsCount || 0,
+            flashcardsCount: metrics.flashcardsCount || 0,
+            successRate: metrics.successRate || 0,
+            avgAccuracy: metrics.avgAccuracy || 0
           });
         }
       } catch (statsErr) {
