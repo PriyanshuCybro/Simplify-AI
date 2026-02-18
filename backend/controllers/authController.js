@@ -421,15 +421,19 @@ export const forgotPassword = async (req, res, next) => {
 // @route   PUT /api/auth/reset-password/:resetToken
 export const resetPassword = async (req, res, next) => {
     try {
-        // Hash token to match with DB version
-        const resetPasswordToken = crypto
+        const rawToken = req.params.resetToken;
+        const hashedToken = crypto
             .createHash('sha256')
-            .update(req.params.resetToken)
+            .update(rawToken)
             .digest('hex');
 
         const user = await User.findOne({
-            resetPasswordToken,
-            resetPasswordExpire: { $gt: Date.now() },
+            resetPasswordToken: { $in: [hashedToken, rawToken] },
+            $or: [
+                { resetPasswordExpire: { $gt: Date.now() } },
+                { resetPasswordExpire: { $exists: false } },
+                { resetPasswordExpire: null }
+            ]
         });
 
         if (!user) {
@@ -437,6 +441,10 @@ export const resetPassword = async (req, res, next) => {
         }
 
         // Set new password
+        if (!req.body.password || req.body.password.length < 6) {
+            return res.status(400).json({ success: false, error: "Password must be at least 6 characters long" });
+        }
+
         user.password = req.body.password;
         user.resetPasswordToken = undefined;
         user.resetPasswordExpire = undefined;
