@@ -2,11 +2,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Mail, Lock, ArrowRight, ArrowLeft, Briefcase, MapPin, Phone, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import { registerAPI } from '../../services/api';
 import Logo from '../../components/Logo';
-
-// Use relative path - works on any domain
-const API_BASE_URL = "/api";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -57,7 +54,7 @@ const RegisterPage = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post(`${API_BASE_URL}/auth/register`, formData);
+      const res = await registerAPI(formData);
       if (res.data.success) {
         localStorage.setItem('token', res.data.data.token);
         localStorage.setItem('user', JSON.stringify(res.data.data.user));
