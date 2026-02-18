@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: simplify-ai-backend
+    runtime: node
+    buildCommand: npm install --prefix backend && npm install --prefix frontend/ai-learning-assistant && npm run build --prefix frontend/ai-learning-assistant
+    startCommand: npm start --prefix backend
+    workingDirectory: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLOUDINARY_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: SENDGRID_FROM_EMAIL
+        sync: false
