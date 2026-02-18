@@ -124,7 +124,7 @@ const QuizTakePage = () => {
 
     if (error) return (
         <div className="min-h-screen flex flex-col items-center justify-center p-3 sm:p-4 md:p-6 bg-gray-50 text-center">
-            <AlertCircle className="text-red-500 mb-3 sm:mb-4" size={40} className="sm:size-[48px]" />
+            <AlertCircle className="text-red-500 mb-3 sm:mb-4 sm:size-[48px]" size={40} />
             <h2 className="text-base sm:text-lg md:text-xl font-black text-slate-800 mb-2">Sync Interrupted</h2>
             <p className="text-slate-500 max-w-sm mb-4 sm:mb-6 text-xs sm:text-sm">{error}</p>
             <button onClick={() => window.location.reload()} className="px-6 sm:px-8 py-2 sm:py-3 bg-blue-600 text-white rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm uppercase">Try Again</button>
@@ -133,7 +133,7 @@ const QuizTakePage = () => {
 
     if (loading) return (
         <div className="min-h-screen flex flex-col items-center justify-center gap-3 sm:gap-4 bg-gray-50">
-            <Loader2 className="animate-spin text-blue-600" size={40} className="sm:size-[50px]"/>
+            <Loader2 className="animate-spin text-blue-600 sm:size-[50px]" size={40}/>
             <p className="font-black text-gray-400 uppercase tracking-widest text-xs sm:text-sm animate-pulse">Neural Syncing {quizCount} Nodes...</p>
         </div>
     );
