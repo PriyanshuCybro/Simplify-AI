@@ -2,9 +2,8 @@ services:
   - type: web
     name: simplify-ai-backend
     runtime: node
-    buildCommand: npm install --prefix backend && npm install --prefix frontend/ai-learning-assistant && npm run build --prefix frontend/ai-learning-assistant
-    startCommand: npm start --prefix backend
-    workingDirectory: /
+    buildCommand: cd backend && npm install && cd ../frontend/ai-learning-assistant && npm install && npm run build
+    startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV
         value: production
