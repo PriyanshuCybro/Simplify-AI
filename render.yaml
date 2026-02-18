@@ -4,10 +4,9 @@ services:
     runtime: node
     region: oregon
     plan: free
-    root: backend
     buildCommand: |
-      npm --prefix ../frontend/ai-learning-assistant install && npm --prefix ../frontend/ai-learning-assistant run build && npm install
-    startCommand: npm start
+      npm --prefix frontend/ai-learning-assistant install && npm --prefix frontend/ai-learning-assistant run build && cd backend && npm install
+    startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV
         value: production
