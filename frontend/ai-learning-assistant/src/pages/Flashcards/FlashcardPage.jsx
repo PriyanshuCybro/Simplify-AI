@@ -4,7 +4,8 @@ import { Trash2, BookOpen, Sparkles, ChevronRight, ChevronLeft, ArrowLeft, Loade
 import axios from 'axios';
 
 // 🔥 STEP 1: Dynamic API Base URL setup
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com/api";
+// Use relative path - works on any domain
+const API_BASE_URL = "/api";
 const API_BASE = API_BASE_URL;
 
 const FlashcardPage = () => {

@@ -234,7 +234,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Trash2, RotateCcw, FileText, ShieldCheck, Mail, Save, X, Briefcase, Calendar, Target } from "lucide-react";
 import axios from "axios";
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com/api";
+// Use relative path - works on any domain
+const API_BASE_URL = "/api";
 
 const ProfilePage = () => {
   const [data, setData] = useState(null);

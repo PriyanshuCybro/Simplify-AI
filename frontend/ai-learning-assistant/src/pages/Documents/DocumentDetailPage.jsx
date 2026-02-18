@@ -10,7 +10,8 @@ import {
 import { jsPDF } from 'jspdf';
 import PDFViewer from '../../components/PDFViewer';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com/api";
+// Use relative path - works on any domain  
+const API_BASE_URL = "/api";
 
 // --- HARDCORE RESPONSIVE FLASHCARD COMPONENT ---
 const FlashcardTab = ({ flashcards, onGenerate, isGenerating, onShowSelector }) => {

@@ -6,7 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import Logo from '../../components/Logo';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com/api";
+// Use relative path so it works on any domain
+const API_BASE_URL = "/api";
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -20,7 +21,7 @@ const LoginPage = () => {
   // Debug: Log API URL on mount
   React.useEffect(() => {
     console.log('🔗 API_BASE_URL:', API_BASE_URL);
-    console.log('🔗 Full Login Endpoint:', `${API_BASE_URL}/auth/login`);
+    console.log('🔗 Full Login Endpoint:', `${window.location.origin}${API_BASE_URL}/auth/login`);
   }, []);
 
   const handleSubmit = async (e) => {

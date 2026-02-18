@@ -5,7 +5,8 @@ import { ArrowLeft, Download, RefreshCw, CheckCircle2, XCircle, Clock, Target, A
 import { motion } from 'framer-motion';
 import { jsPDF } from 'jspdf';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com/api";
+// Use relative path - works on any domain
+const API_BASE_URL = "/api";
 
 
 const QuizDetailsPage = () => {

@@ -8,7 +8,8 @@ import {
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://simplify-ai-mrrh.onrender.com/api";
+// Use relative path - works on any domain
+const API_BASE_URL = "/api";
 
 const PDFJS_VERSION = pdfjs.version;
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -54,7 +55,7 @@ const PDFViewer = ({ pdfPath, fileName }) => {
         console.warn("⚠️ Local path detected:", pdfPath);
         
         if (import.meta.env.MODE === 'development') {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const baseUrl = '/api';
             const fullUrl = `${baseUrl}/${pdfPath.replace(/\\/g, '/')}`;
             console.log("📍 Dev mode - constructing full URL:", fullUrl);
             return fullUrl;
