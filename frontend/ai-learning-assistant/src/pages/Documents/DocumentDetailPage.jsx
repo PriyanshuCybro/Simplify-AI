@@ -186,6 +186,32 @@ const DocumentDetailPage = () => {
     }
   };
 
+  const handleGenerateQuiz = async () => {
+    try {
+        setIsGenerating(true);
+        const token = localStorage.getItem('token');
+        const response = await axios.post(`https://simplify-ai-mrrh.onrender.com/api/documents/${id}/quiz`, 
+            { count: quizCount },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (response.data.success && response.data.quiz) {
+            setShowQuizModal(false);
+            navigate(`/documents/${id}/quiz/take`, { 
+                state: { 
+                    quiz: response.data.quiz,
+                    quizId: response.data.quiz._id,
+                    quizCount 
+                } 
+            });
+        }
+    } catch (err) { 
+        console.error("Quiz generation error:", err);
+        alert("Error generating quiz: " + (err.response?.data?.message || err.message)); 
+    } finally { 
+        setIsGenerating(false); 
+    }
+  };
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!question.trim()) return;
@@ -396,14 +422,14 @@ const DocumentDetailPage = () => {
               
               <input 
                 type="range" 
-                min="3" 
+                min="5" 
                 max="10" 
                 step="1"
                 value={flashcardCount} 
                 onChange={(e) => setFlashcardCount(parseInt(e.target.value))} 
                 className="w-full max-w-xs h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-blue-600" 
               />
-              <p className="text-slate-300 text-[9px] uppercase tracking-widest">Min: 3 | Max: 10</p>
+              <p className="text-slate-300 text-[9px] uppercase tracking-widest">Min: 5 | Max: 10</p>
               
               <div className="space-y-2 sm:space-y-3 w-full max-w-xs mt-4 sm:mt-6">
                 <button 
@@ -462,10 +488,19 @@ const DocumentDetailPage = () => {
 
             <div className="space-y-2 sm:space-y-3">
                 <button 
-                  onClick={() => navigate(`/documents/${id}/quiz/take`, { state: { quizCount } })}
-                  className="w-full bg-blue-600 text-white py-3 sm:py-4 rounded-3xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-blue-100 transition-all"
+                  onClick={handleGenerateQuiz}
+                  disabled={isGenerating}
+                  className="w-full bg-blue-600 text-white py-3 sm:py-4 rounded-3xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 disabled:opacity-50 shadow-xl shadow-blue-100 transition-all flex items-center justify-center gap-2"
                 >
-                  Start {quizCount}-Question Quiz
+                  {isGenerating ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" /> Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Brain size={14} /> Start {quizCount}-Question Quiz
+                    </>
+                  )}
                 </button>
                 <button onClick={() => setShowQuizModal(false)} className="w-full py-2 text-slate-300 font-bold text-[9px] uppercase hover:text-slate-600">Cancel</button>
             </div>
