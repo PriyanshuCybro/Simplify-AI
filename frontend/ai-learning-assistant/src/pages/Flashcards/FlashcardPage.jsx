@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, BookOpen, Sparkles, ChevronRight, ChevronLeft, ArrowLeft, Loader2, Calendar } from 'lucide-react';
-import axios from 'axios';
-
-// 🔥 STEP 1: Dynamic API Base URL setup
-// Use relative path - works on any domain
-const API_BASE_URL = "/api";
-const API_BASE = API_BASE_URL;
+import { getUserFlashcards, deleteFlashcard } from '../../services/api';
 
 const FlashcardPage = () => {
   const [sessions, setSessions] = useState([]); 
@@ -15,19 +10,14 @@ const FlashcardPage = () => {
   const [flipped, setFlipped] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Reuseable Auth Header
-  const authHeader = { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } };
-
   const fetchSessions = async () => {
     try {
       setLoading(true);
-      // ✅ Using corrected API_BASE
-      const res = await axios.get(`${API_BASE}/documents/flashcards`, authHeader);
+      const res = await getUserFlashcards();
       if (res.data.success) {
         setSessions(res.data.data || []);
       }
     } catch (err) {
-      // ✅ FIXED: Yahan pehle API_BASE ka error aa sakta tha
       console.error('Fetch sessions error:', err?.response?.data || err.message);
     } finally {
       setLoading(false);
@@ -40,7 +30,7 @@ const FlashcardPage = () => {
     e?.stopPropagation();
     if (!window.confirm('Delete this flashcard generation permanently?')) return;
     try {
-      await axios.delete(`${API_BASE}/documents/flashcards/${sessionId}`, authHeader);
+      await deleteFlashcard(sessionId);
       setSessions(prev => prev.filter(s => s._id !== sessionId));
       if (activeSession?._id === sessionId) setActiveSession(null);
       alert('Generation deleted!');

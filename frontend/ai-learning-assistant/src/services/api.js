@@ -43,7 +43,10 @@ export const deleteDocument = (id) => API.delete(`/documents/${id}`);
 
 // AI & Quiz Handlers
 export const askAI = (id, q) => API.post(`/documents/${id}/chat`, { question: q });
-export const generateFlashcardsAPI = (id) => API.post(`/documents/${id}/flashcards`);
-export const generateQuiz = (id) => API.post(`/documents/${id}/quiz`);
+export const generateFlashcardsAPI = (id, count = 5) => API.post(`/documents/${id}/flashcards`, { count });
+export const generateQuiz = (id, count = 5) => API.post(`/documents/${id}/quiz`, { count });
+export const getUserFlashcards = () => API.get('/documents/flashcards');
+export const getDocFlashcards = (id) => API.get(`/documents/${id}/flashcards`);
+export const deleteFlashcard = (id) => API.delete(`/documents/flashcards/${id}`);
 
 export default API;

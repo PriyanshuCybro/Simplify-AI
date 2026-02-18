@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { 
@@ -9,9 +8,8 @@ import {
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import PDFViewer from '../../components/PDFViewer';
-
-// Use relative path - works on any domain  
-const API_BASE_URL = "/api";
+import { getDocument, askAI, generateFlashcardsAPI, generateQuiz } from '../../services/api';
+import API from '../../services/api';
 
 // --- HARDCORE RESPONSIVE FLASHCARD COMPONENT ---
 const FlashcardTab = ({ flashcards, onGenerate, isGenerating, onShowSelector }) => {
@@ -152,10 +150,7 @@ const DocumentDetailPage = () => {
   useEffect(() => {
     const fetchDoc = async () => {
       try {
-        const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_BASE_URL}/documents/${id}`, {
-            headers: { Authorization: `Bearer ${token}` } 
-        });
+        const res = await getDocument(id);
         if (res.data.success) {
             const data = res.data.document || res.data.data;
             setDoc(data);
@@ -170,11 +165,7 @@ const DocumentDetailPage = () => {
   const handleGenerateFlashcards = async () => {
     try {
         setIsGenerating(true);
-        const token = localStorage.getItem('token');
-        const response = await axios.post(`${API_BASE_URL}/documents/${id}/flashcards`, 
-            { count: flashcardCount },
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const response = await generateFlashcardsAPI(id, flashcardCount);
         if (response.data.success) {
             setFlashcards(response.data.flashcards);
             setShowFlashcardSelector(false);
@@ -190,11 +181,7 @@ const DocumentDetailPage = () => {
   const handleGenerateQuiz = async () => {
     try {
         setIsGenerating(true);
-        const token = localStorage.getItem('token');
-        const response = await axios.post(`${API_BASE_URL}/documents/${id}/quiz`, 
-            { count: quizCount },
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const response = await generateQuiz(id, quizCount);
         if (response.data.success && response.data.quiz) {
             setShowQuizModal(false);
             navigate(`/documents/${id}/quiz/take`, { 
