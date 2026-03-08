@@ -8,6 +8,19 @@ const API = axios.create({
     withCredentials: true 
 });
 
+const AUTH_BYPASS_PATHS = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/forgot-password',
+  '/auth/reset-password'
+];
+
+let hasDispatchedUnauthorized = false;
+
+const shouldBypassUnauthorizedHandler = (url = '') => {
+  return AUTH_BYPASS_PATHS.some((path) => url.includes(path));
+};
+
 // Request Interceptor to attach Token
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem('token');
@@ -16,6 +29,28 @@ API.interceptors.request.use((req) => {
   }
   return req;
 });
+
+API.interceptors.response.use(
+  (response) => {
+    if (hasDispatchedUnauthorized) {
+      hasDispatchedUnauthorized = false;
+    }
+    return response;
+  },
+  (error) => {
+    const status = error?.response?.status;
+    const requestUrl = error?.config?.url || '';
+
+    if (status === 401 && !shouldBypassUnauthorizedHandler(requestUrl) && !hasDispatchedUnauthorized) {
+      hasDispatchedUnauthorized = true;
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 // ✅ ALL EXPORTS (Fixes Vercel Rollup Error)
 

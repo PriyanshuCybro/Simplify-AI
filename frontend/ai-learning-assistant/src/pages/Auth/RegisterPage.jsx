@@ -4,9 +4,11 @@ import { User, Mail, Lock, ArrowRight, ArrowLeft, Briefcase, MapPin, Phone, Load
 import { useNavigate, Link } from 'react-router-dom';
 import { registerAPI } from '../../services/api';
 import Logo from '../../components/Logo';
+import { useAuth } from '../../context/AuthContext';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -56,8 +58,7 @@ const RegisterPage = () => {
     try {
       const res = await registerAPI(formData);
       if (res.data.success) {
-        localStorage.setItem('token', res.data.data.token);
-        localStorage.setItem('user', JSON.stringify(res.data.data.user));
+        login(res.data.data.user, res.data.data.token);
         navigate('/dashboard');
       }
     } catch (err) {

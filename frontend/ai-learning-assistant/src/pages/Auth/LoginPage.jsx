@@ -27,8 +27,6 @@ const LoginPage = () => {
       console.log('✅ Login successful:', res.data);
       
       login(res.data.user, res.data.token);
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
       navigate('/dashboard');
     } catch (err) {
       // ✅ Sabhi conditions ke liye common error handling
